@@ -1,0 +1,7 @@
+exclude_paths:
+  - "**/bin/**"
+  - "**/obj/**"
+  # Tests and the browser demo are not shipped library code. The demo is a sample application (Razor markup and thin JavaScript
+  # glue) whose logic lives in tested library code.
+  - "PanoramicData.MusicGeneration.Test/**"
+  - "PanoramicData.MusicGeneration.Demo/**"

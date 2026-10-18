@@ -1,0 +1,22 @@
+<Solution>
+	<Folder Name="/Solution Items/">
+		<File Path=".codacy.yml" />
+		<File Path=".editorconfig" />
+		<File Path=".gitignore" />
+		<File Path="AGENTS.md" />
+		<File Path="CLAUDE.md" />
+		<File Path="coverage.config" />
+		<File Path="CONTRIBUTING.md" />
+		<File Path="Directory.Build.props" />
+		<File Path="Directory.Packages.props" />
+		<File Path="global.json" />
+		<File Path="LICENSE" />
+		<File Path="Publish.ps1" />
+		<File Path="README.md" />
+		<File Path="SECURITY.md" />
+		<File Path="version.json" />
+	</Folder>
+	<Project Path="PanoramicData.MusicGeneration/PanoramicData.MusicGeneration.csproj" />
+	<Project Path="PanoramicData.MusicGeneration.Test/PanoramicData.MusicGeneration.Test.csproj" />
+	<Project Path="PanoramicData.MusicGeneration.Demo/PanoramicData.MusicGeneration.Demo.csproj" />
+</Solution>

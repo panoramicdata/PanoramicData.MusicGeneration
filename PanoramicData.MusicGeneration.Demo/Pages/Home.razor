@@ -1,0 +1,40 @@
+@page "/"
+
+<h1>A whole song from a single number.</h1>
+<p class="lead">
+	PanoramicData.MusicGeneration turns a <strong>seed</strong> into music: a key, a tempo, a chord every bar, a bass line, a tune and a drum pattern,
+	rendered to sound. Give it the same seed tomorrow, on any machine, and you get the same song, sample for sample. Along with the sound it returns the
+	<strong>list of notes it played</strong>, so you can compare what was written with what an analyser hears.
+</p>
+
+<div class="grid">
+	<div class="card">
+		<h3><a href="pitch">Pitch and frequency</a></h3>
+		<p>Why each key on a piano is 2<sup>1/12</sup> times the one before, and what a "cent" is. Play the notes and watch the numbers.</p>
+	</div>
+	<div class="card">
+		<h3><a href="song">Build a song</a></h3>
+		<p>Pick a seed, switch the parts on and off, see the piano roll, and read how each part is made.</p>
+	</div>
+</div>
+
+<h2>What it is for</h2>
+<ul>
+	<li><strong>Test data.</strong> Audio-processing code needs music-like input that is repeatable, varied, and carries no copyright. A seed names a song permanently.</li>
+	<li><strong>Ground truth.</strong> Every note and drum hit is returned with its start, length and frequency, so a pitch tracker or a fingerprinting library can be scored against the truth.</li>
+	<li><strong>Teaching.</strong> The whole generator is a few hundred lines of plain arithmetic: equal temperament, additive synthesis, envelopes, and a small pseudo-random number generator.</li>
+</ul>
+
+<h2>The ingredients</h2>
+<div class="steps">
+	<div class="step"><strong>Choices from the seed.</strong> Tempo (78 to 147 beats per minute), one of five scales, a root note, a tuning offset of up to 45 cents either way, a lead-in of silence, and a brightness for the sound.</div>
+	<div class="step"><strong>Harmony, bar by bar.</strong> A new chord every bar (a triad on a random scale degree, with a random inversion), so nothing repeats exactly.</div>
+	<div class="step"><strong>Bass and drums.</strong> A bass note on most beats (the chord's root, sometimes its fifth), a kick on the strong beats, a snare on beats 2 and 4, hi-hats between.</div>
+	<div class="step"><strong>A tune that never loops.</strong> A random walk up and down the scale, kept between middle C and the C two octaves above.</div>
+	<div class="step"><strong>Rendering.</strong> Each note is a sum of sine waves (harmonics) shaped by an envelope, mixed together and scaled so the loudest sample is 0.9.</div>
+</div>
+
+<p class="note" style="margin-top:2rem">
+	Why a custom random number generator? A seeded <code>System.Random</code> is not promised to give the same sequence in every .NET version, so a song could change under you.
+	The library uses a fixed 32-bit PCG generator and its own sine function built only from additions and multiplications, so the result is identical everywhere.
+</p>

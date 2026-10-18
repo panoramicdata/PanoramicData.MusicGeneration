@@ -1,0 +1,116 @@
+@page "/pitch"
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<h1>Pitch and frequency</h1>
+<p class="lead">
+	A note is a vibration, and its pitch is how fast it vibrates. This page shows the arithmetic that turns "the A above middle C" into 440 vibrations per second,
+	and every other note into a number.
+</p>
+
+<h2>1. An octave is a doubling</h2>
+<p>
+	Raise a note by an <strong>octave</strong> and its frequency doubles: 220 Hz, 440 Hz, 880 Hz. Our ears hear equal <em>ratios</em> as equal steps, which is why the
+	scale is exponential, not linear. The step from 220 to 440 sounds the same size as 440 to 880 even though the second is twice as many hertz.
+</p>
+
+<h2>2. Twelve equal steps</h2>
+<p>
+	Western music divides the octave into 12 semitones of equal ratio <em>r</em>. Twelve steps must multiply to 2, so <em>r</em><sup>12</sup> = 2 and
+</p>
+<p class="formula">r = 2<sup>1/12</sup> &asymp; 1.05946,&emsp; f(m) = 440 &middot; 2<sup>(m &minus; 69)/12</sup> Hz</p>
+<p>
+	where <em>m</em> is the MIDI note number (69 is the A above middle C, 60 is middle C). Each semitone raises the frequency by about 5.9%.
+	Move the slider to try it:
+</p>
+
+<div class="card">
+	<div class="row">
+		<label>MIDI note <strong>@note</strong>
+			<input type="range" min="24" max="108" step="1" @bind="note" @bind:event="oninput" />
+		</label>
+		<label>detune <strong>@cents</strong> cents
+			<input type="range" min="-50" max="50" step="1" @bind="cents" @bind:event="oninput" />
+		</label>
+		<button @onclick="PlayAsync">Play it</button>
+	</div>
+	<div class="grid" style="margin-top:0.5rem">
+		<div class="card"><div class="stat">@Pitch.NameOf(note)</div><p>note name (scientific pitch)</p></div>
+		<div class="card"><div class="stat">@Frequency.ToString("0.00") Hz</div><p>f = 440 &middot; 2<sup>(@(note - 69 + cents / 100.0) / 12)</sup></p></div>
+		<div class="card"><div class="stat">@((Frequency / Pitch.FrequencyOf(note)).ToString("0.0000"))&times;</div><p>ratio to the in-tune note (1 when detune is 0)</p></div>
+	</div>
+	@if (audioUrl is not null)
+	{
+		<audio controls autoplay src="@audioUrl" style="width:100%;margin-top:0.75rem"></audio>
+	}
+</div>
+
+<h2>3. Cents</h2>
+<p>
+	A <strong>cent</strong> is one hundredth of a semitone, a ratio of 2<sup>1/1200</sup> &asymp; 1.00058. Most people cannot hear a difference below about 5 to 10 cents.
+	Each generated song is detuned from concert pitch by up to 45 cents, so that two songs in the same key still have slightly different frequencies, just as
+	two real recordings made on different instruments or tape machines would.
+</p>
+
+<h2>4. Harmonics: why a note is not a single frequency</h2>
+<p>
+	A real instrument playing 220 Hz also produces 440, 660, 880 Hz and so on: whole-number multiples called <strong>harmonics</strong>. The mix of their loudnesses is the
+	<em>timbre</em>. The generator builds each note by adding sine waves,
+</p>
+<p class="formula">x(t) = &sum;<sub>h=1</sub><sup>H</sup> &rho;<sup>h&minus;1</sup> &middot; sin(2&pi; &middot; h &middot; f &middot; t)</p>
+<p>
+	with &rho; between 0.35 and 0.85 (the song's "brightness": bigger means more upper harmonics). The tune uses 6 harmonics; the pad and bass use 3. Here is the harmonic series for
+	the note you chose, with each harmonic's weight:
+</p>
+
+<table>
+	<thead><tr><th>Harmonic h</th><th>Frequency</th><th>Weight &rho;<sup>h&minus;1</sup> (&rho; = 0.6)</th></tr></thead>
+	<tbody>
+		@for (var h = 1; h <= 6; h++)
+		{
+			<tr><td>@h</td><td>@((Frequency * h).ToString("0.0")) Hz</td><td>@Math.Pow(0.6, h - 1).ToString("0.000")</td></tr>
+		}
+	</tbody>
+</table>
+
+@code {
+	private IJSObjectReference? module;
+	private int note = 69;
+	private int cents;
+	private string? audioUrl;
+
+	private double Frequency => Pitch.FrequencyOf(note + (cents / 100.0));
+
+	private async Task PlayAsync()
+	{
+		const int rate = 22050;
+		var samples = new float[rate * 2];
+		var frequency = Frequency;
+		for (var i = 0; i < samples.Length; i++)
+		{
+			var t = (double)i / rate;
+			var envelope = Math.Min(1, t * 80) * Math.Exp(-1.6 * t);
+			var sum = 0.0;
+			for (var h = 1; h <= 6; h++)
+			{
+				if (frequency * h < rate / 2.0)
+				{
+					sum += Math.Pow(0.6, h - 1) * Math.Sin(2 * Math.PI * h * frequency * t);
+				}
+			}
+
+			samples[i] = (float)(0.4 * envelope * sum);
+		}
+
+		module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+		audioUrl = await module.InvokeAsync<string>("createAudioUrl", WavEncoder.Encode(samples, rate));
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (module is not null)
+		{
+			await module.DisposeAsync();
+		}
+	}
+}

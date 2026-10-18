@@ -1,0 +1,57 @@
+name: Demo site
+
+# Publishes the Blazor WebAssembly demo to the gh-pages branch, which GitHub Pages serves at
+# https://panoramicdata.github.io/PanoramicData.MusicGeneration/ (set SITE_BASE to "/" and add a CNAME line if you give it a custom domain).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'PanoramicData.MusicGeneration/**'
+      - 'PanoramicData.MusicGeneration.Demo/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: demo-site
+  cancel-in-progress: true
+
+env:
+  SITE_BASE: /PanoramicData.MusicGeneration/
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Publish demo
+      run: dotnet publish PanoramicData.MusicGeneration.Demo --configuration Release --output site
+
+    # A project page is served below /<repository>/, so the base href must say so. A copy of index.html as 404.html lets deep links
+    # such as /song load the app (GitHub Pages has no server-side routing). .nojekyll stops Jekyll ignoring the _framework folder.
+    - name: Prepare Pages files
+      run: |
+        sed -i "s#<base href=\"/\" />#<base href=\"${SITE_BASE}\" />#" site/wwwroot/index.html
+        cp site/wwwroot/index.html site/wwwroot/404.html
+        touch site/wwwroot/.nojekyll
+
+    - name: Deploy to gh-pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: site/wwwroot
+        branch: gh-pages
+        single-commit: true
+        clean: true
