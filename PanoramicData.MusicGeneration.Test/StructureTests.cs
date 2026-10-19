@@ -225,4 +225,16 @@ public class StructureTests
 		var sections = SectionPlanner.Place(SongForms.VerseChorus, new SongInfo(0, 120, "Major", 36, 0, 0), 30);
 		sections.Single(s => s.Kind == SectionKind.Bridge).HasTransitionFill.Should().BeFalse();
 	}
+
+	[Fact]
+	public void StructuredGoldenHash_PinsThePresetOutput()
+	{
+		var song = SongGenerator.Generate(42, 30, 8000, Style(SongForms.VerseChorus));
+		var hash = 14695981039346656037UL;
+		foreach (var sample in song.Samples)
+		{
+			hash = (hash ^ BitConverter.SingleToUInt32Bits(sample)) * 1099511628211UL;
+		}
+		hash.Should().Be(699470266271215891UL);
+	}
 }

@@ -74,7 +74,7 @@ Duration policies:
 
 Pickups start up to one beat before the section body, bounded at zero, and carry the upcoming section's index. Transition fills replace the last beat's drums with four snare hits. A completed final section can replace its final bar with a tonic chord, bass, melody and kick, followed by a short release gap. A cropped section does not claim a final cadence. Section voice choices intersect the global style switches, so muting still preserves other stems.
 
-`GeneratedSong.Sections` reports source indices, roles, material identities, performed and planned boundaries, assigned bars, pickup starts, fills and cadences. `NoteEvent.SectionIndex` links notes to their occurrence, including pickups; it is null in free-running mode. The form and notes are sample-rate independent. The UI renders these boundaries on the player and piano roll and offers a through-composed comparison with the same opening, section lengths, key and tempo.
+`GeneratedSong.Sections` reports source indices, roles, material identities, performed and planned boundaries, assigned bars, pickup starts, fills and cadences. `NoteEvent.SectionIndex` links notes to their occurrence, including pickups; it is null in free-running mode. The form and notes are sample-rate independent. The structured golden fixture uses seed 42, 30 s, 8,000 Hz, a fixed 120 bpm and SongForms.VerseChorus; its FNV sample hash is `699470266271215891`. The UI renders these boundaries on the player and piano roll and offers a through-composed comparison with the same opening, section lengths, key and tempo.
 
 ## 5. API
 
