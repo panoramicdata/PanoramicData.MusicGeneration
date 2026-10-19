@@ -10,7 +10,7 @@
 <div class="card">
 	<div class="control-row">
 		<label>Seed <input type="text" @bind="seedText" style="width:7rem" /></label>
-		<label>Length <strong>@seconds</strong> s <input type="range" min="6" max="120" step="2" @bind="seconds" @bind:event="oninput" /></label>
+		<label>Length <strong>@seconds</strong> s <input type="range" min="6" max="300" step="2" @bind="seconds" @bind:event="oninput" /></label>
 		<button @onclick="GenerateAsync" disabled="@busy">Generate</button>
 		<button class="secondary" @onclick="RandomSeedAsync" disabled="@busy">Random seed</button>
 		<label>Composition
@@ -105,7 +105,7 @@
 	public string? FormMode { get; set; } = "free";
 	private IJSObjectReference? module;
 	private string seedText = "42";
-	private int seconds = 10;
+	private int seconds = 60;
 	private double renderSeconds;
 	private readonly HashSet<VoiceKind> muted = [];
 	private VoiceKind? solo;
