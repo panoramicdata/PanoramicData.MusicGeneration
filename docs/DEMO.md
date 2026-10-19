@@ -46,6 +46,8 @@ Both song and pitch pages use PDMediaPlayer. The pitch page uses its built-in sp
 
 For component development, UseLocalBlazor=true builds against the sibling project. BlazorProjectPath can point at a separate Blazor worktree. Normal builds use the pinned released package.
 
+The song page defaults the melody range to C3–C5 (MIDI 48–72). The range controls can lower or raise it; section register variations remain within that selected range.
+
 ## Section composition
 
 The song page's Composition selector offers free-running generation, returning verses/choruses and a through-composed comparison. Selecting a structured example sets a 60-second preview; the length slider can then shorten or extend it. The player segment lane, piano-roll labels and section table share the same performed boundaries. Each complete verse and chorus contains four phrases. The table reports planned phrases, bars per phrase, cropped sections, transition fills and the final tonic cadence. Requests too short for the prescribed form crop its final audible section; longer requests fit whole-bar phrase lengths while retaining four repeats.
