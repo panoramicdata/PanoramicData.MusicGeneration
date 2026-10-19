@@ -34,6 +34,8 @@ The Joker DNS record is `music.panoramicdata.com CNAME panoramicdata.github.io`,
 
 The library's bit-exact sine is slow in WebAssembly's interpreter, so the demo sets `SongStyle.UsePlatformSine` and says so on the page. Ten seconds of audio renders in about 0.3 s that way.
 
+Song generation shows an indeterminate progress bar and separate messages for generating music and preparing playback. Mute and solo show a mix-update message. Controls are disabled while work is in progress, and the browser paints the feedback before synchronous audio processing starts.
+
 ## Track controls and player notes
 
 The song page captures raw stems once. Mute and solo update playback, the piano roll and the notes table without regenerating. The gain stays fixed at the original full mix gain. Selecting a different mix reloads playback from the start. Solo takes precedence over mute; leaving solo restores the mute choices.

@@ -9,12 +9,12 @@
 
 <div class="card">
 	<div class="control-row">
-		<label>Seed <input type="text" @bind="seedText" style="width:7rem" /></label>
-		<label>Length <strong>@seconds</strong> s <input type="range" min="6" max="300" step="2" @bind="seconds" @bind:event="oninput" /></label>
-		<button @onclick="GenerateAsync" disabled="@busy">Generate</button>
+		<label>Seed <input type="text" @bind="seedText" disabled="@busy" style="width:7rem" /></label>
+		<label>Length <strong>@seconds</strong> s <input type="range" min="6" max="300" step="2" @bind="seconds" @bind:event="oninput" disabled="@busy" /></label>
+		<button @onclick="GenerateAsync" disabled="@busy">@(busy ? "Working…" : "Generate")</button>
 		<button class="secondary" @onclick="RandomSeedAsync" disabled="@busy">Random seed</button>
 		<label>Composition
-			<select @bind="FormMode" @bind:after="ChooseForm">
+			<select @bind="FormMode" @bind:after="ChooseForm" disabled="@busy">
 				<option value="free">Free-running</option>
 				<option value="sections">Verse / chorus / bridge</option>
 				<option value="through">Sections with new material each time</option>
@@ -30,10 +30,17 @@
 			</div>
 		}
 		<label>Melody from <strong>@Pitch.NameOf(melodyLow)</strong> to <strong>@Pitch.NameOf(melodyLow + melodySpan)</strong>
-			<input type="range" min="48" max="72" step="1" @bind="melodyLow" @bind:event="oninput" />
-			<input type="range" min="12" max="36" step="1" @bind="melodySpan" @bind:event="oninput" />
+			<input type="range" min="48" max="72" step="1" @bind="melodyLow" @bind:event="oninput" disabled="@busy" />
+			<input type="range" min="12" max="36" step="1" @bind="melodySpan" @bind:event="oninput" disabled="@busy" />
 		</label>
 	</div>
+	@if (busy)
+	{
+		<div role="status" aria-live="polite">
+			<p><strong>@busyMessage</strong></p>
+			<progress aria-label="@busyMessage"></progress>
+		</div>
+	}
 	@if (error is not null)
 	{
 		<p style="color:var(--bad)">@error</p>
@@ -116,6 +123,7 @@
 	private string? audioUrl;
 	private string? error;
 	private bool busy;
+	private string? busyMessage;
 
 	private async Task<IJSObjectReference> ModuleAsync() => module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
 
@@ -127,6 +135,11 @@
 
 	private async Task GenerateAsync()
 	{
+		if (busy)
+		{
+			return;
+		}
+
 		error = null;
 		if (!int.TryParse(seedText, out var seed))
 		{
@@ -135,15 +148,15 @@
 		}
 
 		busy = true;
-		StateHasChanged();
-		await Task.Yield();
 		try
 		{
+			await ShowProgressAsync($"Generating {seconds} seconds of music…");
 			const int rate = 11025;
 			var clock = System.Diagnostics.Stopwatch.StartNew();
 			var style = new SongStyle { UsePlatformSine = true, MelodyLowMidi = melodyLow, MelodyHighMidi = melodyLow + melodySpan, Form = ChosenForm() };
 			sourceSong = SongGenerator.GenerateStems(seed, seconds, rate, style);
 			renderSeconds = clock.Elapsed.TotalSeconds;
+			await ShowProgressAsync("Preparing audio and player…");
 			await RemixAsync();
 		}
 		catch (ArgumentException ex)
@@ -153,6 +166,7 @@
 		finally
 		{
 			busy = false;
+			busyMessage = null;
 			StateHasChanged();
 		}
 	}
@@ -176,13 +190,23 @@
 		busy = true;
 		try
 		{
+			await ShowProgressAsync("Updating the mix…");
 			update();
 			await RemixAsync();
 		}
 		finally
 		{
 			busy = false;
+			busyMessage = null;
 		}
+	}
+
+	private async Task ShowProgressAsync(string message)
+	{
+		busyMessage = message;
+		StateHasChanged();
+		var js = await ModuleAsync();
+		await js.InvokeVoidAsync("nextPaint");
 	}
 
 	private async Task RemixAsync()
