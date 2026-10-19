@@ -1,7 +1,6 @@
 name: Demo site
 
-# Publishes the Blazor WebAssembly demo to the gh-pages branch, which GitHub Pages serves at
-# https://panoramicdata.github.io/PanoramicData.MusicGeneration/ (set SITE_BASE to "/" and add a CNAME line if you give it a custom domain).
+# Publishes the Blazor WebAssembly demo to gh-pages for https://music.panoramicdata.com/.
 on:
   push:
     branches: [main]
@@ -21,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SITE_BASE: /PanoramicData.MusicGeneration/
+  SITE_BASE: /
 
 jobs:
   publish:
@@ -40,11 +39,11 @@ jobs:
     - name: Publish demo
       run: dotnet publish PanoramicData.MusicGeneration.Demo --configuration Release --output site
 
-    # A project page is served below /<repository>/, so the base href must say so. A copy of index.html as 404.html lets deep links
-    # such as /song load the app (GitHub Pages has no server-side routing). .nojekyll stops Jekyll ignoring the _framework folder.
+    # The custom domain serves from /. The 404 copy supports deep links; .nojekyll preserves _framework.
     - name: Prepare Pages files
       run: |
         sed -i "s#<base href=\"/\" />#<base href=\"${SITE_BASE}\" />#" site/wwwroot/index.html
+        echo "music.panoramicdata.com" > site/wwwroot/CNAME
         cp site/wwwroot/index.html site/wwwroot/404.html
         touch site/wwwroot/.nojekyll
 

@@ -26,9 +26,9 @@ and serve `site/wwwroot` with a rule that returns `index.html` for unknown paths
 
 ## Hosting it (GitHub Pages)
 
-The repository publishes the demo to the `gh-pages` branch with `.github/workflows/pages.yml` on every change to the library or the demo, at `https://panoramicdata.github.io/PanoramicData.MusicGeneration/`. The workflow rewrites the base address for a project page, copies `index.html` to `404.html` for deep links, and adds `.nojekyll`.
+The repository publishes the demo to the `gh-pages` branch with `.github/workflows/pages.yml` on every change to the library or the demo, at `https://music.panoramicdata.com/`. The workflow uses `/` as the base address, writes the custom-domain `CNAME`, copies `index.html` to `404.html` for deep links, and adds `.nojekyll`.
 
-For a custom domain: set `SITE_BASE` to `/`, add `echo "your.domain" > site/wwwroot/CNAME` to the preparation step, create a DNS `CNAME` record to `panoramicdata.github.io`, and set the domain under **Settings, Pages**.
+The Joker DNS record is `music.panoramicdata.com CNAME panoramicdata.github.io`, with a 3,600-second TTL. The repository Pages domain is `music.panoramicdata.com`. Keep the deployment workflow CNAME in sync with any future hostname change.
 
 ## Performance note
 
