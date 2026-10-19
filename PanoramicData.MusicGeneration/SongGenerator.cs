@@ -12,7 +12,7 @@ public static class SongGenerator
 	/// The version of the generation algorithm. The same seed gives the same song only within one version: any change that alters the notes or the samples
 	/// for an existing seed is a breaking change and increments this number.
 	/// </summary>
-	public const int Version = 1;
+	public const int Version = 2;
 
 	private const double Peak = 0.9;
 
@@ -32,7 +32,15 @@ public static class SongGenerator
 	/// <returns>The song.</returns>
 	/// <exception cref="ArgumentException">The style is inconsistent.</exception>
 	/// <exception cref="ArgumentOutOfRangeException">The length or sample rate is out of range.</exception>
-	public static GeneratedSong Generate(int seed, double seconds, int sampleRate, SongStyle style)
+	public static GeneratedSong Generate(int seed, double seconds, int sampleRate, SongStyle style) => GenerateCore(seed, seconds, sampleRate, style, false);
+
+	/// <summary>Generates the song and unnormalised per-voice buffers without changing the mix.</summary>
+	public static GeneratedSong GenerateStems(int seed, double seconds, int sampleRate, SongStyle style) => GenerateCore(seed, seconds, sampleRate, style, true);
+
+	/// <summary>Generates the song and stems with the default style.</summary>
+	public static GeneratedSong GenerateStems(int seed, double seconds, int sampleRate) => GenerateStems(seed, seconds, sampleRate, new SongStyle());
+
+	private static GeneratedSong GenerateCore(int seed, double seconds, int sampleRate, SongStyle style, bool captureStems)
 	{
 		ArgumentNullException.ThrowIfNull(style);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(seconds, 0);
@@ -46,7 +54,7 @@ public static class SongGenerator
 		var scale = style.Scales[choice.Next(0, style.Scales.Count)];
 		var root = choice.Next(style.RootMidiLow, style.RootMidiHigh + 1);
 		var brightness = 0.35 + (choice.NextDouble() * 0.5);
-		var vibratoHz = 4.5 + (choice.NextDouble() * 2);
+		var vibratoHz = style.VibratoMinHz + (choice.NextDouble() * (style.VibratoMaxHz - style.VibratoMinHz));
 		var detune = choice.Next(-style.MaxDetuneCents, style.MaxDetuneCents + 1);
 		var kickBase = 42 + (choice.NextDouble() * 24);
 		var beat = 60.0 / tempo;
@@ -54,7 +62,7 @@ public static class SongGenerator
 		var lead = choice.NextDouble() * bar;
 		var info = new SongInfo(seed, tempo, scale.Name, root, detune, lead);
 
-		var mixer = new Mixer(sampleRate, (int)(seconds * sampleRate), info.ReferenceHz, style.UsePlatformSine);
+		var mixer = new Mixer(sampleRate, (int)(seconds * sampleRate), info.ReferenceHz, style.UsePlatformSine, captureStems);
 		var noise = new Pcg32(seed, 2);
 
 		var bars = (int)Math.Ceiling((seconds - lead) / bar);
@@ -82,7 +90,13 @@ public static class SongGenerator
 			foreach (var chordStep in new[] { 0, 2, 4 })
 			{
 				var lifted = step++ < inversion ? scale.Count : 0;
-				mixer.Tone(VoiceKind.Pad, scale.MidiOf(root + 24, degree + chordStep + lifted), t, bar, 0.10, 3, brightness * 0.5, 0, 0.3);
+				var midi = scale.MidiOf(root + (12 * style.PadOctaveOffset), degree + chordStep + lifted);
+				while (midi >= style.MelodyLowMidi)
+				{
+					midi -= 12;
+				}
+
+				mixer.Tone(VoiceKind.Pad, midi, t, bar, new Timbre(style.PadLevel, 2, brightness * 0.25, 0, 0.3, style.PadAttackSeconds), style);
 			}
 		}
 
@@ -97,7 +111,7 @@ public static class SongGenerator
 			var playHat = rng.NextDouble() < 0.7;
 			if (style.Bass && playBass)
 			{
-				mixer.Tone(VoiceKind.Bass, scale.MidiOf(root, bassDegree), at, beat * 1.6, 0.22, 3, 0.5, 0, 6);
+				mixer.Tone(VoiceKind.Bass, scale.MidiOf(root, bassDegree), at, beat * 1.6, new Timbre(0.22, 3, 0.5, 0, 6, 1.0 / 120), style);
 			}
 
 			if (!style.Drums)
@@ -105,20 +119,20 @@ public static class SongGenerator
 				continue;
 			}
 
-			if (playKick)
+			if (playKick && style.Kick)
 			{
 				mixer.Kick(at, kickBase);
 			}
 
 			if (playSnare)
 			{
-				mixer.Noise(VoiceKind.Snare, 38, at, 0.12, 0.20, noise);
+				mixer.Noise(VoiceKind.Snare, 38, at, 0.12, 0.20, noise, style.Snare);
 			}
 
-			mixer.Noise(VoiceKind.HiHat, 42, at, 0.04, 0.07, noise);
+			mixer.Noise(VoiceKind.HiHat, 42, at, 0.04, 0.07, noise, style.HiHat);
 			if (playHat)
 			{
-				mixer.Noise(VoiceKind.HiHat, 42, at + (beat / 2), 0.04, 0.05, noise);
+				mixer.Noise(VoiceKind.HiHat, 42, at + (beat / 2), 0.04, 0.05, noise, style.HiHat);
 			}
 		}
 	}
@@ -140,47 +154,74 @@ public static class SongGenerator
 			var length = rng.Next(0, 3) switch { 0 => 0.5, 1 => 1.0, _ => 1.5 } * beat;
 			if (rng.NextDouble() < 0.85)
 			{
-				mixer.Tone(VoiceKind.Melody, scale.MidiOf(low, degree), cursor, length * 1.1, 0.20, 6, brightness, vibratoHz, 5);
+				mixer.Tone(VoiceKind.Melody, scale.MidiOf(low, degree), cursor, length * 1.1, new Timbre(0.20, 6, brightness, vibratoHz, 5, 1.0 / 120), style);
 			}
 
 			cursor += length;
 		}
 	}
 
+	internal static double VibratoFraction(double time, double duration, double rate, SongStyle style, bool platformSine)
+	{
+		if (duration < 1.0 / 3 || rate <= 0 || style.VibratoDepth == 0)
+		{
+			return 0;
+		}
+
+		var phase = 2 * Math.PI * rate * time;
+		return style.VibratoDepth * Math.Clamp((time - style.VibratoDelaySeconds) / style.VibratoRampSeconds, 0, 1)
+			* (platformSine ? Math.Sin(phase) : DeterministicMath.Sin(phase));
+	}
+
+	private readonly record struct Timbre(double Level, int Harmonics, double Rolloff, double VibratoHz, double Decay, double AttackSeconds);
+
 	/// <summary>Accumulates voices into one buffer and records what was played.</summary>
-	private sealed class Mixer(int sampleRate, int length, double referenceHz, bool platformSine)
+	private sealed class Mixer(int sampleRate, int length, double referenceHz, bool platformSine, bool captureStems)
 	{
 		private double Sin(double x) => platformSine ? Math.Sin(x) : DeterministicMath.Sin(x);
 
 		private readonly double[] _mix = new double[length];
 		private readonly List<NoteEvent> _notes = [];
+		private readonly Dictionary<VoiceKind, double[]> _stems = captureStems ? Enum.GetValues<VoiceKind>().ToDictionary(v => v, _ => new double[length]) : [];
 
-		public void Tone(VoiceKind voice, int midi, double start, double duration, double amplitude, int harmonics, double rolloff, double vibratoHz, double decay)
+		private void Add(VoiceKind voice, int index, double sample)
+		{
+			_mix[index] += sample;
+			if (captureStems)
+			{
+				_stems[voice][index] += sample;
+			}
+		}
+
+		public void Tone(VoiceKind voice, int midi, double start, double duration, Timbre timbre, SongStyle style)
 		{
 			var frequency = Pitch.FrequencyOf(midi, referenceHz);
 			_notes.Add(new NoteEvent(voice, start, duration, midi, frequency));
 			var first = (int)(start * sampleRate);
 			var count = Math.Min((int)(duration * sampleRate), _mix.Length - first);
+			var phaseOffset = 0.0;
 			for (var i = 0; i < count; i++)
 			{
 				var t = (double)i / sampleRate;
-				var attack = Math.Min(1, t * 120);
+				var attack = Math.Min(1, t / timbre.AttackSeconds);
 				var release = Math.Min(1, Math.Max(0, (duration - t) * 40));
-				var envelope = Math.Exp(-decay * t / duration) * attack * release;
-				var f = frequency * (1 + (vibratoHz > 0 ? 0.004 * Sin(2 * Math.PI * vibratoHz * t) : 0));
+				var envelope = Math.Exp(-timbre.Decay * t / duration) * attack * release;
+				var modulation = VibratoFraction(t, duration, timbre.VibratoHz, style, platformSine);
+				var f = frequency * (1 + modulation);
 				var sample = 0.0;
 				var weight = 1.0;
-				for (var h = 1; h <= harmonics; h++)
+				for (var h = 1; h <= timbre.Harmonics; h++)
 				{
 					if (f * h < (sampleRate / 2.0) - 200)
 					{
-						sample += Sin(2 * Math.PI * f * h * ((double)(first + i) / sampleRate)) * weight;
+						sample += Sin((2 * Math.PI * frequency * h * ((double)(first + i) / sampleRate)) + (h * phaseOffset)) * weight;
 					}
 
-					weight *= rolloff;
+					weight *= timbre.Rolloff;
 				}
 
-				_mix[first + i] += amplitude * envelope * sample;
+				Add(voice, first + i, timbre.Level * envelope * sample);
+				phaseOffset += 2 * Math.PI * frequency * modulation / sampleRate;
 			}
 		}
 
@@ -199,13 +240,16 @@ public static class SongGenerator
 			{
 				var t = (double)i / sampleRate;
 				phase += 2 * Math.PI * (baseHz + (110 * Math.Exp(-t * 28))) / sampleRate;
-				_mix[first + i] += 0.5 * Math.Exp(-t * 14) * Sin(phase);
+				Add(VoiceKind.Kick, first + i, 0.5 * Math.Exp(-t * 14) * Sin(phase));
 			}
 		}
 
-		public void Noise(VoiceKind voice, int nominalMidi, double start, double seconds, double amplitude, Pcg32 rng)
+		public void Noise(VoiceKind voice, int nominalMidi, double start, double seconds, double amplitude, Pcg32 rng, bool enabled)
 		{
-			_notes.Add(new NoteEvent(voice, start, seconds, nominalMidi, 0));
+			if (enabled)
+			{
+				_notes.Add(new NoteEvent(voice, start, seconds, nominalMidi, 0));
+			}
 			var first = (int)(start * sampleRate);
 			if (first >= _mix.Length)
 			{
@@ -217,7 +261,10 @@ public static class SongGenerator
 			for (var i = 0; i < count; i++)
 			{
 				var white = (rng.NextDouble() * 2) - 1;
-				_mix[first + i] += amplitude * (white - previous) * Math.Exp(-6.0 * i / count);
+				if (enabled)
+				{
+					Add(voice, first + i, amplitude * (white - previous) * Math.Exp(-6.0 * i / count));
+				}
 				previous = white;
 			}
 		}
@@ -237,7 +284,7 @@ public static class SongGenerator
 				samples[i] = (float)(_mix[i] * scale);
 			}
 
-			return new GeneratedSong(info, samples, sampleRate, [.. _notes.OrderBy(n => n.StartSeconds)]);
+			return new GeneratedSong(info, samples, sampleRate, [.. _notes.OrderBy(n => n.StartSeconds)]) { Stems = _stems, NormalisationGain = scale };
 		}
 	}
 }

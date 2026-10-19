@@ -120,6 +120,39 @@ public sealed record SongStyle
 	/// <summary>The largest random detuning of the whole song from concert pitch, in cents either way (100 cents is a semitone). Default 45.</summary>
 	public int MaxDetuneCents { get; init; } = 45;
 
+	/// <summary>Octaves above the root before folding pad notes below the melody. Default 1.</summary>
+	public int PadOctaveOffset { get; init; } = 1;
+
+	/// <summary>Amplitude of each pad tone before mix normalisation. Default 0.04; melody is 0.20.</summary>
+	public double PadLevel { get; init; } = 0.04;
+
+	/// <summary>Pad attack duration in seconds. Default 0.12.</summary>
+	public double PadAttackSeconds { get; init; } = 0.12;
+
+	/// <summary>Maximum fractional melody frequency deviation; zero disables vibrato. Default 0.0012.</summary>
+	public double VibratoDepth { get; init; } = 0.0012;
+
+	/// <summary>Minimum melody vibrato rate in hertz. Default 4.5.</summary>
+	public double VibratoMinHz { get; init; } = 4.5;
+
+	/// <summary>Maximum melody vibrato rate in hertz. Default 6.5.</summary>
+	public double VibratoMaxHz { get; init; } = 6.5;
+
+	/// <summary>Delay before melody vibrato begins, in seconds. Default 0.15.</summary>
+	public double VibratoDelaySeconds { get; init; } = 0.15;
+
+	/// <summary>Time for vibrato to reach full depth, in seconds. Default 0.2.</summary>
+	public double VibratoRampSeconds { get; init; } = 0.2;
+
+	/// <summary>Whether to play the kick when Drums is enabled. Default true.</summary>
+	public bool Kick { get; init; } = true;
+
+	/// <summary>Whether to play the snare when Drums is enabled. Default true.</summary>
+	public bool Snare { get; init; } = true;
+
+	/// <summary>Whether to play the hi-hat when Drums is enabled. Default true.</summary>
+	public bool HiHat { get; init; } = true;
+
 	/// <summary>Whether to play the chord pad. Default true.</summary>
 	public bool Pad { get; init; } = true;
 
@@ -146,6 +179,13 @@ public sealed record SongStyle
 		Require(Scales is { Count: > 0 }, nameof(Scales), "needs at least one scale");
 		Require(RootMidiLow is >= 12 and <= 72 && RootMidiHigh >= RootMidiLow && RootMidiHigh <= 72, nameof(RootMidiHigh), "root range must lie between MIDI 12 and 72 and not be inverted");
 		Require(MelodyLowMidi is >= 24 and <= 108 && MelodyHighMidi >= MelodyLowMidi + 12 && MelodyHighMidi <= 108, nameof(MelodyHighMidi), "melody range must lie between MIDI 24 and 108 and span at least an octave");
+		Require(PadOctaveOffset is >= -2 and <= 3, nameof(PadOctaveOffset), "pad octave offset must be -2 to 3");
+		Require(double.IsFinite(PadLevel) && PadLevel is >= 0 and <= 0.2, nameof(PadLevel), "pad level must be 0 to 0.2");
+		Require(double.IsFinite(PadAttackSeconds) && PadAttackSeconds is > 0 and <= 5, nameof(PadAttackSeconds), "pad attack must be positive and at most 5 seconds");
+		Require(double.IsFinite(VibratoDepth) && VibratoDepth is >= 0 and <= 0.01, nameof(VibratoDepth), "vibrato depth must be 0 to 0.01");
+		Require(double.IsFinite(VibratoMinHz) && double.IsFinite(VibratoMaxHz) && VibratoMinHz >= 0 && VibratoMaxHz >= VibratoMinHz && VibratoMaxHz <= 20, nameof(VibratoMaxHz), "vibrato rates must be 0 to 20 Hz and not inverted");
+		Require(double.IsFinite(VibratoDelaySeconds) && VibratoDelaySeconds is >= 0 and <= 5, nameof(VibratoDelaySeconds), "vibrato delay must be 0 to 5 seconds");
+		Require(double.IsFinite(VibratoRampSeconds) && VibratoRampSeconds is > 0 and <= 5, nameof(VibratoRampSeconds), "vibrato ramp must be positive and at most 5 seconds");
 		Require(MaxDetuneCents is >= 0 and <= 50, nameof(MaxDetuneCents), "detune must be 0 to 50 cents");
 	}
 
@@ -178,6 +218,12 @@ public sealed record SongInfo(int Seed, int TempoBpm, string ScaleName, int Root
 /// <param name="Notes">Every note and drum hit, in start order.</param>
 public sealed record GeneratedSong(SongInfo Info, float[] Samples, int SampleRate, IReadOnlyList<NoteEvent> Notes)
 {
+	/// <summary>Unnormalised stems, populated only by GenerateStems; sum them before applying NormalisationGain.</summary>
+	public IReadOnlyDictionary<VoiceKind, double[]> Stems { get; init; } = new Dictionary<VoiceKind, double[]>();
+
+	/// <summary>Gain applied to the raw mix to obtain Samples; retain this gain when muting stems.</summary>
+	public double NormalisationGain { get; init; } = 1;
+
 	/// <summary>Duration of the audio.</summary>
 	public TimeSpan Duration => TimeSpan.FromSeconds((double)Samples.Length / SampleRate);
 

@@ -41,3 +41,7 @@ export function drawPianoRoll(canvasId, notes, seconds, lowMidi, highMidi, names
 		ctx.fillRect(x(notes[i]), y(m) - cellH, Math.max(2, x(notes[i] + notes[i + 1]) - x(notes[i])), cellH);
 	}
 }
+
+export function revokeAudioUrl(url) {
+	URL.revokeObjectURL(url);
+}

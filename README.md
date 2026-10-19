@@ -54,11 +54,21 @@ var style = new SongStyle
 var song = SongGenerator.Generate(7, 20, 44100, style);
 ```
 
+Capture tracks once for a mute/solo UI:
+
+```csharp
+var song = SongGenerator.GenerateStems(42, 10, 11025);
+double[] melody = song.Stems[VoiceKind.Melody]; // before normalisation
+// Sum the desired stems, then apply song.NormalisationGain.
+```
+
+`SongStyle.Kick`, `Snare` and `HiHat` independently gate the drums. `PadOctaveOffset`, `PadLevel` and `PadAttackSeconds` control the quieter pad. `VibratoDepth`, `VibratoMinHz`, `VibratoMaxHz`, `VibratoDelaySeconds` and `VibratoRampSeconds` control the singer; depth zero disables vibrato. Algorithm version 2 changes the sound for existing seeds; see the [algorithm history](docs/DESIGN.md#algorithm-history).
+
 ## What a song contains
 
 | Part | How it is made |
 |---|---|
-| **Pad** | One triad per bar on a random scale degree with a random inversion; 3 harmonics, slow decay. |
+| **Pad** | One triad per bar on a random scale degree with a random inversion; 2 soft harmonics, slow attack and decay, folded below the melody. |
 | **Bass** | A note on most beats: the chord root, sometimes its fifth; low, 3 harmonics, quick decay. |
 | **Melody** | A random walk through the scale, clamped to the melody range, with half, one or one-and-a-half beat notes, 15% rests, 6 harmonics and a gentle vibrato. |
 | **Kick** | A sine whose frequency falls as <code>f<sub>0</sub> + 110 e<sup>-28t</sup></code>. |
@@ -88,7 +98,7 @@ dotnet test --project PanoramicData.MusicGeneration.Test
 dotnet run --project PanoramicData.MusicGeneration.Demo
 ```
 
-The library has 100% line and branch coverage from the unit tests. Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+The library has unit tests for synthesis, voice independence and raw stem reconstruction. Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
 ## Links
 
