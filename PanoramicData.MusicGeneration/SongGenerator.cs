@@ -7,7 +7,7 @@ public static partial class SongGenerator
 	/// The version of the generation algorithm. The same seed gives the same song only within one version: any change that alters the notes or the samples
 	/// for an existing seed is a breaking change and increments this number.
 	/// </summary>
-	public const int Version = 2;
+	public const int Version = 3;
 
 	private const double Peak = 0.9;
 

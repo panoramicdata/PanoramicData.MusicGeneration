@@ -46,7 +46,7 @@ public static partial class SongGenerator
 			var seed = MaterialSeed(context.Info.Seed, section.MaterialId);
 			if (!material.TryGetValue(section.MaterialId, out var sounds))
 			{
-				sounds = ComposeMaterial(context, section.Bars, seed);
+				sounds = ComposeMaterial(context, placement.PhraseBars, seed);
 				material.Add(section.MaterialId, sounds);
 			}
 			mixer.BeginSection(placement);
@@ -100,8 +100,8 @@ public static partial class SongGenerator
 
 	private static void RenderMaterial(Mixer mixer, ArrangementContext context, SongSection section, SectionEvent placement, IReadOnlyList<PlannedSound> sounds, long seed)
 	{
-		var templateLength = section.Bars * context.Bar;
-		var cycles = (placement.Bars + section.Bars - 1) / section.Bars;
+		var templateLength = placement.PhraseBars * context.Bar;
+		var cycles = (placement.Bars + placement.PhraseBars - 1) / placement.PhraseBars;
 		for (var cycle = 0; cycle < cycles; cycle++)
 		{
 			for (var index = 0; index < sounds.Count; index++)

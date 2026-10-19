@@ -42,16 +42,12 @@ The song page captures raw stems once. Mute and solo update playback, the piano 
 
 The Visualizer selector switches between the piano roll and PDMediaPlayer's built-in spectrogram of the audible mix. Switching views keeps the same audio and playback position; returning to the piano roll redraws it. The selected view is retained when generating another song or changing the mix. Spectrogram analysis supports the full 300-second song limit.
 
-Both song and pitch pages use PDMediaPlayer from PanoramicData.Blazor 10.0.382. The pitch page uses its built-in spectrogram without a MIDI lane. Its frequency range follows the selected tone's first six harmonics, capped at the audio's Nyquist frequency. The song page retains the adjacent canvas roll; to use its integrated note lane with a sibling Blazor checkout, run:
+Both song and pitch pages use PDMediaPlayer. The pitch page uses its built-in spectrogram without a MIDI lane. The song page supplies PDMediaNote events and PDMediaSegment sections to its integrated piano roll. The component owns pitch/time labels, section annotations and the playhead, aligned with its seek bar. There is no separate demo note canvas.
 
-```powershell
-dotnet run --project PanoramicData.MusicGeneration.Demo -p:UseLocalBlazor=true
-```
-
-This opt-in builds against the sibling project and passes the song's generated events as `PDMediaNote` items with `ShowNotes=true`. Normal builds use the pinned NuGet package and keep the song's canvas piano roll. The song wrapper's temporary build switch and fallback can now be removed in favour of the published note API.
+For component development, UseLocalBlazor=true builds against the sibling project. BlazorProjectPath can point at a separate Blazor worktree. Normal builds use the pinned released package.
 
 ## Section composition
 
-The song page's Composition selector offers free-running generation, returning verses/choruses and a through-composed comparison. Selecting a structured example sets a 60-second preview; the length slider can then shorten or extend it. The player segment lane, piano-roll labels and section table share the same performed boundaries. The table marks cropped sections, transition fills and the final tonic cadence.
+The song page's Composition selector offers free-running generation, returning verses/choruses and a through-composed comparison. Selecting a structured example sets a 60-second preview; the length slider can then shorten or extend it. The player segment lane, piano-roll labels and section table share the same performed boundaries. Each complete verse and chorus contains four phrases. The table reports planned phrases, bars per phrase, cropped sections, transition fills and the final tonic cadence. Requests too short for the prescribed form crop its final audible section; longer requests fit whole-bar phrase lengths while retaining four repeats.
 
 For a direct structured preview, use `/song?form=sections`; `/song?form=through` selects the comparison. Both preserve the same opening, tempo, key and section allocation. Later returns in the through-composed mode use new material identities, so this compares repetition in composition rather than claiming an identical written score. Short durations can omit the bridge or outro; the table makes this visible.

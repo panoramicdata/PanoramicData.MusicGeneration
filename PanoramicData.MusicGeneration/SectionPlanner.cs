@@ -6,10 +6,15 @@ internal static class SectionPlanner
 	{
 		var beat = 60.0 / info.TempoBpm;
 		var bar = 4 * beat;
-		var lengths = form.Sections.Select(s => s.Bars).ToArray();
+		var lengths = form.Sections.Select(s => s.Bars * s.PhraseCount).ToArray();
+		var available = Math.Max(0, (int)Math.Floor((seconds - info.LeadInSeconds) / bar + 1e-10));
 		if (form.DurationMode == FormDurationMode.FitWholeBars)
 		{
-			lengths = Fit(lengths, Math.Max(0, (int)Math.Floor((seconds - info.LeadInSeconds) / bar + 1e-10)));
+			lengths = Fit(lengths, available);
+		}
+		else if (form.DurationMode == FormDurationMode.FitWholePhrases)
+		{
+			lengths = FitPhrases(form.Sections, available);
 		}
 
 		var result = new List<SectionEvent>();
@@ -47,11 +52,66 @@ internal static class SectionPlanner
 			EndSeconds = Math.Min(end, seconds),
 			PlannedEndSeconds = end,
 			Bars = bars,
+			PhraseCount = section.PhraseCount,
+			PhraseBars = form.DurationMode == FormDurationMode.FitWholePhrases ? bars / section.PhraseCount : section.Bars,
 			PickupStartSeconds = Math.Max(0, start - (section.PickupBeats * beat)),
 			HasCadence = complete && index == form.Sections.Count - 1 && form.EndWithCadence,
 			HasTransitionFill = complete && index < form.Sections.Count - 1 && section.TransitionFill
 				&& section.Voices?.Contains(VoiceKind.Snare) != false
 		};
+	}
+
+	private static int[] FitPhrases(IReadOnlyList<SongSection> sections, int available)
+	{
+		var total = sections.Sum(s => s.Bars * s.PhraseCount);
+		if (available < total)
+		{
+			return [.. sections.Select(s => s.Bars * s.PhraseCount)];
+		}
+		var groups = PhraseGroups(sections);
+		var phraseBars = groups.ToDictionary(g => g, g => (int)((long)available * g[0].Bars / total));
+		var used = groups.Sum(g => phraseBars[g] * PhraseGroupCost(g));
+		while (used < available)
+		{
+			var group = groups.Where(g => PhraseGroupCost(g) <= available - used)
+				.OrderByDescending(g => (double)available * g[0].Bars / total - phraseBars[g])
+				.ThenByDescending(PhraseGroupCost).FirstOrDefault();
+			if (group is null)
+			{
+				break;
+			}
+			phraseBars[group]++;
+			used += PhraseGroupCost(group);
+		}
+		return [.. sections.Select(s => phraseBars[groups.First(g => g.Contains(s))] * s.PhraseCount)];
+	}
+
+	private static int PhraseGroupCost(List<SongSection> group) => group[0].PhraseCount * group.Count;
+
+	private static bool SamePhraseFamily(SongSection left, SongSection right) =>
+		left.Bars == right.Bars && left.PhraseCount == right.PhraseCount
+		&& (left.Kind == right.Kind || left.MaterialId == right.MaterialId);
+
+	private static List<List<SongSection>> PhraseGroups(IReadOnlyList<SongSection> sections)
+	{
+		var groups = new List<List<SongSection>>();
+		foreach (var section in sections)
+		{
+			var matches = groups.Where(g => g.Any(s => SamePhraseFamily(s, section))).ToArray();
+			if (matches.Length == 0)
+			{
+				groups.Add([section]);
+				continue;
+			}
+			var target = matches[0];
+			target.Add(section);
+			foreach (var other in matches.Skip(1))
+			{
+				target.AddRange(other);
+				groups.Remove(other);
+			}
+		}
+		return groups;
 	}
 
 	private static int[] Fit(int[] weights, int available)

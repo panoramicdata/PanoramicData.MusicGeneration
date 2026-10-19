@@ -158,13 +158,15 @@ public class StructureTests
 		[
 			new(), new() { Sections = null! }, new() { Sections = [null!] },
 			new() { Sections = [new() { MaterialId = " " }] }, new() { Sections = [new() { Bars = 0 }] },
+			new() { Sections = [new() { PhraseCount = 0 }] }, new() { Sections = [new() { PhraseCount = 17 }] },
 			new() { Sections = [new() { Kind = (SectionKind)99 }] },
 			new() { Sections = [new()], DurationMode = (FormDurationMode)99 },
 			new() { Sections = [new() { MelodyDensity = double.NaN }] },
 			new() { Sections = [new() { MelodyOctaveOffset = 3 }] },
 			new() { Sections = [new() { PickupBeats = 2 }] },
 			new() { Sections = [new() { Voices = [(VoiceKind)99] }] },
-			new() { Sections = [new() { MaterialId = "A", Bars = 1 }, new() { MaterialId = "A", Bars = 2 }] }
+			new() { Sections = [new() { MaterialId = "A", Bars = 1 }, new() { MaterialId = "A", Bars = 2 }] },
+			new() { Sections = [new() { MaterialId = "A", PhraseCount = 2 }, new() { MaterialId = "A", PhraseCount = 4 }] }
 		];
 		foreach (var form in invalid)
 		{
@@ -176,7 +178,7 @@ public class StructureTests
 	[Fact]
 	public void WholeBarFitting_HandlesAnExactFractionalTempoBoundary()
 	{
-		var form = SongForms.VerseChorus;
+		var form = SongForms.VerseChorus with { DurationMode = FormDurationMode.FitWholeBars };
 		var info = new SongInfo(42, 87, "Major", 36, 0, 0.17);
 		var seconds = info.LeadInSeconds + (14 * 4 * 60.0 / info.TempoBpm);
 		var sections = SectionPlanner.Place(form, info, seconds);
@@ -222,8 +224,60 @@ public class StructureTests
 	[Fact]
 	public void ASectionWithoutSnare_DoesNotClaimATransitionFill()
 	{
-		var sections = SectionPlanner.Place(SongForms.VerseChorus, new SongInfo(0, 120, "Major", 36, 0, 0), 30);
+		var form = SongForms.VerseChorus with { DurationMode = FormDurationMode.FitWholeBars };
+		var sections = SectionPlanner.Place(form, new SongInfo(0, 120, "Major", 36, 0, 0), 30);
 		sections.Single(s => s.Kind == SectionKind.Bridge).HasTransitionFill.Should().BeFalse();
+	}
+
+	[Theory]
+	[InlineData(60)]
+	[InlineData(120)]
+	[InlineData(300)]
+	public void PhraseFitting_KeepsFourPhrasesAndReturningMaterialLengths(double seconds)
+	{
+		var sections = SectionPlanner.Place(SongForms.VerseChorus, new SongInfo(42, 87, "Major", 36, 0, 0.17), seconds);
+		var complete = sections.Where(s => !s.IsTruncated && s.Kind is SectionKind.Verse or SectionKind.Chorus).ToArray();
+		complete.Should().NotBeEmpty();
+		complete.Should().OnlyContain(s => s.PhraseCount == 4 && s.Bars == 4 * s.PhraseBars && s.PhraseBars >= 2);
+		foreach (var group in sections.GroupBy(s => s.MaterialId))
+		{
+			group.Select(s => s.PhraseBars).Distinct().Should().ContainSingle();
+		}
+		sections.Should().OnlyContain(s => s.EndSeconds <= seconds);
+	}
+
+	[Fact]
+	public void FourPhrases_RepeatTheSameBassIdeaFourTimes()
+	{
+		var form = new SongForm
+		{
+			EndWithCadence = false,
+			Sections = [new() { Kind = SectionKind.Verse, MaterialId = "A", Bars = 2, PhraseCount = 4 }]
+		};
+		var song = SongGenerator.Generate(42, 18, 8000, Style(form));
+		var start = song.Sections[0].StartSeconds;
+		var phrase = song.Notes.Where(n => n.Voice == VoiceKind.Bass && n.StartSeconds < start + 4)
+			.Select(n => (Math.Round(n.StartSeconds - start, 8), n.MidiNote)).ToArray();
+		phrase.Should().NotBeEmpty();
+		for (var repeat = 1; repeat < 4; repeat++)
+		{
+			var at = start + repeat * 4;
+			song.Notes.Where(n => n.Voice == VoiceKind.Bass && n.StartSeconds >= at - 1e-9 && n.StartSeconds < at + 4 - 1e-9)
+				.Select(n => (Math.Round(n.StartSeconds - at, 8), n.MidiNote)).Should().Equal(phrase);
+		}
+	}
+
+	[Fact]
+	public void PhraseFitting_ShortRequestsCropRatherThanClaimThreeCompletePhrases()
+	{
+		var sections = SectionPlanner.Place(SongForms.VerseChorus, new SongInfo(0, 120, "Major", 36, 0, 0), 30);
+		sections.Should().HaveCount(3);
+		sections[^1].Kind.Should().Be(SectionKind.Chorus);
+		sections[^1].PhraseCount.Should().Be(4);
+		sections[^1].PhraseBars.Should().Be(2);
+		sections[^1].PlannedEndSeconds.Should().Be(34);
+		sections[^1].EndSeconds.Should().Be(30);
+		sections[^1].IsTruncated.Should().BeTrue();
 	}
 
 	[Fact]
@@ -235,6 +289,54 @@ public class StructureTests
 		{
 			hash = (hash ^ BitConverter.SingleToUInt32Bits(sample)) * 1099511628211UL;
 		}
-		hash.Should().Be(699470266271215891UL);
+		hash.Should().Be(16170790293787036396UL);
+	}
+
+	[Fact]
+	public void PhraseFitting_HasKnownLongFormAllocationAndDoesNotDependOnMaterialNames()
+	{
+		var form = SongForms.VerseChorus;
+		var info = new SongInfo(42, 87, "Major", 36, 0, 0.17);
+		var sections = SectionPlanner.Place(form, info, 300);
+		sections.Select(s => s.Bars).Should().Equal(2, 20, 20, 20, 20, 4, 20, 2);
+		var through = form with { Sections = [.. form.Sections.Select((s, i) => s with { MaterialId = $"material-{i}" })] };
+		var comparison = SectionPlanner.Place(through, info, 300);
+		comparison.Select(s => (s.StartSeconds, s.EndSeconds, s.PhraseBars)).Should()
+			.Equal(sections.Select(s => (s.StartSeconds, s.EndSeconds, s.PhraseBars)));
+	}
+
+	[Theory]
+	[InlineData(44)]
+	[InlineData(45)]
+	[InlineData(47)]
+	[InlineData(60)]
+	[InlineData(65)]
+	[InlineData(108)]
+	[InlineData(109)]
+	public void PhraseFitting_UsesAvailableBarsWithoutBreakingPhraseCounts(int bars)
+	{
+		var sections = SectionPlanner.Place(SongForms.VerseChorus, new SongInfo(0, 120, "Major", 36, 0, 0.5), 0.5 + 2 * bars);
+		sections.Sum(s => s.Bars).Should().Be(bars);
+		sections.Should().OnlyContain(s => !s.IsTruncated);
+		sections.Where(s => s.Kind is SectionKind.Verse or SectionKind.Chorus)
+			.Should().OnlyContain(s => s.PhraseCount == 4 && s.Bars == 4 * s.PhraseBars);
+	}
+
+	[Fact]
+	public void FittedPhrase_ComposesEveryAssignedBarRatherThanLeavingGaps()
+	{
+		var form = new SongForm
+		{
+			DurationMode = FormDurationMode.FitWholePhrases,
+			EndWithCadence = false,
+			Sections = [new() { MaterialId = "A", PhraseCount = 4, Bars = 1 }]
+		};
+		var song = SongGenerator.Generate(42, 60, 8000, Style(form) with { Bass = false, Melody = false, Drums = false });
+		var section = song.Sections[0];
+		section.PhraseBars.Should().BeGreaterThan(1);
+		var firstPhraseEnd = section.StartSeconds + 2 * section.PhraseBars;
+		var bars = song.Notes.Where(n => n.Voice == VoiceKind.Pad && n.StartSeconds < firstPhraseEnd - 1e-9)
+			.Select(n => (int)Math.Floor((n.StartSeconds - section.StartSeconds) / 2 + 1e-9)).Distinct().Order().ToArray();
+		bars.Should().Equal(Enumerable.Range(0, section.PhraseBars));
 	}
 }

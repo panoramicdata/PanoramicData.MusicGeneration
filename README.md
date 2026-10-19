@@ -77,7 +77,7 @@ foreach (var section in song.Sections)
 }
 ```
 
-Matching material identities reuse the written pattern. Each occurrence can change melody register, density and active voices, or add pickups and transition fills. Forms round-trip through System.Text.Json; each note identifies its source section. The example fits whole bars at the chosen tempo; short requests may omit later sections. See [section composition](docs/DESIGN.md#section-composition) for duration and ending rules.
+Matching material identities reuse the written pattern. Each occurrence can change melody register, density and active voices, or add pickups and transition fills. Forms round-trip through System.Text.Json; each note identifies its source section. The example uses four phrases per verse and chorus, fitted in whole-bar phrases at the chosen tempo. Short requests explicitly crop the final audible section and can omit later sections. Algorithm version 3 changes this structured preset while preserving the default free-running audio hash. See [section composition](docs/DESIGN.md#section-composition) for duration and ending rules.
 
 ## What a song contains
 

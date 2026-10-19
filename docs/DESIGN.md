@@ -1,6 +1,6 @@
 # PanoramicData.MusicGeneration design note
 
-Status: algorithm version 2. Numbers marked (measured) come from the unit tests; everything else is design.
+Status: algorithm version 3. Numbers marked (measured) come from the unit tests; everything else is design.
 
 ## 1. Purpose and constraints
 
@@ -69,12 +69,14 @@ The composer builds a note/timbre template per material identity using stable ch
 
 Duration policies:
 
-- `Truncate` keeps the specified bar counts. The requested duration crops excess material; a completed shorter form leaves silence afterwards. Notes are clipped to section boundaries.
+- `Truncate` keeps the specified bars per phrase and phrase counts. The requested duration crops excess material; a completed shorter form leaves silence afterwards. Notes are clipped to section boundaries.
 - `FitWholeBars` keeps the seed's tempo and lead-in. It gives every section one bar when possible, allocates remaining whole bars by the template-length weights, and breaks fractional-allocation ties by section order. Material cycles when an occurrence exceeds its template length. A request with fewer bars than sections keeps a prefix, one bar per occurrence. With less than one bar remaining it crops the first section; requests ending before the lead-in contain silence. A rounding tolerance below one nanosecond handles arithmetic at an exact bar boundary. The remaining fractional-bar tail is silent.
 
 Pickups start up to one beat before the section body, bounded at zero, and carry the upcoming section's index. Transition fills replace the last beat's drums with four snare hits. A completed final section can replace its final bar with a tonic chord, bass, melody and kick, followed by a short release gap. A cropped section does not claim a final cadence. Section voice choices intersect the global style switches, so muting still preserves other stems.
 
-`GeneratedSong.Sections` reports source indices, roles, material identities, performed and planned boundaries, assigned bars, pickup starts, fills and cadences. `NoteEvent.SectionIndex` links notes to their occurrence, including pickups; it is null in free-running mode. The form and notes are sample-rate independent. The structured golden fixture uses seed 42, 30 s, 8,000 Hz, a fixed 120 bpm and SongForms.VerseChorus; its FNV sample hash is `699470266271215891`. The UI renders these boundaries on the player and piano roll and offers a through-composed comparison with the same opening, section lengths, key and tempo.
+`FitWholePhrases` preserves each section's phrase count, fitting phrase lengths in whole bars. Occurrences of the same role and template size share fitted phrase lengths, independent of material names. Returning material is also kept in a common fitting group, including when reused across roles. If the prescribed form cannot fit, the renderer keeps its original phrase lengths and crops the last audible section, omitting later sections. Whole bars can remain unused when allocating another complete phrase group would exceed the request. The preset has four two-bar phrases in each verse and chorus; longer requests can lengthen these phrases, while preserving four repeats.
+
+`GeneratedSong.Sections` reports source indices, roles, material identities, performed and planned boundaries, assigned bars, planned phrase counts and bars per phrase, pickup starts, fills and cadences. `NoteEvent.SectionIndex` links notes to their occurrence, including pickups; it is null in free-running mode. The form and notes are sample-rate independent. The structured golden fixture uses seed 42, 30 s, 8,000 Hz, a fixed 120 bpm and SongForms.VerseChorus; its FNV sample hash is `16170790293787036396`. The UI renders these boundaries on the player and piano roll and offers a through-composed comparison with the same opening, section lengths, key and tempo.
 
 ## 5. API
 
@@ -120,6 +122,7 @@ Everything is generated from first principles (equal temperament, additive synth
 
 - Version 1: original pad at root + 24, amplitude 0.10; immediate 0.4% melody vibrato.
 - Version 2: lower, quieter pad with slower attack; configurable delayed, ramped 0.12% melody vibrato using integrated phase and no vibrato on short notes. Seed 42, 8 s, 11,025 Hz: FNV sample hash `8783139537262375303`, tempo 87 bpm. Track switches and optional raw stems preserve this default output.
+- Version 3: structured verse/chorus forms now preserve four phrase repeats, with whole-phrase fitting and explicit cropped sections. The free-running version 2 output hash remains unchanged.
 
 ## 10. Open decisions for further development
 

@@ -36,7 +36,7 @@ public class GeneratorTests
 	private const ulong GoldenHash = 8783139537262375303UL;
 
 	[Fact]
-	public void AlgorithmVersion_IsPinnedWithTheGoldenHash() => SongGenerator.Version.Should().Be(2, "bump it together with the golden hash if the output for a seed ever changes");
+	public void AlgorithmVersion_IsPinnedWithTheGoldenHash() => SongGenerator.Version.Should().Be(3, "version 3 changes phrase-fitted forms while retaining the default audio hash");
 
 	[Fact]
 	public void DifferentSeeds_GiveDifferentSongs()
