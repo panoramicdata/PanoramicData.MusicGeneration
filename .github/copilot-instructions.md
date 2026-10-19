@@ -14,3 +14,7 @@
 ## Static analysis
 
 - New or modified library methods must satisfy Codacy's limits: at most 8 parameters, cyclomatic complexity 8, and 50 lines of code. Split responsibilities into helpers while preserving random-number draw order and both golden hashes.
+
+## Demo controls
+
+- Bind view selectors to named string values, such as `piano` and `spectrogram`. A native select bound to a boolean with lowercase `true`/`false` options produced an empty selection in browser verification. Verify both switching directions and playback continuity in the browser.

@@ -4,7 +4,7 @@
 
 <h1>Build a song</h1>
 <p class="lead">
-	Choose a seed and which parts play. The piano roll shows every note the generator wrote, coloured by part; the player plays exactly those notes.
+	Choose a seed and which parts play. Switch between a piano roll of the generated notes and a spectrogram of the audible mix.
 </p>
 
 <div class="card">
@@ -59,7 +59,15 @@
 
 	@if (audioUrl is not null)
 	{
-		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Sections="song.Sections" Seconds="song.Duration.TotalSeconds" />
+		<div class="control-row">
+			<label>Visualizer
+				<select @bind="visualizer" disabled="@busy">
+					<option value="piano">Piano roll</option>
+					<option value="spectrogram">Spectrogram</option>
+				</select>
+			</label>
+		</div>
+		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Sections="song.Sections" Seconds="song.Duration.TotalSeconds" ShowSpectrogram="ShowSpectrogram" />
 	}
 	@if (song.Sections.Count > 0)
 	{
@@ -84,11 +92,14 @@
 			}
 		</tbody></table>
 	</details>
-	<p class="note">
-		<span style="color:#9b8cff">&#9632;</span> pad &nbsp; <span style="color:#4cc2ff">&#9632;</span> bass &nbsp; <span style="color:#7cf0b2">&#9632;</span> melody &nbsp;
-		<span style="color:#ff8f6b">&#9632;</span> kick &nbsp; <span style="color:#ffd666">&#9632;</span> snare &nbsp; <span style="color:#c9d3ea">&#9632;</span> hi-hat.
-		Horizontal axis: time. Vertical axis: pitch, one row per semitone, with each C labelled.
-	</p>
+	@if (!ShowSpectrogram)
+	{
+		<p class="note">
+			<span style="color:#9b8cff">&#9632;</span> pad &nbsp; <span style="color:#4cc2ff">&#9632;</span> bass &nbsp; <span style="color:#7cf0b2">&#9632;</span> melody &nbsp;
+			<span style="color:#ff8f6b">&#9632;</span> kick &nbsp; <span style="color:#ffd666">&#9632;</span> snare &nbsp; <span style="color:#c9d3ea">&#9632;</span> hi-hat.
+			Horizontal axis: time. Vertical axis: pitch, one row per semitone, with each C labelled.
+		</p>
+	}
 }
 
 <h2>How each part is made</h2>
@@ -123,6 +134,8 @@
 	private string? audioUrl;
 	private string? error;
 	private bool busy;
+	private string visualizer = "piano";
+	private bool ShowSpectrogram => visualizer == "spectrogram";
 	private string? busyMessage;
 
 	private async Task<IJSObjectReference> ModuleAsync() => module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");

@@ -2,8 +2,9 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<PDMediaPlayer Src="@Src" Title="Generated audio" Segments="MediaSections" ShowSegmentList="false" @attributes="NoteParameters" />
-@if (!IntegratedNotes)
+<PDMediaPlayer Src="@Src" Title="Generated audio" Segments="MediaSections" ShowSegmentList="false"
+	ShowSpectrogram="@(ShowSpectrogram && readySource == Src)" SpectrogramHeight="360" OnReady="OnMediaReady" @attributes="NoteParameters" />
+@if (!IntegratedNotes && !ShowSpectrogram)
 {
 	<canvas id="@canvasId" width="1000" height="360" aria-label="Piano roll: pitch against time"></canvas>
 }
@@ -13,7 +14,11 @@
 	[Parameter] public IReadOnlyList<NoteEvent> Notes { get; set; } = [];
 	[Parameter] public double Seconds { get; set; }
 	[Parameter] public IReadOnlyList<SectionEvent> Sections { get; set; } = [];
+	[Parameter] public bool ShowSpectrogram { get; set; }
 	private IReadOnlyList<SectionEvent>? drawnSections;
+	private string? readySource;
+	// Wait for metadata so the spectrogram reads the replacement audio rather than the previous currentSrc.
+	private void OnMediaReady(TimeSpan? _) => readySource = Src;
 	private IReadOnlyList<PanoramicData.Blazor.Models.PDMediaSegment> MediaSections => Sections.Select(s => new PanoramicData.Blazor.Models.PDMediaSegment
 	{
 		Id = $"section-{s.Index}", Start = TimeSpan.FromSeconds(s.StartSeconds), End = TimeSpan.FromSeconds(s.EndSeconds),
@@ -27,7 +32,7 @@
 	private static bool IntegratedNotes => true;
 	private Dictionary<string, object> NoteParameters => new()
 	{
-		["ShowNotes"] = true,
+		["ShowNotes"] = !ShowSpectrogram,
 		["Notes"] = Notes.Select(n => new PanoramicData.Blazor.Models.PDMediaNote
 		{
 			Start = TimeSpan.FromSeconds(n.StartSeconds), Duration = TimeSpan.FromSeconds(n.DurationSeconds),
@@ -43,6 +48,13 @@
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
+		if (ShowSpectrogram)
+		{
+			drawnNotes = null;
+			drawnSections = null;
+			return;
+		}
+
 		if (!IntegratedNotes && (!ReferenceEquals(Notes, drawnNotes) || !ReferenceEquals(Sections, drawnSections)))
 		{
 			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
