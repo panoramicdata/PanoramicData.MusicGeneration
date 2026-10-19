@@ -28,7 +28,11 @@ public enum VoiceKind
 /// <param name="DurationSeconds">How long it sounds (the written length; the sound may ring a little beyond it).</param>
 /// <param name="MidiNote">MIDI note number (60 is middle C, 69 is A above it); for drums, a nominal pitch only.</param>
 /// <param name="FrequencyHz">The frequency actually rendered, including the song's tuning offset; for noise drums, 0.</param>
-public readonly record struct NoteEvent(VoiceKind Voice, double StartSeconds, double DurationSeconds, int MidiNote, double FrequencyHz);
+public readonly record struct NoteEvent(VoiceKind Voice, double StartSeconds, double DurationSeconds, int MidiNote, double FrequencyHz)
+{
+	/// <summary>Source section index, including pickups; null for free-running generation.</summary>
+	public int? SectionIndex { get; init; }
+}
 
 /// <summary>A musical scale as semitone steps above the root.</summary>
 /// <param name="Name">Display name.</param>
@@ -153,6 +157,9 @@ public sealed record SongStyle
 	/// <summary>Whether to play the hi-hat when Drums is enabled. Default true.</summary>
 	public bool HiHat { get; init; } = true;
 
+	/// <summary>Optional section composition plan; null preserves free-running generation.</summary>
+	public SongForm? Form { get; init; }
+
 	/// <summary>Whether to play the chord pad. Default true.</summary>
 	public bool Pad { get; init; } = true;
 
@@ -187,6 +194,7 @@ public sealed record SongStyle
 		Require(double.IsFinite(VibratoDelaySeconds) && VibratoDelaySeconds is >= 0 and <= 5, nameof(VibratoDelaySeconds), "vibrato delay must be 0 to 5 seconds");
 		Require(double.IsFinite(VibratoRampSeconds) && VibratoRampSeconds is > 0 and <= 5, nameof(VibratoRampSeconds), "vibrato ramp must be positive and at most 5 seconds");
 		Require(MaxDetuneCents is >= 0 and <= 50, nameof(MaxDetuneCents), "detune must be 0 to 50 cents");
+		Form?.Validate();
 	}
 
 	private static void Require(bool condition, string name, string message)
@@ -218,6 +226,9 @@ public sealed record SongInfo(int Seed, int TempoBpm, string ScaleName, int Root
 /// <param name="Notes">Every note and drum hit, in start order.</param>
 public sealed record GeneratedSong(SongInfo Info, float[] Samples, int SampleRate, IReadOnlyList<NoteEvent> Notes)
 {
+	/// <summary>Performed section boundaries; empty for free-running generation.</summary>
+	public IReadOnlyList<SectionEvent> Sections { get; init; } = [];
+
 	/// <summary>Unnormalised stems, populated only by GenerateStems; sum them before applying NormalisationGain.</summary>
 	public IReadOnlyDictionary<VoiceKind, double[]> Stems { get; init; } = new Dictionary<VoiceKind, double[]>();
 

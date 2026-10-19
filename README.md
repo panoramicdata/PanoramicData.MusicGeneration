@@ -5,10 +5,10 @@
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![CI](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml/badge.svg)](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml)
 
-Deterministic, seeded music generation for .NET. A **seed** becomes a whole song: a key and scale, a tempo, a new chord every bar, a bass line, a tune that never loops, and a drum pattern, rendered to PCM. It also hands back **the list of notes it played**, so you can score a pitch tracker, an onset detector or a fingerprinting library against the truth.
+Deterministic, seeded music generation for .NET. A **seed** becomes a whole song: a key and scale, a tempo, a new chord every bar, a bass line, a tune with optional recurring sections, and a drum pattern, rendered to PCM. It also hands back **the list of notes it played**, so you can score a pitch tracker, an onset detector or a fingerprinting library against the truth.
 
 - **Reproducible for ever.** The same seed, length, sample rate and style give the same song on any machine and any .NET version: the library carries its own random number generator (PCG32) and its own bit-exact sine.
-- **Varied.** Tempo, key, scale, harmony, melody, drum pattern, timbre, tuning and lead-in all come from the seed. Nothing repeats exactly inside a song, so any few seconds say where in the song they are.
+- **Varied.** Tempo, key, scale, harmony, melody, drum pattern, timbre, tuning and lead-in all come from the seed. The default free-running mode avoids exact loops; opt into a form for returning verses and choruses.
 - **Ground truth included.** Every note and drum hit comes back with its start, length, MIDI note and rendered frequency.
 - **No samples, no copyright.** Everything is synthesised from sine waves and noise by arithmetic you can read in an afternoon.
 - **Educational.** The demo site explains the maths: equal temperament, harmonics, envelopes, noise and the random number generator.
@@ -63,6 +63,21 @@ double[] melody = song.Stems[VoiceKind.Melody]; // before normalisation
 ```
 
 `SongStyle.Kick`, `Snare` and `HiHat` independently gate the drums. `PadOctaveOffset`, `PadLevel` and `PadAttackSeconds` control the quieter pad. `VibratoDepth`, `VibratoMinHz`, `VibratoMaxHz`, `VibratoDelaySeconds` and `VibratoRampSeconds` control the singer; depth zero disables vibrato. Algorithm version 2 changes the sound for existing seeds; see the [algorithm history](docs/DESIGN.md#algorithm-history).
+
+## Recurring sections
+
+Use an explicit form for an intro, A-B-A-B-C-B and an outro:
+
+```csharp
+var style = new SongStyle { Form = SongForms.VerseChorus };
+var song = SongGenerator.Generate(42, 60, 11025, style);
+foreach (var section in song.Sections)
+{
+	Console.WriteLine($"{section.Kind} {section.MaterialId}: {section.StartSeconds:0.00}-{section.EndSeconds:0.00}s");
+}
+```
+
+Matching material identities reuse the written pattern. Each occurrence can change melody register, density and active voices, or add pickups and transition fills. Forms round-trip through System.Text.Json; each note identifies its source section. The example fits whole bars at the chosen tempo; short requests may omit later sections. See [section composition](docs/DESIGN.md#section-composition) for duration and ending rules.
 
 ## What a song contains
 

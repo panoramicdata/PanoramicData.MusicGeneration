@@ -7,11 +7,11 @@ export function createAudioUrl(bytes) {
 const voiceColours = ['#9b8cff', '#4cc2ff', '#7cf0b2', '#ff8f6b', '#ffd666', '#c9d3ea'];
 
 // notes: flat array of [start, duration, midi, voice] per note. Draws a piano roll with labelled axes.
-export function drawPianoRoll(canvasId, notes, seconds, lowMidi, highMidi, names) {
+export function drawPianoRoll(canvasId, notes, seconds, lowMidi, highMidi, names, sections = []) {
 	const canvas = document.getElementById(canvasId);
 	if (!canvas) { return; }
 	const ctx = canvas.getContext('2d');
-	const W = canvas.width, H = canvas.height, L = 70, R = 12, T = 12, B = 40;
+	const W = canvas.width, H = canvas.height, L = 70, R = 12, T = sections.length ? 28 : 12, B = 40;
 	const pw = W - L - R, ph = H - T - B;
 	const x = (t) => L + (t / seconds) * pw;
 	const y = (m) => T + ph - ((m - lowMidi) / (highMidi - lowMidi + 1)) * ph;
@@ -33,6 +33,12 @@ export function drawPianoRoll(canvasId, notes, seconds, lowMidi, highMidi, names
 	ctx.fillStyle = '#c9d3ea'; ctx.textAlign = 'center';
 	ctx.fillText('Time (seconds)', L + pw / 2, H - 6);
 	ctx.save(); ctx.translate(14, T + ph / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('Pitch (MIDI note, C marked)', 0, 0); ctx.restore();
+	for (const section of sections) {
+		const left = x(section.start), right = x(Math.min(seconds, section.end));
+		ctx.strokeStyle = '#8f9bb8'; ctx.beginPath(); ctx.moveTo(left, T); ctx.lineTo(left, T + ph); ctx.stroke();
+		ctx.fillStyle = '#c9d3ea'; ctx.textAlign = 'left'; ctx.font = '10px "Segoe UI", sans-serif';
+		ctx.fillText(section.label, left + 3, T - 7, Math.max(1, right - left - 6));
+	}
 	const cellH = Math.max(2, ph / (highMidi - lowMidi + 1));
 	for (let i = 0; i + 3 < notes.length; i += 4) {
 		const m = notes[i + 2];

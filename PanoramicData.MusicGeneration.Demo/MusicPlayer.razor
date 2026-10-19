@@ -2,7 +2,7 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<PDMediaPlayer Src="@Src" Title="Generated audio" @attributes="NoteParameters" />
+<PDMediaPlayer Src="@Src" Title="Generated audio" Segments="MediaSections" ShowSegmentList="false" @attributes="NoteParameters" />
 @if (!IntegratedNotes)
 {
 	<canvas id="@canvasId" width="1000" height="360" aria-label="Piano roll: pitch against time"></canvas>
@@ -12,6 +12,13 @@
 	[Parameter] public string? Src { get; set; }
 	[Parameter] public IReadOnlyList<NoteEvent> Notes { get; set; } = [];
 	[Parameter] public double Seconds { get; set; }
+	[Parameter] public IReadOnlyList<SectionEvent> Sections { get; set; } = [];
+	private IReadOnlyList<SectionEvent>? drawnSections;
+	private IReadOnlyList<PanoramicData.Blazor.Models.PDMediaSegment> MediaSections => Sections.Select(s => new PanoramicData.Blazor.Models.PDMediaSegment
+	{
+		Id = $"section-{s.Index}", Start = TimeSpan.FromSeconds(s.StartSeconds), End = TimeSpan.FromSeconds(s.EndSeconds),
+		Kind = s.Kind.ToString(), Label = $"{s.Kind}: {s.MaterialId}"
+	}).ToArray();
 	private readonly string canvasId = $"roll-{Guid.NewGuid():N}";
 	private IJSObjectReference? module;
 	private IReadOnlyList<NoteEvent>? drawnNotes;
@@ -36,14 +43,16 @@
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!IntegratedNotes && !ReferenceEquals(Notes, drawnNotes))
+		if (!IntegratedNotes && (!ReferenceEquals(Notes, drawnNotes) || !ReferenceEquals(Sections, drawnSections)))
 		{
 			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
 			var low = Notes.Count > 0 ? Math.Min(30, Notes.Min(n => n.MidiNote)) : 30;
 			var high = Notes.Count > 0 ? Math.Max(72, Notes.Max(n => n.MidiNote)) : 84;
 			var flat = Notes.SelectMany(n => new double[] { n.StartSeconds, n.DurationSeconds, n.MidiNote, (int)n.Voice }).ToArray();
-			await module.InvokeVoidAsync("drawPianoRoll", canvasId, flat, Seconds, low, high, Enumerable.Range(low, high - low + 1).Select(Pitch.NameOf).ToArray());
+			await module.InvokeVoidAsync("drawPianoRoll", canvasId, flat, Seconds, low, high, Enumerable.Range(low, high - low + 1).Select(Pitch.NameOf).ToArray(),
+				Sections.Select(s => new { start = s.StartSeconds, end = s.EndSeconds, label = $"{s.Kind}: {s.MaterialId}" }).ToArray());
 			drawnNotes = Notes;
+			drawnSections = Sections;
 		}
 	}
 
