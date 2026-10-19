@@ -45,3 +45,9 @@ dotnet run --project PanoramicData.MusicGeneration.Demo -p:UseLocalBlazor=true
 ```
 
 This opt-in builds against the sibling project and passes the generated events as `PDMediaNote` items with `ShowNotes=true`. Normal builds use the pinned NuGet package and keep a working piano-roll fallback. Once the new component API is published, update the package and remove this temporary build switch and fallback. The note lane is separate from the spectrogram work in Blazor PR #250; no spectrogram overlay is claimed here.
+
+## Section composition
+
+The song page's Composition selector offers free-running generation, returning verses/choruses and a through-composed comparison. Selecting a structured example sets a 60-second preview; the length slider can then shorten or extend it. The player segment lane, piano-roll labels and section table share the same performed boundaries. The table marks cropped sections, transition fills and the final tonic cadence.
+
+For a direct structured preview, use `/song?form=sections`; `/song?form=through` selects the comparison. Both preserve the same opening, tempo, key and section allocation. Later returns in the through-composed mode use new material identities, so this compares repetition in composition rather than claiming an identical written score. Short durations can omit the bridge or outro; the table makes this visible.

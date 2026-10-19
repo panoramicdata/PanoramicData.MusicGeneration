@@ -61,6 +61,21 @@ The song is a sequence of bars of four beats (`beat = 60 / tempo`). The bar loop
 
 `Kick`, `Snare` and `HiHat` switches default true and are gated by `Drums`. Muted noise voices still advance the shared noise stream, so other drum waveforms remain identical. The switches and stem capture introduce no additional change to the default version 2 output.
 
+## Section composition
+
+`SongStyle.Form` is null by default, preserving the version-2 output and golden hash. A `SongForm` is a serialisable list of `SongSection` occurrences with kind, case-sensitive material identity and template length in four-beat bars. `SongForms.VerseChorus` supplies an intro, A-B-A-B-C-B and an outro.
+
+The composer builds a note/timbre template per material identity using stable character hashing and independent seeded streams, then performs each occurrence. This stage does not synthesise temporary audio. Repeated identities must have the same template length. Register shifts, deterministic melody thinning and voice selection vary an occurrence without regenerating its source material. Different absolute oscillator phases mean repeated written patterns need not have bit-identical audio. Full melodic motif transformations and harmonic progressions remain separate roadmap features.
+
+Duration policies:
+
+- `Truncate` keeps the specified bar counts. The requested duration crops excess material; a completed shorter form leaves silence afterwards. Notes are clipped to section boundaries.
+- `FitWholeBars` keeps the seed's tempo and lead-in. It gives every section one bar when possible, allocates remaining whole bars by the template-length weights, and breaks fractional-allocation ties by section order. Material cycles when an occurrence exceeds its template length. A request with fewer bars than sections keeps a prefix, one bar per occurrence. With less than one bar remaining it crops the first section; requests ending before the lead-in contain silence. A rounding tolerance below one nanosecond handles arithmetic at an exact bar boundary. The remaining fractional-bar tail is silent.
+
+Pickups start up to one beat before the section body, bounded at zero, and carry the upcoming section's index. Transition fills replace the last beat's drums with four snare hits. A completed final section can replace its final bar with a tonic chord, bass, melody and kick, followed by a short release gap. A cropped section does not claim a final cadence. Section voice choices intersect the global style switches, so muting still preserves other stems.
+
+`GeneratedSong.Sections` reports source indices, roles, material identities, performed and planned boundaries, assigned bars, pickup starts, fills and cadences. `NoteEvent.SectionIndex` links notes to their occurrence, including pickups; it is null in free-running mode. The form and notes are sample-rate independent. The UI renders these boundaries on the player and piano roll and offers a through-composed comparison with the same opening, section lengths, key and tempo.
+
 ## 5. API
 
 ```csharp

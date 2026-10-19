@@ -76,7 +76,7 @@ button, .button {
 button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
 button:disabled { opacity: 0.5; cursor: default; }
 
-.row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin: 0.75rem 0; }
+.control-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin: 0.75rem 0; }
 
 canvas {
 	width: 100%;

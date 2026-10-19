@@ -8,13 +8,20 @@
 </p>
 
 <div class="card">
-	<div class="row">
+	<div class="control-row">
 		<label>Seed <input type="text" @bind="seedText" style="width:7rem" /></label>
-		<label>Length <strong>@seconds</strong> s <input type="range" min="6" max="30" step="2" @bind="seconds" @bind:event="oninput" /></label>
+		<label>Length <strong>@seconds</strong> s <input type="range" min="6" max="120" step="2" @bind="seconds" @bind:event="oninput" /></label>
 		<button @onclick="GenerateAsync" disabled="@busy">Generate</button>
 		<button class="secondary" @onclick="RandomSeedAsync" disabled="@busy">Random seed</button>
+		<label>Composition
+			<select @bind="FormMode" @bind:after="ChooseForm">
+				<option value="free">Free-running</option>
+				<option value="sections">Verse / chorus / bridge</option>
+				<option value="through">Sections with new material each time</option>
+			</select>
+		</label>
 	</div>
-	<div class="row">
+	<div class="control-row">
 		@foreach (var voice in Enum.GetValues<VoiceKind>())
 		{
 			<div><strong>@voice</strong>
@@ -45,7 +52,20 @@
 
 	@if (audioUrl is not null)
 	{
-		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Seconds="song.Duration.TotalSeconds" />
+		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Sections="song.Sections" Seconds="song.Duration.TotalSeconds" />
+	}
+	@if (song.Sections.Count > 0)
+	{
+		<p class="note">A and B identify returning material. Register, density and voice choices can change its performance. The comparison mode keeps the same opening, section lengths, key and tempo, then introduces new material on each later return. Short requests keep only the sections that fit.</p>
+		<table aria-label="Section timeline">
+			<thead><tr><th>Section</th><th>Material</th><th>Start (s)</th><th>End (s)</th><th>Bars</th><th>Ending</th></tr></thead>
+			<tbody>
+				@foreach (var section in song.Sections)
+				{
+					<tr><td>@section.Kind</td><td>@section.MaterialId</td><td>@section.StartSeconds.ToString("0.00")</td><td>@section.EndSeconds.ToString("0.00")</td><td>@section.Bars</td><td>@(section.IsTruncated ? "Cropped" : section.HasCadence ? "Tonic cadence" : section.HasTransitionFill ? "Drum fill" : "Transition")</td></tr>
+				}
+			</tbody>
+		</table>
 	}
 
 	<p class="note">Mute and solo remix the captured stems without generating new notes. Each part has independent random choices; removing one leaves the other parts unchanged. The original mix gain is retained, so soloing does not make a quiet track louder.</p>
@@ -81,6 +101,8 @@
 </div>
 
 @code {
+	[SupplyParameterFromQuery(Name = "form")]
+	public string? FormMode { get; set; } = "free";
 	private IJSObjectReference? module;
 	private string seedText = "42";
 	private int seconds = 10;
@@ -119,7 +141,7 @@
 		{
 			const int rate = 11025;
 			var clock = System.Diagnostics.Stopwatch.StartNew();
-			var style = new SongStyle { UsePlatformSine = true, MelodyLowMidi = melodyLow, MelodyHighMidi = melodyLow + melodySpan };
+			var style = new SongStyle { UsePlatformSine = true, MelodyLowMidi = melodyLow, MelodyHighMidi = melodyLow + melodySpan, Form = ChosenForm() };
 			sourceSong = SongGenerator.GenerateStems(seed, seconds, rate, style);
 			renderSeconds = clock.Elapsed.TotalSeconds;
 			await RemixAsync();
@@ -190,10 +212,32 @@
 		}
 	}
 
+	private void ChooseForm()
+	{
+		if (FormMode is "sections" or "through")
+		{
+			seconds = Math.Max(seconds, 60);
+		}
+	}
+
+	private SongForm? ChosenForm()
+	{
+		if (FormMode is not ("sections" or "through"))
+		{
+			return null;
+		}
+		var form = SongForms.VerseChorus;
+		return FormMode == "sections" ? form : form with
+		{
+			Sections = form.Sections.Select((s, i) => i < 3 ? s : s with { MaterialId = $"{s.MaterialId}-{i}" }).ToArray()
+		};
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
+			ChooseForm();
 			await GenerateAsync();
 		}
 	}
