@@ -49,8 +49,7 @@ public static partial class SongGenerator
 				sounds = ComposeMaterial(context, section.Bars, seed);
 				material.Add(section.MaterialId, sounds);
 			}
-			mixer.SectionIndex = placement.Index;
-			mixer.SectionEnd = placement.EndSeconds;
+			mixer.BeginSection(placement);
 			RenderMaterial(mixer, context, section, placement, sounds, seed);
 			PlayPickup(mixer, context, section, placement, sounds);
 			if (placement.HasTransitionFill)

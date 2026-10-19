@@ -81,66 +81,73 @@ public static partial class SongGenerator
 		return mixer.Finish(info);
 	}
 
+	private readonly record struct BeatChoices(int BassDegree, bool Bass, bool Kick, bool Snare, bool HiHat);
+
 	private static void PlayBar(ISongRenderer mixer, Pcg32 noise, Pcg32 rng, SongStyle style, ArrangementContext context, double t)
 	{
-		var scale = context.Scale;
-		var root = context.Info.RootMidi;
-		var brightness = context.Brightness;
-		var kickBase = context.KickBase;
-		var beat = context.Beat;
-		var bar = 4 * beat;
-		var degree = rng.Next(0, scale.Count);
+		var degree = rng.Next(0, context.Scale.Count);
 		var inversion = rng.Next(0, 3);
-		if (style.Pad)
-		{
-			var step = 0;
-			foreach (var chordStep in new[] { 0, 2, 4 })
-			{
-				var lifted = step++ < inversion ? scale.Count : 0;
-				var midi = scale.MidiOf(root + (12 * style.PadOctaveOffset), degree + chordStep + lifted);
-				while (midi >= style.MelodyLowMidi)
-				{
-					midi -= 12;
-				}
-
-				mixer.Tone(VoiceKind.Pad, midi, t, bar, new Timbre(style.PadLevel, 2, brightness * 0.25, 0, 0.3, style.PadAttackSeconds));
-			}
-		}
-
-		var fifth = scale.Count >= 7 ? 4 : 3;
+		PlayPad(mixer, style, context, degree, inversion, t);
+		var fifth = context.Scale.Count >= 7 ? 4 : 3;
 		for (var q = 0; q < 4; q++)
 		{
-			var at = t + (q * beat);
-			var playBass = rng.NextDouble() < 0.65;
-			var bassDegree = rng.NextDouble() < 0.7 ? degree : degree + fifth;
-			var playKick = rng.NextDouble() < (q is 0 or 2 ? 0.8 : 0.25);
-			var playSnare = q is 1 or 3 && rng.NextDouble() < 0.85;
-			var playHat = rng.NextDouble() < 0.7;
-			if (style.Bass && playBass)
+			var at = t + (q * context.Beat);
+			var choices = ChooseBeat(rng, degree, fifth, q);
+			if (style.Bass && choices.Bass)
 			{
-				mixer.Tone(VoiceKind.Bass, scale.MidiOf(root, bassDegree), at, beat * 1.6, new Timbre(0.22, 3, 0.5, 0, 6, 1.0 / 120));
+				mixer.Tone(VoiceKind.Bass, context.Scale.MidiOf(context.Info.RootMidi, choices.BassDegree), at, context.Beat * 1.6, new Timbre(0.22, 3, 0.5, 0, 6, 1.0 / 120));
 			}
+			PlayDrums(mixer, noise, style, context, choices, at);
+		}
+	}
 
-			if (!style.Drums)
+	private static void PlayPad(ISongRenderer mixer, SongStyle style, ArrangementContext context, int degree, int inversion, double t)
+	{
+		if (!style.Pad)
+		{
+			return;
+		}
+		var step = 0;
+		foreach (var chordStep in new[] { 0, 2, 4 })
+		{
+			var lifted = step++ < inversion ? context.Scale.Count : 0;
+			var midi = context.Scale.MidiOf(context.Info.RootMidi + (12 * style.PadOctaveOffset), degree + chordStep + lifted);
+			while (midi >= style.MelodyLowMidi)
 			{
-				continue;
+				midi -= 12;
 			}
+			mixer.Tone(VoiceKind.Pad, midi, t, context.Bar, new Timbre(style.PadLevel, 2, context.Brightness * 0.25, 0, 0.3, style.PadAttackSeconds));
+		}
+	}
 
-			if (playKick && style.Kick)
-			{
-				mixer.Kick(at, kickBase);
-			}
+	private static BeatChoices ChooseBeat(Pcg32 rng, int degree, int fifth, int q)
+	{
+		var bass = rng.NextDouble() < 0.65;
+		var bassDegree = rng.NextDouble() < 0.7 ? degree : degree + fifth;
+		var kick = rng.NextDouble() < (q is 0 or 2 ? 0.8 : 0.25);
+		var snare = q is 1 or 3 && rng.NextDouble() < 0.85;
+		var hiHat = rng.NextDouble() < 0.7;
+		return new BeatChoices(bassDegree, bass, kick, snare, hiHat);
+	}
 
-			if (playSnare)
-			{
-				mixer.Noise(VoiceKind.Snare, 38, at, 0.12, 0.20, noise, style.Snare);
-			}
-
-			mixer.Noise(VoiceKind.HiHat, 42, at, 0.04, 0.07, noise, style.HiHat);
-			if (playHat)
-			{
-				mixer.Noise(VoiceKind.HiHat, 42, at + (beat / 2), 0.04, 0.05, noise, style.HiHat);
-			}
+	private static void PlayDrums(ISongRenderer mixer, Pcg32 noise, SongStyle style, ArrangementContext context, BeatChoices choices, double at)
+	{
+		if (!style.Drums)
+		{
+			return;
+		}
+		if (choices.Kick && style.Kick)
+		{
+			mixer.Kick(at, context.KickBase);
+		}
+		if (choices.Snare)
+		{
+			mixer.Noise(VoiceKind.Snare, 38, at, 0.12, 0.20, noise, style.Snare);
+		}
+		mixer.Noise(VoiceKind.HiHat, 42, at, 0.04, 0.07, noise, style.HiHat);
+		if (choices.HiHat)
+		{
+			mixer.Noise(VoiceKind.HiHat, 42, at + (context.Beat / 2), 0.04, 0.05, noise, style.HiHat);
 		}
 	}
 
@@ -192,8 +199,14 @@ public static partial class SongGenerator
 	{
 		private double Sin(double x) => style.UsePlatformSine ? Math.Sin(x) : DeterministicMath.Sin(x);
 
-		public int? SectionIndex { get; set; }
-		public double? SectionEnd { get; set; }
+		private int? _sectionIndex;
+		private double? _sectionEnd;
+
+		public void BeginSection(SectionEvent section)
+		{
+			_sectionIndex = section.Index;
+			_sectionEnd = section.EndSeconds;
+		}
 
 		private readonly double[] _mix = new double[length];
 		private readonly List<NoteEvent> _notes = [];
@@ -211,7 +224,7 @@ public static partial class SongGenerator
 		public void Tone(VoiceKind voice, int midi, double start, double duration, Timbre timbre)
 		{
 			var frequency = Pitch.FrequencyOf(midi, referenceHz);
-			_notes.Add(new NoteEvent(voice, start, duration, midi, frequency) { SectionIndex = SectionIndex });
+			_notes.Add(new NoteEvent(voice, start, duration, midi, frequency) { SectionIndex = _sectionIndex });
 			var first = (int)(start * sampleRate);
 			var count = Math.Min((int)(duration * sampleRate), _mix.Length - first);
 			var phaseOffset = 0.0;
@@ -242,8 +255,8 @@ public static partial class SongGenerator
 
 		public void Kick(double start, double baseHz)
 		{
-			var duration = SectionEnd is { } end ? Math.Min(0.18, end - start) : 0.18;
-			_notes.Add(new NoteEvent(VoiceKind.Kick, start, duration, 36, baseHz) { SectionIndex = SectionIndex });
+			var duration = _sectionEnd is { } end ? Math.Min(0.18, end - start) : 0.18;
+			_notes.Add(new NoteEvent(VoiceKind.Kick, start, duration, 36, baseHz) { SectionIndex = _sectionIndex });
 			var first = (int)(start * sampleRate);
 			if (first >= _mix.Length)
 			{
@@ -264,7 +277,7 @@ public static partial class SongGenerator
 		{
 			if (enabled)
 			{
-				_notes.Add(new NoteEvent(voice, start, seconds, nominalMidi, 0) { SectionIndex = SectionIndex });
+				_notes.Add(new NoteEvent(voice, start, seconds, nominalMidi, 0) { SectionIndex = _sectionIndex });
 			}
 			var first = (int)(start * sampleRate);
 			if (first >= _mix.Length)

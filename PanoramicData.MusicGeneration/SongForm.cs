@@ -87,16 +87,29 @@ public sealed record SongForm
 	private static void ValidateSection(SongSection section)
 	{
 		ArgumentNullException.ThrowIfNull(section);
-		if (!Enum.IsDefined(section.Kind) || string.IsNullOrWhiteSpace(section.MaterialId) || section.MaterialId.Length > 80
-			|| section.Bars is < 1 or > 64 || section.MelodyOctaveOffset is < -2 or > 2)
+		ValidateMaterial(section);
+		ValidateUnitInterval(section.MelodyDensity, nameof(section.MelodyDensity));
+		ValidateUnitInterval(section.PickupBeats, nameof(section.PickupBeats));
+		if (section.MelodyOctaveOffset is < -2 or > 2 || section.Voices?.Any(v => !Enum.IsDefined(v)) == true)
 		{
-			throw new ArgumentException("A section needs a valid kind, a material identity of at most 80 characters, 1 to 64 bars and an octave shift from -2 to 2.");
+			throw new ArgumentException("The octave shift must be -2 to 2, and voices must be valid.");
 		}
-		if (!double.IsFinite(section.MelodyDensity) || section.MelodyDensity is < 0 or > 1
-			|| !double.IsFinite(section.PickupBeats) || section.PickupBeats is < 0 or > 1
-			|| section.Voices?.Any(v => !Enum.IsDefined(v)) == true)
+	}
+
+	private static void ValidateMaterial(SongSection section)
+	{
+		if (!Enum.IsDefined(section.Kind) || string.IsNullOrWhiteSpace(section.MaterialId) || section.MaterialId.Length > 80
+			|| section.Bars is < 1 or > 64)
 		{
-			throw new ArgumentException("Density and pickup beats must be finite values from zero to one, and voices must be valid.");
+			throw new ArgumentException("A section needs a valid kind, a material identity of at most 80 characters and 1 to 64 bars.");
+		}
+	}
+
+	private static void ValidateUnitInterval(double value, string name)
+	{
+		if (!double.IsFinite(value) || value is < 0 or > 1)
+		{
+			throw new ArgumentException("The value must be finite and between zero and one.", name);
 		}
 	}
 }

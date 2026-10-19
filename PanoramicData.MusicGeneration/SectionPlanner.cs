@@ -25,30 +25,33 @@ internal static class SectionPlanner
 			{
 				continue;
 			}
-			var section = form.Sections[index];
 			elapsedBars += lengths[index];
-			var end = info.LeadInSeconds + (elapsedBars * bar);
-			if (Math.Abs(end - seconds) < 1e-9)
-			{
-				end = seconds;
-			}
-			var complete = end <= seconds;
-			result.Add(new SectionEvent
-			{
-				Index = index,
-				Kind = section.Kind,
-				MaterialId = section.MaterialId,
-				StartSeconds = start,
-				EndSeconds = Math.Min(end, seconds),
-				PlannedEndSeconds = end,
-				Bars = lengths[index],
-				PickupStartSeconds = Math.Max(0, start - (section.PickupBeats * beat)),
-				HasCadence = complete && index == lengths.Length - 1 && form.EndWithCadence,
-				HasTransitionFill = complete && index < lengths.Length - 1 && section.TransitionFill
-					&& section.Voices?.Contains(VoiceKind.Snare) != false
-			});
+			var end = SnapEnd(info.LeadInSeconds + (elapsedBars * bar), seconds);
+			result.Add(CreateSection(form, index, lengths[index], start, end, seconds, beat));
 		}
 		return result;
+	}
+
+	private static double SnapEnd(double end, double seconds) => Math.Abs(end - seconds) < 1e-9 ? seconds : end;
+
+	private static SectionEvent CreateSection(SongForm form, int index, int bars, double start, double end, double seconds, double beat)
+	{
+		var section = form.Sections[index];
+		var complete = end <= seconds;
+		return new SectionEvent
+		{
+			Index = index,
+			Kind = section.Kind,
+			MaterialId = section.MaterialId,
+			StartSeconds = start,
+			EndSeconds = Math.Min(end, seconds),
+			PlannedEndSeconds = end,
+			Bars = bars,
+			PickupStartSeconds = Math.Max(0, start - (section.PickupBeats * beat)),
+			HasCadence = complete && index == form.Sections.Count - 1 && form.EndWithCadence,
+			HasTransitionFill = complete && index < form.Sections.Count - 1 && section.TransitionFill
+				&& section.Voices?.Contains(VoiceKind.Snare) != false
+		};
 	}
 
 	private static int[] Fit(int[] weights, int available)
