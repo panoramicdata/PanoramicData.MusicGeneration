@@ -12,10 +12,10 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(UseLocalBlazor)' == 'true'">
-		<DefineConstants>$(DefineConstants);LOCAL_BLAZOR</DefineConstants>
+		<BlazorProjectPath Condition="'$(BlazorProjectPath)' == ''">..\..\PanoramicData.Blazor\PanoramicData.Blazor\PanoramicData.Blazor.csproj</BlazorProjectPath>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(UseLocalBlazor)' == 'true'">
-		<ProjectReference Include="..\..\PanoramicData.Blazor\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+		<ProjectReference Include="$(BlazorProjectPath)" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(UseLocalBlazor)' != 'true'">
 		<PackageReference Include="PanoramicData.Blazor" />

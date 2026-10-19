@@ -21,7 +21,9 @@ public enum FormDurationMode
 	/// <summary>Keep the specified bar counts; crop excess material or leave silence after the completed form.</summary>
 	Truncate,
 	/// <summary>Distribute available whole bars by section weight; short requests keep a prefix of the form.</summary>
-	FitWholeBars
+	FitWholeBars,
+	/// <summary>Fit whole-bar phrases, preserving phrase counts and returning material lengths; crop a short request's prefix.</summary>
+	FitWholePhrases
 }
 
 /// <summary>One section occurrence; matching material identifiers reuse the same underlying notes.</summary>
@@ -33,8 +35,11 @@ public sealed record SongSection
 	/// <summary>Stable, case-sensitive identity of the musical material.</summary>
 	public string MaterialId { get; init; } = "A";
 
-	/// <summary>Length of the reusable material in four-beat bars; also the fitting weight.</summary>
+	/// <summary>Length of each reusable phrase in four-beat bars; also its fitting weight and minimum phrase length.</summary>
 	public int Bars { get; init; } = 2;
+
+	/// <summary>Number of phrase repeats. Use Truncate or FitWholePhrases to preserve this count. Default one.</summary>
+	public int PhraseCount { get; init; } = 1;
 
 	/// <summary>Melody octave shift, folded back into the style's melody range. Default zero.</summary>
 	public int MelodyOctaveOffset { get; init; }
@@ -72,15 +77,15 @@ public sealed record SongForm
 			throw new ArgumentException("A form needs 1 to 64 sections and a valid duration mode.");
 		}
 
-		var lengths = new Dictionary<string, int>(StringComparer.Ordinal);
+		var lengths = new Dictionary<string, (int Bars, int Phrases)>(StringComparer.Ordinal);
 		foreach (var section in Sections)
 		{
 			ValidateSection(section);
-			if (lengths.TryGetValue(section.MaterialId, out var bars) && bars != section.Bars)
+			if (lengths.TryGetValue(section.MaterialId, out var length) && length != (section.Bars, section.PhraseCount))
 			{
-				throw new ArgumentException("Occurrences of one material identity must have the same template bar count.");
+				throw new ArgumentException("Occurrences of one material identity must have the same phrase length and count.");
 			}
-			lengths[section.MaterialId] = section.Bars;
+			lengths[section.MaterialId] = (section.Bars, section.PhraseCount);
 		}
 	}
 
@@ -99,9 +104,9 @@ public sealed record SongForm
 	private static void ValidateMaterial(SongSection section)
 	{
 		if (!Enum.IsDefined(section.Kind) || string.IsNullOrWhiteSpace(section.MaterialId) || section.MaterialId.Length > 80
-			|| section.Bars is < 1 or > 64)
+			|| section.Bars is < 1 or > 64 || section.PhraseCount is < 1 or > 16)
 		{
-			throw new ArgumentException("A section needs a valid kind, a material identity of at most 80 characters and 1 to 64 bars.");
+			throw new ArgumentException("A section needs a valid kind, an identity of at most 80 characters, 1 to 64 bars per phrase and 1 to 16 phrases.");
 		}
 	}
 
@@ -117,19 +122,19 @@ public sealed record SongForm
 /// <summary>Original, reusable form examples.</summary>
 public static class SongForms
 {
-	/// <summary>Intro, A-B-A-B-C-B, outro, fitted to the requested number of whole bars.</summary>
+	/// <summary>Intro, A-B-A-B-C-B, outro, with four phrases in every verse and chorus; fitted in whole-bar phrases.</summary>
 	public static SongForm VerseChorus => new()
 	{
-		DurationMode = FormDurationMode.FitWholeBars,
+		DurationMode = FormDurationMode.FitWholePhrases,
 		Sections =
 		[
 			new() { Kind = SectionKind.Intro, MaterialId = "intro", Bars = 1, Voices = [VoiceKind.Pad, VoiceKind.Bass] },
-			new() { Kind = SectionKind.Verse, MaterialId = "A", MelodyDensity = 0.75, TransitionFill = true },
-			new() { Kind = SectionKind.Chorus, MaterialId = "B", MelodyOctaveOffset = 1, PickupBeats = 0.5, TransitionFill = true },
-			new() { Kind = SectionKind.Verse, MaterialId = "A", MelodyDensity = 0.75, TransitionFill = true },
-			new() { Kind = SectionKind.Chorus, MaterialId = "B", MelodyOctaveOffset = 1, PickupBeats = 0.5, TransitionFill = true },
+			new() { Kind = SectionKind.Verse, MaterialId = "A", PhraseCount = 4, MelodyDensity = 0.75, TransitionFill = true },
+			new() { Kind = SectionKind.Chorus, MaterialId = "B", PhraseCount = 4, MelodyOctaveOffset = 1, PickupBeats = 0.5, TransitionFill = true },
+			new() { Kind = SectionKind.Verse, MaterialId = "A", PhraseCount = 4, MelodyDensity = 0.75, TransitionFill = true },
+			new() { Kind = SectionKind.Chorus, MaterialId = "B", PhraseCount = 4, MelodyOctaveOffset = 1, PickupBeats = 0.5, TransitionFill = true },
 			new() { Kind = SectionKind.Bridge, MaterialId = "C", Voices = [VoiceKind.Pad, VoiceKind.Melody], TransitionFill = true },
-			new() { Kind = SectionKind.Chorus, MaterialId = "B", MelodyOctaveOffset = 1, PickupBeats = 0.5 },
+			new() { Kind = SectionKind.Chorus, MaterialId = "B", PhraseCount = 4, MelodyOctaveOffset = 1, PickupBeats = 0.5 },
 			new() { Kind = SectionKind.Outro, MaterialId = "outro", Bars = 1 }
 		]
 	};
@@ -158,6 +163,12 @@ public sealed record SectionEvent
 
 	/// <summary>Assigned whole bars after the duration policy is applied.</summary>
 	public int Bars { get; init; }
+
+	/// <summary>Number of planned phrase repeats; cropping can make the last repeat incomplete.</summary>
+	public int PhraseCount { get; init; } = 1;
+
+	/// <summary>Whole bars in each reusable phrase.</summary>
+	public int PhraseBars { get; init; } = 1;
 
 	/// <summary>Earliest permitted pickup start, in seconds.</summary>
 	public double PickupStartSeconds { get; init; }

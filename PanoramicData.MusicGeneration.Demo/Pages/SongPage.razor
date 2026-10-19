@@ -67,17 +67,17 @@
 				</select>
 			</label>
 		</div>
-		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Sections="song.Sections" Seconds="song.Duration.TotalSeconds" ShowSpectrogram="ShowSpectrogram" />
+		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Sections="song.Sections" ShowSpectrogram="ShowSpectrogram" />
 	}
 	@if (song.Sections.Count > 0)
 	{
 		<p class="note">A and B identify returning material. Register, density and voice choices can change its performance. The comparison mode keeps the same opening, section lengths, key and tempo, then introduces new material on each later return. Short requests keep only the sections that fit.</p>
 		<table aria-label="Section timeline">
-			<thead><tr><th>Section</th><th>Material</th><th>Start (s)</th><th>End (s)</th><th>Bars</th><th>Ending</th></tr></thead>
+			<thead><tr><th>Section</th><th>Material</th><th>Start (s)</th><th>End (s)</th><th>Bars</th><th>Planned phrases</th><th>Bars / phrase</th><th>Ending</th></tr></thead>
 			<tbody>
 				@foreach (var section in song.Sections)
 				{
-					<tr><td>@section.Kind</td><td>@section.MaterialId</td><td>@section.StartSeconds.ToString("0.00")</td><td>@section.EndSeconds.ToString("0.00")</td><td>@section.Bars</td><td>@(section.IsTruncated ? "Cropped" : section.HasCadence ? "Tonic cadence" : section.HasTransitionFill ? "Drum fill" : "Transition")</td></tr>
+					<tr><td>@section.Kind</td><td>@section.MaterialId</td><td>@section.StartSeconds.ToString("0.00")</td><td>@section.EndSeconds.ToString("0.00")</td><td>@section.Bars</td><td>@section.PhraseCount</td><td>@section.PhraseBars</td><td>@(section.IsTruncated ? "Cropped" : section.HasCadence ? "Tonic cadence" : section.HasTransitionFill ? "Drum fill" : "Transition")</td></tr>
 				}
 			</tbody>
 		</table>

@@ -1,78 +1,35 @@
 @using PanoramicData.Blazor
-@implements IAsyncDisposable
-@inject IJSRuntime JS
+@using PanoramicData.Blazor.Models
 
 <PDMediaPlayer Src="@Src" Title="Generated audio" Segments="MediaSections" ShowSegmentList="false"
-	ShowSpectrogram="@(ShowSpectrogram && readySource == Src)" SpectrogramHeight="360" OnReady="OnMediaReady" @attributes="NoteParameters" />
-@if (!IntegratedNotes && !ShowSpectrogram)
-{
-	<canvas id="@canvasId" width="1000" height="360" aria-label="Piano roll: pitch against time"></canvas>
-}
+	ShowSpectrogram="@ShowSpectrogram" SpectrogramHeight="360" ShowNotes="@(!ShowSpectrogram)"
+	Notes="MediaNotes" NotesHeight="360" ShowNoteSegments="true" />
 
 @code {
 	[Parameter] public string? Src { get; set; }
 	[Parameter] public IReadOnlyList<NoteEvent> Notes { get; set; } = [];
-	[Parameter] public double Seconds { get; set; }
 	[Parameter] public IReadOnlyList<SectionEvent> Sections { get; set; } = [];
 	[Parameter] public bool ShowSpectrogram { get; set; }
-	private IReadOnlyList<SectionEvent>? drawnSections;
-	private string? readySource;
-	// Wait for metadata so the spectrogram reads the replacement audio rather than the previous currentSrc.
-	private void OnMediaReady(TimeSpan? _) => readySource = Src;
-	private IReadOnlyList<PanoramicData.Blazor.Models.PDMediaSegment> MediaSections => Sections.Select(s => new PanoramicData.Blazor.Models.PDMediaSegment
+
+	private IReadOnlyList<PDMediaSegment> MediaSections => Sections.Select(s => new PDMediaSegment
 	{
 		Id = $"section-{s.Index}", Start = TimeSpan.FromSeconds(s.StartSeconds), End = TimeSpan.FromSeconds(s.EndSeconds),
-		Kind = s.Kind.ToString(), Label = $"{s.Kind}: {s.MaterialId}"
+		Kind = s.Kind.ToString(), Label = $"{s.Kind}: {s.MaterialId}{(s.IsTruncated ? " (cropped)" : string.Empty)}",
+		Detail = DescribePhrases(s)
 	}).ToArray();
-	private readonly string canvasId = $"roll-{Guid.NewGuid():N}";
-	private IJSObjectReference? module;
-	private IReadOnlyList<NoteEvent>? drawnNotes;
 
-#if LOCAL_BLAZOR
-	private static bool IntegratedNotes => true;
-	private Dictionary<string, object> NoteParameters => new()
+	private static string DescribePhrases(SectionEvent section)
 	{
-		["ShowNotes"] = !ShowSpectrogram,
-		["Notes"] = Notes.Select(n => new PanoramicData.Blazor.Models.PDMediaNote
-		{
-			Start = TimeSpan.FromSeconds(n.StartSeconds), Duration = TimeSpan.FromSeconds(n.DurationSeconds),
-			MidiNote = n.MidiNote, Voice = n.Voice.ToString(), Label = Pitch.NameOf(n.MidiNote),
-			Color = Colours[(int)n.Voice]
-		}).ToArray()
-	};
+		var phrase = section.PhraseCount == 1 ? "phrase" : "phrases";
+		var bar = section.PhraseBars == 1 ? "bar" : "bars";
+		return $"{(section.IsTruncated ? "Planned " : string.Empty)}{section.PhraseCount} {phrase} × {section.PhraseBars} {bar}";
+	}
+
+	private IReadOnlyList<PDMediaNote> MediaNotes => Notes.Select(n => new PDMediaNote
+	{
+		Start = TimeSpan.FromSeconds(n.StartSeconds), Duration = TimeSpan.FromSeconds(n.DurationSeconds),
+		MidiNote = n.MidiNote, Voice = n.Voice.ToString(), Label = Pitch.NameOf(n.MidiNote), Color = Colours[(int)n.Voice]
+	}).ToArray();
+
 	private static readonly string[] Colours = ["#9b8cff", "#4cc2ff", "#7cf0b2", "#ff8f6b", "#ffd666", "#c9d3ea"];
-#else
-	private static bool IntegratedNotes => false;
-	private static Dictionary<string, object> NoteParameters => [];
-#endif
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (ShowSpectrogram)
-		{
-			drawnNotes = null;
-			drawnSections = null;
-			return;
-		}
-
-		if (!IntegratedNotes && (!ReferenceEquals(Notes, drawnNotes) || !ReferenceEquals(Sections, drawnSections)))
-		{
-			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
-			var low = Notes.Count > 0 ? Math.Min(30, Notes.Min(n => n.MidiNote)) : 30;
-			var high = Notes.Count > 0 ? Math.Max(72, Notes.Max(n => n.MidiNote)) : 84;
-			var flat = Notes.SelectMany(n => new double[] { n.StartSeconds, n.DurationSeconds, n.MidiNote, (int)n.Voice }).ToArray();
-			await module.InvokeVoidAsync("drawPianoRoll", canvasId, flat, Seconds, low, high, Enumerable.Range(low, high - low + 1).Select(Pitch.NameOf).ToArray(),
-				Sections.Select(s => new { start = s.StartSeconds, end = s.EndSeconds, label = $"{s.Kind}: {s.MaterialId}" }).ToArray());
-			drawnNotes = Notes;
-			drawnSections = Sections;
-		}
-	}
-
-	public async ValueTask DisposeAsync()
-	{
-		if (module is not null)
-		{
-			await module.DisposeAsync();
-		}
-	}
 }
