@@ -1,0 +1,57 @@
+@using PanoramicData.Blazor
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PDMediaPlayer Src="@Src" Title="Generated audio" @attributes="NoteParameters" />
+@if (!IntegratedNotes)
+{
+	<canvas id="@canvasId" width="1000" height="360" aria-label="Piano roll: pitch against time"></canvas>
+}
+
+@code {
+	[Parameter] public string? Src { get; set; }
+	[Parameter] public IReadOnlyList<NoteEvent> Notes { get; set; } = [];
+	[Parameter] public double Seconds { get; set; }
+	private readonly string canvasId = $"roll-{Guid.NewGuid():N}";
+	private IJSObjectReference? module;
+	private IReadOnlyList<NoteEvent>? drawnNotes;
+
+#if LOCAL_BLAZOR
+	private static bool IntegratedNotes => true;
+	private Dictionary<string, object> NoteParameters => new()
+	{
+		["ShowNotes"] = true,
+		["Notes"] = Notes.Select(n => new PanoramicData.Blazor.Models.PDMediaNote
+		{
+			Start = TimeSpan.FromSeconds(n.StartSeconds), Duration = TimeSpan.FromSeconds(n.DurationSeconds),
+			MidiNote = n.MidiNote, Voice = n.Voice.ToString(), Label = Pitch.NameOf(n.MidiNote),
+			Color = Colours[(int)n.Voice]
+		}).ToArray()
+	};
+	private static readonly string[] Colours = ["#9b8cff", "#4cc2ff", "#7cf0b2", "#ff8f6b", "#ffd666", "#c9d3ea"];
+#else
+	private static bool IntegratedNotes => false;
+	private static Dictionary<string, object> NoteParameters => [];
+#endif
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!IntegratedNotes && !ReferenceEquals(Notes, drawnNotes))
+		{
+			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+			var low = Notes.Count > 0 ? Math.Min(30, Notes.Min(n => n.MidiNote)) : 30;
+			var high = Notes.Count > 0 ? Math.Max(72, Notes.Max(n => n.MidiNote)) : 84;
+			var flat = Notes.SelectMany(n => new double[] { n.StartSeconds, n.DurationSeconds, n.MidiNote, (int)n.Voice }).ToArray();
+			await module.InvokeVoidAsync("drawPianoRoll", canvasId, flat, Seconds, low, high, Enumerable.Range(low, high - low + 1).Select(Pitch.NameOf).ToArray());
+			drawnNotes = Notes;
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (module is not null)
+		{
+			await module.DisposeAsync();
+		}
+	}
+}

@@ -33,10 +33,10 @@ public class GeneratorTests
 	}
 
 	private const int GoldenTempo = 87;
-	private const ulong GoldenHash = 3542020881832992938UL;
+	private const ulong GoldenHash = 8783139537262375303UL;
 
 	[Fact]
-	public void AlgorithmVersion_IsPinnedWithTheGoldenHash() => SongGenerator.Version.Should().Be(1, "bump it together with the golden hash if the output for a seed ever changes");
+	public void AlgorithmVersion_IsPinnedWithTheGoldenHash() => SongGenerator.Version.Should().Be(2, "bump it together with the golden hash if the output for a seed ever changes");
 
 	[Fact]
 	public void DifferentSeeds_GiveDifferentSongs()

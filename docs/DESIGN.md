@@ -1,6 +1,6 @@
 # PanoramicData.MusicGeneration design note
 
-Status: as built at version 0.1. Numbers marked (measured) come from the unit tests; everything else is design.
+Status: algorithm version 2. Numbers marked (measured) come from the unit tests; everything else is design.
 
 ## 1. Purpose and constraints
 
@@ -32,8 +32,8 @@ All from PCG32 stream 0, in this order:
 | Tempo | `MinTempoBpm` to `MaxTempoBpm` inclusive (default 78 to 147) |
 | Scale | one of `SongStyle.Scales` (default: major, natural minor, major pentatonic, minor pentatonic, dorian) |
 | Root | MIDI `RootMidiLow` to `RootMidiHigh` (default 36 to 47: C2 to B2) |
-| Brightness &rho; | 0.35 to 0.85 (harmonic roll-off of the melody; the pad uses &rho;/2) |
-| Vibrato rate | 4.5 to 6.5 Hz |
+| Brightness &rho; | 0.35 to 0.85 (harmonic roll-off of the melody; the pad uses &rho;/4) |
+| Vibrato rate | `VibratoMinHz` to `VibratoMaxHz` (default 4.5 to 6.5 Hz) |
 | Detune | -45 to +45 cents (default `MaxDetuneCents`), applied to the whole song: A4 = 440 &middot; 2<sup>cents/1200</sup> |
 | Kick base frequency | 42 to 66 Hz |
 | Lead-in | 0 to one bar of silence, which moves the song off the beat grid of any other song |
@@ -44,24 +44,30 @@ The song is a sequence of bars of four beats (`beat = 60 / tempo`). The bar loop
 
 | Part | Algorithm |
 |---|---|
-| Pad | Per bar: a random scale degree `d`, a random inversion 0 to 2; notes at degrees `d`, `d+2`, `d+4` above root + 24 semitones, the lowest `inversion` of them lifted one octave (`scale.Count` degrees). Amplitude 0.10, 3 harmonics, decay 0.3. |
+| Pad | Per bar: a random scale degree `d`, a random inversion 0 to 2; notes at degrees `d`, `d+2`, `d+4` above root + `12 * PadOctaveOffset` semitones (default one octave), the lowest `inversion` of them lifted one octave (`scale.Count` degrees). Each pitch is folded down by octaves until below `MelodyLowMidi`. Amplitude `PadLevel` (default 0.04), 2 harmonics, roll-off brightness / 4, attack `PadAttackSeconds` (default 0.12 s), decay 0.3. |
 | Bass | Per beat, probability 0.65 of a note at root-relative degree `d` (0.7) or `d + fifth` (0.3), where the fifth is 4 degrees for 7-note scales and 3 for pentatonic scales (both 7 semitones). Length 1.6 beats, amplitude 0.22, 3 harmonics, &rho; 0.5, decay 6. |
-| Melody | Random walk over scale degrees starting mid-range; step uniform in [-3, 3], clamped to the degrees whose MIDI note lies in `[MelodyLowMidi, MelodyHighMidi]` (the degree-0 note is the lowest note of the key at or above `MelodyLowMidi`). Length half, one or one-and-a-half beats; probability 0.85 of sounding. Amplitude 0.20, 6 harmonics, vibrato depth 0.4%, decay 5. |
+| Melody | Random walk over scale degrees starting mid-range; step uniform in [-3, 3], clamped to the degrees whose MIDI note lies in `[MelodyLowMidi, MelodyHighMidi]` (the degree-0 note is the lowest note of the key at or above `MelodyLowMidi`). Length half, one or one-and-a-half beats; probability 0.85 of sounding. Amplitude 0.20, 6 harmonics, vibrato depth `VibratoDepth` (default 0.12%), decay 5. |
 | Kick | Per beat, probability 0.8 on beats 1 and 3, 0.25 on beats 2 and 4. 0.18 s sine with frequency `f0 + 110 e^(-28t)` and amplitude `0.5 e^(-14t)`. |
 | Snare | Beats 2 and 4, probability 0.85. 0.12 s noise burst, amplitude 0.20. |
 | Hi-hat | A 0.04 s burst on each beat (amplitude 0.07) and, with probability 0.7, on the off-beat (0.05). |
 
-**Tone synthesis.** A note of length *L*, frequency *f* and weight &rho;: `x(t) = A * env(t) * &sum;_{h=1..H} &rho;^(h-1) sin(2&pi; h f' t)` where `f' = f (1 + 0.004 sin(2&pi; v t))` when vibrato is on, harmonics above Nyquist minus 200 Hz are skipped, and `env(t) = min(1, 120 t) * e^(-d t / L) * min(1, max(0, 40 (L - t)))` (attack 1/120 s, exponential decay, release 1/40 s). The phase uses absolute time so a note is continuous with itself.
+**Tone synthesis.** A note of length *L*, frequency *f* and weight &rho;: `x(t) = A * env(t) * &sum;_{h=1..H} &rho;^(h-1) sin(2&pi; h f' t)` where instantaneous `f' = f (1 + d(t) sin(2&pi; v t))` when vibrato is on. `d(t) = VibratoDepth * clamp((t - VibratoDelaySeconds) / VibratoRampSeconds, 0, 1)`; defaults are a 0.15 s delay and 0.2 s ramp. Notes shorter than 1/3 s have no vibrato. Phase is the sample-wise integral of frequency, harmonics above Nyquist minus 200 Hz are skipped, and `env(t) = min(1, 120 t) * e^(-d t / L) * min(1, max(0, 40 (L - t)))` (attack 1/120 s, exponential decay, release 1/40 s). The base phase uses absolute time, with a continuous accumulated modulation offset.
 
 **Noise.** `y_n = w_n - w_(n-1)` (first difference of white noise, so low frequencies are cut) times `e^(-6 n / N)`.
 
-**Mixing.** Parts are summed into a double buffer and the whole song is scaled so that the loudest sample is exactly 0.9.
+**Mixing.** Parts are summed into a double buffer and the whole non-silent song is scaled so that the loudest sample is exactly 0.9. Silent songs remain silent.
+
+`GenerateStems` additionally captures a double buffer per `VoiceKind`. These are **before normalisation**: sum them, then multiply by `GeneratedSong.NormalisationGain` to reproduce `Samples` within float rounding. Capturing stems does not change the mix. Muting and soloing should retain the full mix gain to preserve relative track levels; a subset can peak higher through loss of cancellation, and WAV encoding clips values outside [-1, 1]. Stems allocate six extra double buffers and are opt-in. Ordinary `Generate` leaves `Stems` empty.
+
+`Kick`, `Snare` and `HiHat` switches default true and are gated by `Drums`. Muted noise voices still advance the shared noise stream, so other drum waveforms remain identical. The switches and stem capture introduce no additional change to the default version 2 output.
 
 ## 5. API
 
 ```csharp
 GeneratedSong SongGenerator.Generate(int seed, double seconds, int sampleRate);
 GeneratedSong SongGenerator.Generate(int seed, double seconds, int sampleRate, SongStyle style);
+GeneratedSong SongGenerator.GenerateStems(int seed, double seconds, int sampleRate);
+GeneratedSong SongGenerator.GenerateStems(int seed, double seconds, int sampleRate, SongStyle style);
 const int SongGenerator.Version;
 
 record GeneratedSong(SongInfo Info, float[] Samples, int SampleRate, IReadOnlyList<NoteEvent> Notes) { TimeSpan Duration; byte[] ToWav(); }
@@ -83,7 +89,7 @@ Rendering is additive synthesis in plain loops: cost is proportional to (samples
 
 ## 7. Testing
 
-xUnit v3 with AwesomeAssertions, skips treated as failures, 100% line and branch coverage of the library. The tests cover: determinism, a golden hash of a rendered song, the PCG32 reference values, independence of notes from sample rate, the style ranges holding for many seeds, melody notes belonging to the song's scale, every voice playing in a long enough song, nothing repeating exactly, a Goertzel measurement that a melody note puts its energy at its stated frequency, voices switching off cleanly, argument validation, WAV structure, and `UsePlatformSine` agreeing with the exact sine to within 1e-4.
+xUnit v3 with AwesomeAssertions, skips treated as failures, regression coverage of the library. The tests cover: determinism, a golden hash of a rendered song, the PCG32 reference values, independence of notes from sample rate, the style ranges holding for many seeds, melody notes belonging to the song's scale, every voice playing in a long enough song, nothing repeating exactly, a Goertzel measurement that a melody note puts its energy at its stated frequency, voices switching off cleanly, argument validation, WAV structure, and `UsePlatformSine` agreeing with the exact sine to within 1e-4.
 
 ## 8. Non-goals (for now)
 
@@ -94,6 +100,11 @@ xUnit v3 with AwesomeAssertions, skips treated as failures, 100% line and branch
 ## 9. Intellectual property
 
 Everything is generated from first principles (equal temperament, additive synthesis, simple envelopes, a published pseudo-random generator, PCG32 by Melissa O'Neill, whose reference implementation is Apache-2.0 / MIT licensed and whose algorithm is written out here from the paper). No samples, recordings or third-party music are used, so generated audio carries no third-party copyright. No patent search was made; the techniques used are textbook and decades old. This is a research note, not legal advice.
+
+## Algorithm history
+
+- Version 1: original pad at root + 24, amplitude 0.10; immediate 0.4% melody vibrato.
+- Version 2: lower, quieter pad with slower attack; configurable delayed, ramped 0.12% melody vibrato using integrated phase and no vibrato on short notes. Seed 42, 8 s, 11,025 Hz: FNV sample hash `8783139537262375303`, tempo 87 bpm. Track switches and optional raw stems preserve this default output.
 
 ## 10. Open decisions for further development
 

@@ -15,10 +15,13 @@
 		<button class="secondary" @onclick="RandomSeedAsync" disabled="@busy">Random seed</button>
 	</div>
 	<div class="row">
-		<label><input type="checkbox" @bind="pad" /> pad</label>
-		<label><input type="checkbox" @bind="bass" /> bass</label>
-		<label><input type="checkbox" @bind="melody" /> melody</label>
-		<label><input type="checkbox" @bind="drums" /> drums</label>
+		@foreach (var voice in Enum.GetValues<VoiceKind>())
+		{
+			<div><strong>@voice</strong>
+				<button class="secondary" disabled="@busy" aria-pressed="@muted.Contains(voice)" @onclick="() => ToggleMuteAsync(voice)">@(muted.Contains(voice) ? "Unmute" : "Mute")</button>
+				<button class="secondary" disabled="@busy" aria-pressed="@(solo == voice)" @onclick="() => ToggleSoloAsync(voice)">Solo</button>
+			</div>
+		}
 		<label>Melody from <strong>@Pitch.NameOf(melodyLow)</strong> to <strong>@Pitch.NameOf(melodyLow + melodySpan)</strong>
 			<input type="range" min="48" max="72" step="1" @bind="melodyLow" @bind:event="oninput" />
 			<input type="range" min="12" max="36" step="1" @bind="melodySpan" @bind:event="oninput" />
@@ -42,10 +45,18 @@
 
 	@if (audioUrl is not null)
 	{
-		<audio controls src="@audioUrl" style="width:100%;margin:1rem 0"></audio>
+		<MusicPlayer Src="@audioUrl" Notes="song.Notes" Seconds="song.Duration.TotalSeconds" />
 	}
 
-	<canvas id="roll" width="1000" height="360"></canvas>
+	<p class="note">Mute and solo remix the captured stems without generating new notes. Each part has independent random choices; removing one leaves the other parts unchanged. The original mix gain is retained, so soloing does not make a quiet track louder.</p>
+	<details><summary>Notes for the audible tracks (@song.Notes.Count)</summary>
+		<table><thead><tr><th>Voice</th><th>Start (s)</th><th>Length (s)</th><th>Pitch</th></tr></thead><tbody>
+			@foreach (var n in song.Notes)
+			{
+				<tr><td>@n.Voice</td><td>@n.StartSeconds.ToString("0.00")</td><td>@n.DurationSeconds.ToString("0.00")</td><td>@Pitch.NameOf(n.MidiNote)</td></tr>
+			}
+		</tbody></table>
+	</details>
 	<p class="note">
 		<span style="color:#9b8cff">&#9632;</span> pad &nbsp; <span style="color:#4cc2ff">&#9632;</span> bass &nbsp; <span style="color:#7cf0b2">&#9632;</span> melody &nbsp;
 		<span style="color:#ff8f6b">&#9632;</span> kick &nbsp; <span style="color:#ffd666">&#9632;</span> snare &nbsp; <span style="color:#c9d3ea">&#9632;</span> hi-hat.
@@ -56,15 +67,16 @@
 <h2>How each part is made</h2>
 <div class="steps">
 	<div class="step"><strong>Pad.</strong> One chord per bar: a triad (scale degrees 0, 2 and 4 above a random degree) on the octave above the bass, optionally inverted by lifting the lowest notes one octave.
-		Slow decay, only the first 3 harmonics: a soft background.</div>
+		Folded below the melody, with two soft harmonics, amplitude 0.04 and a 0.12 s attack.</div>
 	<div class="step"><strong>Bass.</strong> On each beat there is a 65% chance of a bass note, usually the chord's root and sometimes its fifth (7 semitones up).
 		Low (the key's root sits between C2 and B2), few harmonics, quick decay.</div>
 	<div class="step"><strong>Melody.</strong> A random walk: after each note the scale degree moves by &minus;3 to +3 steps, clamped to the chosen range, with note lengths of half, one or one and a half beats and a 15% chance of a rest.
-		Six harmonics and a gentle vibrato: the frequency is multiplied by 1 + 0.004 sin(2&pi; &middot; v &middot; t) with v between 4.5 and 6.5 Hz.</div>
+		Six harmonics and gentle frequency modulation: f&prime; = f (1 + d sin(2&pi; v t)), with v between 4.5 and 6.5 Hz.
+		Depth d rises from zero after a 0.15 s delay to 0.0012 over 0.2 s; notes shorter than a third of a second have no vibrato. The oscillator integrates frequency to keep phase continuous.</div>
 	<div class="step"><strong>Kick.</strong> A single sine whose frequency falls quickly, f(t) = f<sub>0</sub> + 110 e<sup>&minus;28t</sup>, with amplitude 0.5 e<sup>&minus;14t</sup>: the thump of a drum skin relaxing.</div>
 	<div class="step"><strong>Snare and hi-hat.</strong> White noise passed through a first-difference filter, y<sub>n</sub> = w<sub>n</sub> &minus; w<sub>n&minus;1</sub>, which cuts the low frequencies,
 		times a fast decay e<sup>&minus;6u</sup> over the burst. The snare is longer and louder than the hat.</div>
-	<div class="step"><strong>Envelope.</strong> Every tone is multiplied by attack &times; decay &times; release: a 1/120 s linear rise (so there is no click), an exponential decay e<sup>&minus;d&middot;t/length</sup>, and a 1/40 s fade at the end.</div>
+	<div class="step"><strong>Envelope.</strong> Every tone is multiplied by attack &times; decay &times; release: a 1/120 s linear rise (0.12 s for the pad) (so there is no click), an exponential decay e<sup>&minus;d&middot;t/length</sup>, and a 1/40 s fade at the end.</div>
 	<div class="step"><strong>Mixing.</strong> The parts are summed and the whole song is scaled so that its loudest sample is exactly 0.9.</div>
 </div>
 
@@ -73,10 +85,9 @@
 	private string seedText = "42";
 	private int seconds = 10;
 	private double renderSeconds;
-	private bool pad = true;
-	private bool bass = true;
-	private bool melody = true;
-	private bool drums = true;
+	private readonly HashSet<VoiceKind> muted = [];
+	private VoiceKind? solo;
+	private GeneratedSong? sourceSong;
 	private int melodyLow = 60;
 	private int melodySpan = 24;
 	private GeneratedSong? song;
@@ -108,20 +119,10 @@
 		{
 			const int rate = 11025;
 			var clock = System.Diagnostics.Stopwatch.StartNew();
-			var style = new SongStyle { UsePlatformSine = true, Pad = pad, Bass = bass, Melody = melody, Drums = drums, MelodyLowMidi = melodyLow, MelodyHighMidi = melodyLow + melodySpan };
-			song = SongGenerator.Generate(seed, seconds, rate, style);
+			var style = new SongStyle { UsePlatformSine = true, MelodyLowMidi = melodyLow, MelodyHighMidi = melodyLow + melodySpan };
+			sourceSong = SongGenerator.GenerateStems(seed, seconds, rate, style);
 			renderSeconds = clock.Elapsed.TotalSeconds;
-			var js = await ModuleAsync();
-			audioUrl = await js.InvokeAsync<string>("createAudioUrl", song.ToWav());
-
-			var notes = song.Notes.SelectMany(n => new double[] { n.StartSeconds, n.DurationSeconds, n.MidiNote, (int)n.Voice }).ToArray();
-			var low = Math.Min(30, melodyLow);
-			var high = melodyLow + melodySpan;
-			var names = Enumerable.Range(low, high - low + 1).Select(Pitch.NameOf).ToArray();
-			// The canvas only exists once the results have been rendered, so render first, then draw on it.
-			StateHasChanged();
-			await Task.Delay(50);
-			await js.InvokeVoidAsync("drawPianoRoll", "roll", notes, seconds, low, high, names);
+			await RemixAsync();
 		}
 		catch (ArgumentException ex)
 		{
@@ -131,6 +132,61 @@
 		{
 			busy = false;
 			StateHasChanged();
+		}
+	}
+
+	private Task ToggleMuteAsync(VoiceKind voice) => UpdateTracksAsync(() =>
+	{
+		if (!muted.Add(voice))
+		{
+			muted.Remove(voice);
+		}
+	});
+
+	private Task ToggleSoloAsync(VoiceKind voice) => UpdateTracksAsync(() => solo = solo == voice ? null : voice);
+
+	private async Task UpdateTracksAsync(Action update)
+	{
+		if (busy)
+		{
+			return;
+		}
+		busy = true;
+		try
+		{
+			update();
+			await RemixAsync();
+		}
+		finally
+		{
+			busy = false;
+		}
+	}
+
+	private async Task RemixAsync()
+	{
+		if (sourceSong is null)
+		{
+			return;
+		}
+		var active = Enum.GetValues<VoiceKind>().Where(v => solo is { } selected ? v == selected : !muted.Contains(v)).ToHashSet();
+		var samples = new float[sourceSong.Samples.Length];
+		for (var i = 0; i < samples.Length; i++)
+		{
+			var sum = 0.0;
+			foreach (var voice in active)
+			{
+				sum += sourceSong.Stems[voice][i];
+			}
+			samples[i] = (float)(sum * sourceSong.NormalisationGain);
+		}
+		song = sourceSong with { Samples = samples, Notes = sourceSong.Notes.Where(n => active.Contains(n.Voice)).ToArray() };
+		var js = await ModuleAsync();
+		var previousUrl = audioUrl;
+		audioUrl = await js.InvokeAsync<string>("createAudioUrl", song.ToWav());
+		if (previousUrl is not null)
+		{
+			await js.InvokeVoidAsync("revokeAudioUrl", previousUrl);
 		}
 	}
 
@@ -146,6 +202,10 @@
 	{
 		if (module is not null)
 		{
+			if (audioUrl is not null)
+			{
+				await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+			}
 			await module.DisposeAsync();
 		}
 	}

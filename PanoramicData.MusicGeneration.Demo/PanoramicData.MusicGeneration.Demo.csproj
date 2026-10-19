@@ -11,6 +11,15 @@
 		<NoWarn>$(NoWarn);CA2007;CA1812</NoWarn>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(UseLocalBlazor)' == 'true'">
+		<DefineConstants>$(DefineConstants);LOCAL_BLAZOR</DefineConstants>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(UseLocalBlazor)' == 'true'">
+		<ProjectReference Include="..\..\PanoramicData.Blazor\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(UseLocalBlazor)' != 'true'">
+		<PackageReference Include="PanoramicData.Blazor" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />

@@ -41,7 +41,7 @@
 	</div>
 	@if (audioUrl is not null)
 	{
-		<audio controls autoplay src="@audioUrl" style="width:100%;margin-top:0.75rem"></audio>
+		<MusicPlayer Src="@audioUrl" Notes="playedNotes" Seconds="2" />
 	}
 </div>
 
@@ -59,7 +59,7 @@
 </p>
 <p class="formula">x(t) = &sum;<sub>h=1</sub><sup>H</sup> &rho;<sup>h&minus;1</sup> &middot; sin(2&pi; &middot; h &middot; f &middot; t)</p>
 <p>
-	with &rho; between 0.35 and 0.85 (the song's "brightness": bigger means more upper harmonics). The tune uses 6 harmonics; the pad and bass use 3. Here is the harmonic series for
+	with &rho; between 0.35 and 0.85 (the song's "brightness": bigger means more upper harmonics). The tune uses 6 harmonics; the pad uses 2 and the bass uses 3. Here is the harmonic series for
 	the note you chose, with each harmonic's weight:
 </p>
 
@@ -78,6 +78,7 @@
 	private int note = 69;
 	private int cents;
 	private string? audioUrl;
+	private IReadOnlyList<NoteEvent> playedNotes = [];
 
 	private double Frequency => Pitch.FrequencyOf(note + (cents / 100.0));
 
@@ -103,6 +104,11 @@
 		}
 
 		module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+		playedNotes = [new NoteEvent(VoiceKind.Melody, 0, 2, note, frequency)];
+		if (audioUrl is not null)
+		{
+			await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+		}
 		audioUrl = await module.InvokeAsync<string>("createAudioUrl", WavEncoder.Encode(samples, rate));
 	}
 
@@ -110,6 +116,10 @@
 	{
 		if (module is not null)
 		{
+			if (audioUrl is not null)
+			{
+				await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+			}
 			await module.DisposeAsync();
 		}
 	}
