@@ -84,6 +84,7 @@
 		var position = Math.Clamp(offset / (black ? 116 : 180), 0, 1);
 		velocity = (int)Math.Round(35 + position * 92);
 		attackMilliseconds = 150 * (1 - position) + 2;
+		var attack = attackMilliseconds / 1000;
 		lastNote = Pitch.NameOf(midi);
 		var bucket = Math.Clamp((int)Math.Round(velocity / 16.0) * 16, 1, 127);
 		velocity = bucket;
@@ -101,7 +102,7 @@
 				if (cache.Count >= 128) { cache.Clear(); }
 				cache[key] = wav;
 			}
-			await module.InvokeVoidAsync("playKeyboardSample", wav, attackMilliseconds / 1000, velocity / 127.0);
+			await module.InvokeVoidAsync("playKeyboardSample", wav, attack, bucket / 127.0);
 		}
 		catch (OperationCanceledException) { }
 		catch (Exception ex) when (ex is ArgumentException or JSException) { error = ex.Message; }

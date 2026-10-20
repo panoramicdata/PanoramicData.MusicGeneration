@@ -88,6 +88,10 @@ public partial class StudioPage
 		{
 			await RenderAsync(document.Score);
 			notice = "Saved written score restored and rendered without composing new notes.";
+			if (document.BankSha256 is not null && document.BankSha256 != rendered!.Metadata.BankSha256)
+			{
+				notice += " The instrument bank differs from the saved version, so its sound may differ.";
+			}
 		}
 		finally { busy = false; }
 	}

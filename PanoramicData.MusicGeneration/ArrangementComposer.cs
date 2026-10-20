@@ -118,8 +118,7 @@ public static partial class ArrangementComposer
 				PlannedEndSeconds = end,
 				Bars = bars,
 				PhraseCount = bars == 8 ? 4 : 1,
-				PhraseBars = bars == 8 ? 2 : bars,
-				HasCadence = kind == SectionKind.Outro && end <= settings.Seconds
+				PhraseBars = bars == 8 ? 2 : bars
 			});
 			at = end;
 		}
