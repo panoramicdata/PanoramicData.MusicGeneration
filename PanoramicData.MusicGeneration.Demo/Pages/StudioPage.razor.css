@@ -15,3 +15,6 @@ input[type=number] { width: 6rem; }
 progress { display: block; width: 100%; margin-top: 0.5rem; }
 @media (max-width: 650px) { .layer-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 400px) { .layer-row { grid-template-columns: 1fr; } }
+.presence-settings { grid-column: 1 / -1; min-width: 0; width: 100%; }
+.ending-settings { margin-bottom: 1rem; }
+.expression-controls { margin-top: 1rem; }

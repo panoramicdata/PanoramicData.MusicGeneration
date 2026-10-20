@@ -1,3 +1,4 @@
+using System.Text.Json;
 using PanoramicData.MusicGeneration.SoundFonts;
 
 namespace PanoramicData.MusicGeneration.Test;
@@ -12,11 +13,12 @@ public class LayeredRenderTests
 	{
 		var score = ArrangementComposer.Compose(ArrangementPresets.ForGenre(MusicGenre.Classical) with { Seconds = 6 });
 		var first = await RenderAsync(score);
-		var second = await RenderAsync(score);
+		var restored = JsonSerializer.Deserialize<ArrangedScore>(JsonSerializer.Serialize(score))!;
+		var second = await RenderAsync(restored);
 		first.Song.Samples.Should().Equal(second.Song.Samples);
 		first.Song.Notes.Should().BeEquivalentTo(score.Tracks.SelectMany(t => t.Notes));
 		first.Metadata.Layers.Should().Equal(score.Settings.Layers);
-		first.Song.Duration.TotalSeconds.Should().Be(6);
+		first.Song.Duration.TotalSeconds.Should().BeApproximately(score.PerformedSeconds, 1.0 / 22050);
 		first.Song.Samples.Should().OnlyContain(s => float.IsFinite(s));
 		first.Song.Samples.Should().Contain(s => s != 0);
 		first.Song.Stems.Should().BeEmpty("layers are mixed sequentially rather than retaining every raw buffer");
@@ -52,6 +54,30 @@ public class LayeredRenderTests
 		earlier.Metadata.CompositionVersion.Should().Be(0);
 		earlier.Song.Notes.Should().BeEquivalentTo(score.Tracks.SelectMany(t => t.Notes));
 		await Assert.ThrowsAsync<ArgumentException>(() => RenderAsync(score with { Version = 999 }));
+	}
+
+	[Fact]
+	public async Task FadeEnding_ChangesTheAudioEnvelopeAndReleasesToExactSilence()
+	{
+		var layer = new InstrumentLayer { Id = "held", Pattern = LayerPattern.Chords, Program = 48 };
+		var settings = new ArrangementSettings { Seconds = 12, Layers = [layer] };
+		var score = new ArrangedScore
+		{
+			Settings = settings,
+			Tracks = [new(layer, [new(VoiceKind.Pad, 0, 11, 60, Pitch.FrequencyOf(60)) { LayerId = layer.Id }])],
+			Chords = [new("C", 0, [0, 4, 7], 0, 11.5)],
+			Sections = [new() { Kind = SectionKind.Outro, StartSeconds = 0, EndSeconds = 11.5 }],
+			PerformedSeconds = 11.85,
+			Ending = new(EndingKind.Fade, 0, 11.5, 0.35)
+		};
+		var fade = await RenderAsync(score);
+		var held = await RenderAsync(score with { Ending = score.Ending with { Kind = EndingKind.Cadence } });
+		var start = 8 * 22050;
+		var fadingEnergy = fade.Song.Samples.Skip(start).Take(22050).Average(s => (double)s * s);
+		var heldEnergy = held.Song.Samples.Skip(start).Take(22050).Average(s => (double)s * s);
+		fadingEnergy.Should().BeLessThan(heldEnergy * 0.02);
+		fade.Song.Samples[^1].Should().Be(0);
+		held.Song.Samples[^1].Should().Be(0);
 	}
 
 	[Fact]

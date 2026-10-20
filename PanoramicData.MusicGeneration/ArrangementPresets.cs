@@ -29,7 +29,17 @@ public static class ArrangementPresets
 		Pattern = pattern,
 		Program = program,
 		Gain = gain,
+		Presence = DefaultPresence(pattern),
 		Bank = pattern is LayerPattern.Kick or LayerPattern.Snare or LayerPattern.HiHat ? 128 : 0
+	};
+
+	private static LayerPresence DefaultPresence(LayerPattern pattern) => pattern switch
+	{
+		LayerPattern.Countermelody => new() { Intro = 0.1, Verse = 0.25, Chorus = 0.75, Bridge = 0.6, Outro = 0.5 },
+		LayerPattern.Snare => new() { Intro = 0.35, Verse = 0.85, Chorus = 0.9, Bridge = 0.55 },
+		LayerPattern.Arpeggio => new() { Intro = 0.75, Verse = 0.65, Bridge = 0.8 },
+		LayerPattern.Melody => new() { Intro = 0.65 },
+		_ => new()
 	};
 
 	private static InstrumentLayer[] Band(int lead, int chords, int bass) =>

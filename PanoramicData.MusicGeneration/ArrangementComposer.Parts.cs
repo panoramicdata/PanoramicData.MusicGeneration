@@ -4,6 +4,8 @@ public static partial class ArrangementComposer
 {
 	private static void WriteBar(BarContext bar, List<NoteEvent> notes)
 	{
+		if (WriteEndingHit(bar, notes)) { return; }
+		if (IntroRest(bar)) { return; }
 		switch (bar.Layer.Pattern)
 		{
 			case LayerPattern.Chords: Chords(bar, notes); break;
@@ -65,32 +67,38 @@ public static partial class ArrangementComposer
 
 	private static void Melody(BarContext bar, List<NoteEvent> notes, bool answer)
 	{
-		if (answer && bar.Index % 2 == 0) { return; }
+		if (answer && bar.LocalBar % 2 == 0) { return; }
 		var times = MelodyRhythm(bar, answer);
-		var rng = new Pcg32(bar.Settings.Seed, (bar.Index % 2) + (answer ? 301 : 201));
+		var rng = new Pcg32(bar.Settings.Seed, (bar.LocalBar % 2) + (answer ? 301 : 201));
 		var motif = Motif(rng);
 		for (var i = 0; i < times.Length; i++)
 		{
-			var degree = motif[(i + bar.Index % 2 * 3) % motif.Length];
+			var degree = PhraseDegree(bar, motif[(i + bar.LocalBar % 2 * 3) % motif.Length]);
 			var variation = MotifVariation(bar, rng);
 			var target = MelodyTarget(bar, degree + variation, answer);
 			var strong = IsBeat(times[i]);
 			var pitch = MelodyPitch(bar, target, strong);
-			var next = i + 1 < times.Length ? times[i + 1] : bar.BeatsPerBar - 0.15;
+			var next = i + 1 < times.Length ? times[i + 1] : bar.BeatsPerBar - 1.0;
 			Add(bar, notes, pitch, times[i], Math.Max(0.15, next - times[i]) * 0.9, strong ? 2 : -12);
 		}
 	}
 
+	private static int PhraseDegree(BarContext bar, int degree)
+	{
+		var phrase = bar.LocalBar / 2;
+		return phrase == 2 ? degree + 2 : degree;
+	}
+
 	private static int MelodyTarget(BarContext bar, int degree, bool answer)
 	{
-		var lift = bar.Section.Kind == SectionKind.Chorus ? 3 : 0;
+		var lift = UsesHook(bar) ? 7 : 0;
 		return 55 + bar.Settings.Key + degree + (answer ? 5 : 0) + lift;
 	}
 
 	private static bool IsBeat(double at) => Math.Abs(at - Math.Round(at)) < 1e-8;
 
 	private static int MotifVariation(BarContext bar, Pcg32 rng) =>
-		bar.Index % 8 >= 6 && rng.NextDouble() < bar.Settings.Variation ? 1 : 0;
+		bar.LocalBar % 8 >= 6 && rng.NextDouble() < bar.Settings.Variation ? 1 : 0;
 
 	private static int[] Motif(Pcg32 rng) => rng.Next(0, 4) switch
 	{
@@ -102,10 +110,18 @@ public static partial class ArrangementComposer
 
 	private static double[] MelodyRhythm(BarContext bar, bool answer)
 	{
-		if (bar.BeatsPerBar == 3) { return answer ? [1.5, 2.5] : [0, 1, 1.5, 2]; }
-		if (answer) { return [1.5, 2.5, 3]; }
+		if (bar.BeatsPerBar == 3) { return answer ? [2.5] : [0, 1, 1.5]; }
+		if (answer) { return [3, 3.5]; }
+		return LeadRhythm(bar);
+	}
+
+	private static double[] LeadRhythm(BarContext bar)
+	{
+		if (SparseIntro(bar)) { return [0, 1.5]; }
+		if (bar.Section.Kind == SectionKind.Bridge) { return [0.5, 1.5, 2.5]; }
+		if (UsesHook(bar)) { return bar.LocalBar % 2 == 0 ? [0, 0.5, 1.5, 2.5] : [0, 1, 2]; }
 		if (bar.Settings.Beat == MusicBeat.Stride) { return [0, 0.5, 1.5, 2.5, 3.5]; }
-		return bar.Index % 2 == 0 ? [0, 0.75, 1.5, 2, 3] : [0, 0.5, 1, 2, 2.75];
+		return bar.LocalBar % 2 == 0 ? [0, 0.75, 1.5, 2.5] : [0, 0.5, 1.5];
 	}
 
 	private static int MelodyPitch(BarContext bar, int target, bool strong)
@@ -125,6 +141,7 @@ public static partial class ArrangementComposer
 		var key = bar.Layer.Pattern switch { LayerPattern.Kick => 36, LayerPattern.Snare => 38, _ => 42 };
 		if (bar.Settings.Beat == MusicBeat.BossaNova && key == 38) { key = 37; }
 		foreach (var at in starts) { Add(bar, notes, key, at, 0.18, IsBeat(at) ? 0 : -16); }
+		TransitionFill(bar, notes, key);
 	}
 
 	private static double[] DrumStarts(MusicBeat beat, LayerPattern pattern)

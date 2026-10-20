@@ -30,11 +30,27 @@
 		<p class="note">The “four chords” choice is the common I–V–vi–IV pattern in a major key, associated with the Axis of Awesome medley. Here it drives original generated parts. Custom symbols support major, minor, seventh, major/minor seventh, diminished, augmented and suspended chords.</p>
 		<div class="control-row">
 			<label>Seed <input type="number" @bind="seed" @bind:after="MarkDirty" /></label>
-			<label>Length <strong>@seconds s</strong><input type="range" min="6" max="300" step="2" @bind="seconds" @bind:after="MarkDirty" /></label>
+			<label>Length ceiling <strong>@(TimeSpan.FromSeconds(seconds).ToString(@"m\:ss"))</strong><input type="range" min="6" max="300" step="2" @bind="seconds" @bind:after="MarkDirty" /></label>
 			<label>Swing <input type="range" min="0" max="0.4" step="0.01" @bind="swing" @bind:after="MarkDirty" /> @swing.ToString("P0")</label>
 			<label>Motif variation <input type="range" min="0" max="1" step="0.05" @bind="variation" @bind:after="MarkDirty" /> @variation.ToString("P0")</label>
 			<label><input type="checkbox" @bind="sections" @bind:after="MarkDirty" /> Verse / chorus sections</label>
 		</div>
+		<div class="control-row expression-controls">
+			<label>Progression variation <input type="range" min="0" max="1" step="0.05" @bind="progressionVariation" @bind:after="MarkDirty" /> @progressionVariation.ToString("P0")</label>
+			<label>Section contrast <input type="range" min="0" max="1" step="0.05" @bind="sectionContrast" @bind:after="MarkDirty" /> @sectionContrast.ToString("P0")</label>
+			<label>Intro variation <input type="range" min="0" max="1" step="0.05" @bind="introVariation" @bind:after="MarkDirty" /> @introVariation.ToString("P0")</label>
+		</div>
+		<p class="note">Variation substitutes related chords within phrases. Contrast gives section types their own harmonic plans: verses and bridges lean towards a dominant ending, while choruses return home. Intro variation changes the opening length, hook teaser and instrumental build. The length is a ceiling: complete sections and an outro take priority over filling every second.</p>
+		<p class="note">A recognisable hook, space for answering parts and changes in texture help give a song direction. <a href="https://github.com/panoramicdata/PanoramicData.MusicGeneration/blob/main/docs/MUSICAL_EXPRESSION.md">Read the research and musical examples</a>.</p>
+		<details class="ending-settings"><summary>Ending probabilities</summary>
+			<p class="note">Relative weights, normalised to a total of 100%. Set others to zero to force one ending. Every ending includes an outro and a short audio release.</p>
+			<div class="control-row">
+				<label>Repeat and fade <input type="number" min="0" max="1" step="0.05" @bind="fadeWeight" @bind:after="MarkDirty" /></label>
+				<label>Cadence and hold <input type="number" min="0" max="1" step="0.05" @bind="cadenceWeight" @bind:after="MarkDirty" /></label>
+				<label>Closing tag <input type="number" min="0" max="1" step="0.05" @bind="tagWeight" @bind:after="MarkDirty" /></label>
+				<label>Coordinated stop <input type="number" min="0" max="1" step="0.05" @bind="stopWeight" @bind:after="MarkDirty" /></label>
+			</div>
+		</details>
 		<button @onclick="GenerateAsync">@(busy ? "Working…" : "Generate / render changes")</button>
 		<button class="secondary" @onclick="RandomiseAsync">New seed</button>
 		@if (dirty) { <span class="note">Settings changed. Generate to hear them.</span> }
@@ -56,6 +72,26 @@
 				<label>Strength <input type="number" min="1" max="127" @bind="layer.Velocity" @bind:after="MarkDirty" /></label>
 				<label>Octave <input type="number" min="-2" max="2" @bind="layer.Octave" @bind:after="MarkDirty" /></label>
 				<div class="layer-actions"><button class="secondary" @onclick="() => Duplicate(layer)">Duplicate</button><button class="secondary" @onclick="() => Remove(layer)" disabled="@(layers.Count == 1)">Remove</button></div>
+				<details class="presence-settings"><summary>Section presence probabilities</summary>
+					<p class="note">One seeded decision for each whole section. 100% always participates; 0% omits the part. Normal rests and the final release still apply. Occurrence overrides take precedence.</p>
+					<div class="control-row">
+						<label>Intro presence <input type="range" min="0" max="1" step="0.05" @bind="layer.Presence.Intro" @bind:after="MarkDirty" /> @layer.Presence.Intro.ToString("P0")</label>
+						<label>Verse presence <input type="range" min="0" max="1" step="0.05" @bind="layer.Presence.Verse" @bind:after="MarkDirty" /> @layer.Presence.Verse.ToString("P0")</label>
+						<label>Chorus presence <input type="range" min="0" max="1" step="0.05" @bind="layer.Presence.Chorus" @bind:after="MarkDirty" /> @layer.Presence.Chorus.ToString("P0")</label>
+						<label>Bridge presence <input type="range" min="0" max="1" step="0.05" @bind="layer.Presence.Bridge" @bind:after="MarkDirty" /> @layer.Presence.Bridge.ToString("P0")</label>
+						<label>Outro presence <input type="range" min="0" max="1" step="0.05" @bind="layer.Presence.Outro" @bind:after="MarkDirty" /> @layer.Presence.Outro.ToString("P0")</label>
+					</div>
+					@foreach (var item in layer.Presence.Overrides)
+					{
+						<div class="control-row presence-override" @key="item">
+							<label>Section <select @bind="item.Kind" @bind:after="MarkDirty">@foreach (var kind in Enum.GetValues<SectionKind>()) { <option value="@kind">@kind</option> }</select></label>
+							<label>Occurrence <input type="number" min="1" max="100" @bind="item.Occurrence" @bind:after="MarkDirty" /></label>
+							<label>Presence <input type="range" min="0" max="1" step="0.05" @bind="item.Probability" @bind:after="MarkDirty" /> @item.Probability.ToString("P0")</label>
+							<button class="secondary" @onclick="() => { layer.Presence.Overrides.Remove(item); MarkDirty(); }">Remove override</button>
+						</div>
+					}
+					<button class="secondary" disabled="@(layer.Presence.Overrides.Count >= 100)" @onclick="() => { layer.Presence.Overrides.Add(new()); MarkDirty(); }">Add occurrence override</button>
+				</details>
 			</div>
 		}
 		<button class="secondary" @onclick="AddLayer" disabled="@(layers.Count >= 24)">Add instrument layer</button>
@@ -69,13 +105,16 @@
 @if (rendered is not null && audioUrl is not null)
 {
 	<section aria-label="Rendered arrangement">
-		<p class="note">@rendered.Song.Duration.TotalSeconds.ToString("0") s · @rendered.Song.SampleRate.ToString("N0") Hz · @score!.Tracks.Count(t => t.Instrument.Enabled) active layers · rendered in @renderSeconds.ToString("0.0") s. @(!dirty ? "Current settings are rendered." : "Player still contains the previous render.")</p>
+		<p class="note performance-summary">@rendered.Song.Duration.TotalSeconds.ToString("0.00") s performed within @score!.Settings.Seconds s ceiling · @rendered.Song.SampleRate.ToString("N0") Hz · @score.Tracks.Count(t => t.Instrument.Enabled) enabled layers · ending: @(score.Ending?.Kind.ToString() ?? "Legacy") · rendered in @renderSeconds.ToString("0.0") s. @(!dirty ? "Current settings are rendered." : "Player still contains the previous render.")</p>
 		<label>Visualizer <select @bind="visualizer" disabled="@busy"><option value="piano">Piano roll</option><option value="spectrogram">Spectrogram</option></select></label>
 		<MusicPlayer Src="@audioUrl" Notes="rendered.Song.Notes" Sections="rendered.Song.Sections" Chords="score.Chords" LayerNames="LayerNames" ShowSpectrogram="@(visualizer == "spectrogram")" />
 		<div class="control-row"><button @onclick="DownloadMp3Async" disabled="@busy">Download MP3</button><button class="secondary" @onclick="DownloadWavAsync" disabled="@busy">Download WAV</button></div>
 		<p class="note">MP3 encoding runs locally with LAME / lamejs (LGPL). <a href="vendor/lamejs/COPYING.LESSER">Licence</a> · <a href="vendor/lamejs/source.zip">Corresponding source</a>. This page never uploads your songs.</p>
 		<details><summary>Score, harmony and rendering details</summary>
-			<p>Complete verses and choruses have four two-bar phrases. Short requests crop the final audible section; long requests add further sections instead of stretching phrases.</p>
+			<p>Complete verses and choruses have four two-bar phrases. The arranger reserves the outro, adds complete sections, then finishes early when another section will not fit. Very short requests can contain just an outro.</p>
+			<div class="table-scroll"><table aria-label="Section participation"><thead><tr><th>Section</th><th>Instrument</th><th>Chance</th><th>Decision</th></tr></thead><tbody>
+				@foreach (var choice in score.Participation) { <tr><td>@score.Sections[choice.SectionIndex].Kind @choice.Occurrence</td><td>@LayerNames[choice.LayerId]</td><td>@choice.Probability.ToString("P0")</td><td>@(choice.Present ? "Present" : "Omitted")</td></tr> }
+			</tbody></table></div>
 			<div class="table-scroll"><table aria-label="Chord timeline"><thead><tr><th>Start</th><th>Chord</th><th>Chord tones</th></tr></thead><tbody>@foreach (var chord in score.Chords) { <tr><td>@chord.StartSeconds.ToString("0.00") s</td><td>@chord.Symbol</td><td>@string.Join(" · ", chord.Intervals.Select(i => Pitch.NameOf(48 + chord.Root + i)))</td></tr> }</tbody></table></div>
 			<pre>@System.Text.Json.JsonSerializer.Serialize(rendered.Metadata, StudioJsonContext.Default.LayeredRenderMetadata)</pre>
 		</details>
