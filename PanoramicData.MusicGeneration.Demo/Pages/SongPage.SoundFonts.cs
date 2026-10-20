@@ -21,6 +21,7 @@ public partial class SongPage
 	private int bassPreset = 32;
 	private int melodyPreset;
 	private int drumPreset = 128 * 128;
+	private readonly CancellationTokenSource renderCancellation = new();
 	private IEnumerable<SoundFontPreset> MelodicPresets => soundFont?.Presets.Where(p => p.Bank < 128) ?? [];
 	private IEnumerable<SoundFontPreset> DrumPresets => soundFont?.Presets.Where(p => p.Bank >= 128) ?? [];
 	private string RenderDescription => soundMode == "soundfont"
@@ -43,7 +44,7 @@ public partial class SongPage
 			if (soundFontResult is null)
 			{
 				var clock = Stopwatch.StartNew();
-				soundFontResult = await soundFont!.RenderAsync(proceduralSong, RenderOptions(), p => ReportRenderAsync(p, clock));
+				soundFontResult = await soundFont!.RenderAsync(proceduralSong, RenderOptions(), p => ReportRenderAsync(p, clock), renderCancellation.Token);
 			}
 			sourceSong = soundFontResult.Song;
 		}
@@ -169,5 +170,5 @@ public partial class SongPage
 		return presets.Select(p => p.Bank * 128 + p.Program).FirstOrDefault(p => p == preferred, presets.First().Bank * 128 + presets.First().Program);
 	}
 
-	private static bool IsRenderError(Exception error) => error is ArgumentException or IOException or HttpRequestException or NotSupportedException;
+	private static bool IsRenderError(Exception error) => error is ArgumentException or IOException or InvalidDataException or HttpRequestException or NotSupportedException or OperationCanceledException;
 }

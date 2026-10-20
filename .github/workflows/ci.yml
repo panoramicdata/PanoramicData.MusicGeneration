@@ -111,4 +111,7 @@ jobs:
 
     # No --skip-duplicate: a nuget.org Conflict must fail the run, not pass it with nothing published.
     - name: Push to NuGet
-      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: |
+        for package in ./artifacts/*.nupkg; do
+          dotnet nuget push "$package" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
+        done

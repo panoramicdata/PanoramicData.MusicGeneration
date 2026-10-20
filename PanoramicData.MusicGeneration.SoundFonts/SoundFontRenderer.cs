@@ -29,13 +29,20 @@ public sealed partial class SoundFontRenderer
 	/// <summary>Available presets; absent assignments fail rather than silently selecting a fallback instrument.</summary>
 	public IReadOnlyList<SoundFontPreset> Presets { get; }
 
+	/// <summary>Renders a score with the default GM assignments and sample rate.</summary>
+	public Task<SoundFontRenderResult> RenderAsync(GeneratedSong score) => RenderAsync(score, null, null, CancellationToken.None);
+
+	/// <summary>Renders a score with selected assignments and sample rate.</summary>
+	public Task<SoundFontRenderResult> RenderAsync(GeneratedSong score, SoundFontRenderOptions options) =>
+		RenderAsync(score, options, null, CancellationToken.None);
+
 	/// <summary>Renders the same notes into mono PCM and independent raw stems; clips release tails at the requested duration.</summary>
 	/// <param name="score">An existing composition; its PCM is ignored.</param>
 	/// <param name="options">Instrument assignments and PCM rate; null uses the defaults.</param>
 	/// <param name="progress">Optional asynchronous callback; browser hosts can yield to paint here.</param>
 	/// <param name="cancellationToken">Cancels between short rendering blocks.</param>
-	public async Task<SoundFontRenderResult> RenderAsync(GeneratedSong score, SoundFontRenderOptions? options = null,
-		Func<SoundFontRenderProgress, Task>? progress = null, CancellationToken cancellationToken = default)
+	public async Task<SoundFontRenderResult> RenderAsync(GeneratedSong score, SoundFontRenderOptions? options,
+		Func<SoundFontRenderProgress, Task>? progress, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(score);
 		options ??= new SoundFontRenderOptions();
@@ -81,6 +88,10 @@ public sealed partial class SoundFontRenderer
 
 	private void ValidateParts(IReadOnlyList<SoundFontPart> parts)
 	{
+		foreach (var part in parts)
+		{
+			ArgumentNullException.ThrowIfNull(part);
+		}
 		if (parts.Count != 6 || parts.Select(p => p.Voice).Distinct().Count() != 6)
 		{
 			throw new ArgumentException("Supply exactly one instrument assignment for each of the six roles.", nameof(parts));
@@ -94,14 +105,19 @@ public sealed partial class SoundFontRenderer
 	private void ValidatePart(SoundFontPart part)
 	{
 		ArgumentNullException.ThrowIfNull(part);
-		if (!Enum.IsDefined(part.Voice) || part.Velocity is < 1 or > 127 || part.Program is < 0 or > 127)
-		{
-			throw new ArgumentException("Roles, zero-based programs and velocities must be valid.", nameof(part));
-		}
+		ValidatePartValues(part);
 		var minimum = IsDrum(part.Voice) ? 128 : 0;
 		if (part.Bank < minimum || part.Bank > minimum + 127 || !Presets.Any(p => p.Bank == part.Bank && p.Program == part.Program))
 		{
 			throw new ArgumentException($"Bank/program {part.Bank}:{part.Program} is unavailable for {part.Voice}.", nameof(part));
+		}
+	}
+
+	private static void ValidatePartValues(SoundFontPart part)
+	{
+		if (!Enum.IsDefined(part.Voice) || part.Velocity is < 1 or > 127 || part.Program is < 0 or > 127)
+		{
+			throw new ArgumentException("Roles, zero-based programs and velocities must be valid.", nameof(part));
 		}
 	}
 

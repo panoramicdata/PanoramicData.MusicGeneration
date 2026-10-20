@@ -91,7 +91,7 @@ public class SoundFontTests
 		fractions.Should().BeInAscendingOrder();
 		fractions[^1].Should().Be(1);
 		using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-		await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Bank.Value.RenderAsync(Score(), progress: _ =>
+		await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Bank.Value.RenderAsync(Score(), options: null, progress: _ =>
 		{
 			cancellation.Cancel();
 			return Task.CompletedTask;

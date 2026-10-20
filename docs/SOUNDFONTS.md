@@ -123,3 +123,5 @@ previews on memory-constrained devices. No bank is added to NuGet packages.
 
 SoundFonts contain audio instrument samples/programs. They are unrelated to music
 notation glyph fonts such as SMuFL.
+
+A desktop Chromium verification rendered a 300-second structured preview in 31 seconds, with 48 distinct progress updates, and completed its full-length spectrogram. This is a measured development-machine result, not a performance guarantee for other devices.

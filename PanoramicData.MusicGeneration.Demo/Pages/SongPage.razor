@@ -328,6 +328,8 @@
 
 	public async ValueTask DisposeAsync()
 	{
+		await renderCancellation.CancelAsync();
+		renderCancellation.Dispose();
 		if (module is not null)
 		{
 			if (audioUrl is not null)

@@ -13,8 +13,8 @@ public sealed partial class SoundFontRenderer
 		var available = new int[16];
 		foreach (var note in score.Notes.Where(n => n.Voice == voice).OrderBy(n => n.StartSeconds))
 		{
-			var start = Frame(note.StartSeconds, rate, length);
-			var end = Frame(note.StartSeconds + note.DurationSeconds, rate, length);
+			var start = ToFrame(note.StartSeconds, rate, length);
+			var end = ToFrame(note.StartSeconds + note.DurationSeconds, rate, length);
 			if (start >= end)
 			{
 				continue;
@@ -31,7 +31,7 @@ public sealed partial class SoundFontRenderer
 		return [.. events.OrderBy(e => e.Frame).ThenBy(e => e.On)];
 	}
 
-	private static int Frame(double seconds, int rate, int length) =>
+	private static int ToFrame(double seconds, int rate, int length) =>
 		(int)Math.Clamp(Math.Round(seconds * rate, MidpointRounding.AwayFromZero), 0, length);
 
 	private Synthesizer CreateSynth(int rate, SoundFontPart part, double cents)
