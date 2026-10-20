@@ -10,13 +10,19 @@
 	[Parameter] public IReadOnlyList<NoteEvent> Notes { get; set; } = [];
 	[Parameter] public IReadOnlyList<SectionEvent> Sections { get; set; } = [];
 	[Parameter] public bool ShowSpectrogram { get; set; }
+	[Parameter] public IReadOnlyList<ChordEvent> Chords { get; set; } = [];
+	[Parameter] public IReadOnlyDictionary<string, string>? LayerNames { get; set; }
 
 	private IReadOnlyList<PDMediaSegment> MediaSections => Sections.Select(s => new PDMediaSegment
 	{
 		Id = $"section-{s.Index}", Start = TimeSpan.FromSeconds(s.StartSeconds), End = TimeSpan.FromSeconds(s.EndSeconds),
 		Kind = s.Kind.ToString(), Label = $"{s.Kind}: {s.MaterialId}{(s.IsTruncated ? " (cropped)" : string.Empty)}",
 		Detail = DescribePhrases(s)
-	}).ToArray();
+	}).Concat(Chords.Select((c, i) => new PDMediaSegment
+	{
+		Id = $"chord-{i}", Start = TimeSpan.FromSeconds(c.StartSeconds), End = TimeSpan.FromSeconds(c.EndSeconds),
+		Kind = "Chord", Label = c.Symbol, Detail = string.Join(" · ", c.Intervals.Select(n => Pitch.NameOf(48 + c.Root + n)))
+	})).ToArray();
 
 	private static string DescribePhrases(SectionEvent section)
 	{
@@ -28,8 +34,10 @@
 	private IReadOnlyList<PDMediaNote> MediaNotes => Notes.Select(n => new PDMediaNote
 	{
 		Start = TimeSpan.FromSeconds(n.StartSeconds), Duration = TimeSpan.FromSeconds(n.DurationSeconds),
-		MidiNote = n.MidiNote, Voice = n.Voice.ToString(), Label = Pitch.NameOf(n.MidiNote), Color = Colours[(int)n.Voice]
+		MidiNote = n.MidiNote, Voice = VoiceName(n), Label = Pitch.NameOf(n.MidiNote), Color = Colours[(int)n.Voice]
 	}).ToArray();
+
+	private string VoiceName(NoteEvent note) => note.LayerId is not null && LayerNames?.TryGetValue(note.LayerId, out var name) == true ? name : note.Voice.ToString();
 
 	private static readonly string[] Colours = ["#9b8cff", "#4cc2ff", "#7cf0b2", "#ff8f6b", "#ffd666", "#c9d3ea"];
 }

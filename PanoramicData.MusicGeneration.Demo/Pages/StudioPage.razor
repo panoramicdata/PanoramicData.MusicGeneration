@@ -1,0 +1,101 @@
+@page "/song"
+@implements IAsyncDisposable
+@inject SoundFontBankService Banks
+@inject IJSRuntime JS
+@using PanoramicData.MusicGeneration.SoundFonts
+
+<h1>Build a song</h1>
+<p class="lead">Choose a harmonic direction, a groove and an ensemble. Build layers that play different musical parts, then keep the written score or download the audio.</p>
+
+<section class="card" aria-label="Composition settings">
+	<fieldset disabled="@busy">
+		<div class="control-row">
+			<label>Song title <input @bind="title" maxlength="100" /></label>
+			<label>Genre <select @bind="genre" @bind:after="ApplyGenre">
+				@foreach (var value in Enum.GetValues<MusicGenre>()) { <option value="@value">@GenreName(value)</option> }
+			</select></label>
+			<label>Beat / rhythm <select @bind="beat" @bind:after="MarkDirty">
+				@foreach (var value in Enum.GetValues<MusicBeat>()) { <option value="@value">@GenreName(value)</option> }
+			</select></label>
+			<label>Tempo <input type="number" min="40" max="220" @bind="tempo" @bind:after="MarkDirty" /> bpm</label>
+		</div>
+		<p class="note">Choosing a genre loads a suggested ensemble, beat, tempo and progression. You can then override each choice. The templates are starting points, not complete imitations of a musical tradition.</p>
+		<div class="control-row">
+			<label>Key <select @bind="key" @bind:after="MarkDirty">@for (var i = 0; i < 12; i++) { <option value="@i">@(Pitch.NameOf(60 + i)[..^1])</option> }</select></label>
+			<label><input type="checkbox" @bind="minor" @bind:after="MarkDirty" /> Minor key</label>
+			<label>Chord progression <select @bind="progression" @bind:after="MarkDirty">@foreach (var name in ChordProgressions.Names) { <option value="@name">@ProgressionLabel(name)</option> }</select></label>
+			@if (progression == "Custom") { <label>Chord symbols <input @bind="customChords" @bind:after="MarkDirty" placeholder="Cmaj7, Am7, Dm7, G7" maxlength="256" /></label> }
+		</div>
+		<p class="chord-preview" aria-label="Selected chords">@ChordPreview</p>
+		<p class="note">The “four chords” choice is the common I–V–vi–IV pattern in a major key, associated with the Axis of Awesome medley. Here it drives original generated parts. Custom symbols support major, minor, seventh, major/minor seventh, diminished, augmented and suspended chords.</p>
+		<div class="control-row">
+			<label>Seed <input type="number" @bind="seed" @bind:after="MarkDirty" /></label>
+			<label>Length <strong>@seconds s</strong><input type="range" min="6" max="300" step="2" @bind="seconds" @bind:after="MarkDirty" /></label>
+			<label>Swing <input type="range" min="0" max="0.4" step="0.01" @bind="swing" @bind:after="MarkDirty" /> @swing.ToString("P0")</label>
+			<label>Motif variation <input type="range" min="0" max="1" step="0.05" @bind="variation" @bind:after="MarkDirty" /> @variation.ToString("P0")</label>
+			<label><input type="checkbox" @bind="sections" @bind:after="MarkDirty" /> Verse / chorus sections</label>
+		</div>
+		<button @onclick="GenerateAsync">@(busy ? "Working…" : "Generate / render changes")</button>
+		<button class="secondary" @onclick="RandomiseAsync">New seed</button>
+		@if (dirty) { <span class="note">Settings changed. Generate to hear them.</span> }
+	</fieldset>
+</section>
+
+<section class="card layer-panel" aria-label="Instrument layers"><details>
+	<summary><strong>Instrument layers</strong> <span class="note">@layers.Count / 24 · expand to edit, add or remove parts</span></summary>
+	<p class="note">Add any available instrument, even several copies of the same one. Choose what each layer plays. Mute, gain and register edits take effect on the next render.</p>
+	<fieldset disabled="@busy">
+		@foreach (var layer in layers)
+		{
+			<div class="layer-row" @key="layer.Id">
+				<label>On <input type="checkbox" @bind="layer.Enabled" @bind:after="MarkDirty" /></label>
+				<label>Name <input @bind="layer.Name" @bind:after="MarkDirty" maxlength="100" /></label>
+				<label>Part <select @bind="layer.Pattern" @bind:after="() => ChangePattern(layer)">@foreach (var pattern in Enum.GetValues<LayerPattern>()) { <option value="@pattern">@pattern</option> }</select></label>
+				<label>Instrument <select @bind="layer.Preset" @bind:after="MarkDirty">@foreach (var preset in PresetsFor(layer)) { <option value="@(preset.Bank * 128 + preset.Program)">@preset.Name (@preset.Bank:@preset.Program)</option> }</select></label>
+				<label>Level <input type="range" min="0" max="1.5" step="0.05" @bind="layer.Gain" @bind:after="MarkDirty" /> @layer.Gain.ToString("0.00")</label>
+				<label>Strength <input type="number" min="1" max="127" @bind="layer.Velocity" @bind:after="MarkDirty" /></label>
+				<label>Octave <input type="number" min="-2" max="2" @bind="layer.Octave" @bind:after="MarkDirty" /></label>
+				<div class="layer-actions"><button class="secondary" @onclick="() => Duplicate(layer)">Duplicate</button><button class="secondary" @onclick="() => Remove(layer)" disabled="@(layers.Count == 1)">Remove</button></div>
+			</div>
+		}
+		<button class="secondary" @onclick="AddLayer" disabled="@(layers.Count >= 24)">Add instrument layer</button>
+	</fieldset>
+</details></section>
+
+@if (busy) { <div class="card" role="status" aria-live="polite"><strong>@status</strong><progress aria-label="@status"></progress></div> }
+@if (error is not null) { <p role="alert" class="error">@error</p> }
+@if (notice is not null) { <p role="status">@notice</p> }
+
+@if (rendered is not null && audioUrl is not null)
+{
+	<section aria-label="Rendered arrangement">
+		<p class="note">@rendered.Song.Duration.TotalSeconds.ToString("0") s · @rendered.Song.SampleRate.ToString("N0") Hz · @score!.Tracks.Count(t => t.Instrument.Enabled) active layers · rendered in @renderSeconds.ToString("0.0") s. @(!dirty ? "Current settings are rendered." : "Player still contains the previous render.")</p>
+		<label>Visualizer <select @bind="visualizer" disabled="@busy"><option value="piano">Piano roll</option><option value="spectrogram">Spectrogram</option></select></label>
+		<MusicPlayer Src="@audioUrl" Notes="rendered.Song.Notes" Sections="rendered.Song.Sections" Chords="score.Chords" LayerNames="LayerNames" ShowSpectrogram="@(visualizer == "spectrogram")" />
+		<div class="control-row"><button @onclick="DownloadMp3Async" disabled="@busy">Download MP3</button><button class="secondary" @onclick="DownloadWavAsync" disabled="@busy">Download WAV</button></div>
+		<p class="note">MP3 encoding runs locally with LAME / lamejs (LGPL). <a href="vendor/lamejs/COPYING.LESSER">Licence</a> · <a href="vendor/lamejs/source.zip">Corresponding source</a>. This page never uploads your songs.</p>
+		<details><summary>Score, harmony and rendering details</summary>
+			<p>Complete verses and choruses have four two-bar phrases. Short requests crop the final audible section; long requests add further sections instead of stretching phrases.</p>
+			<div class="table-scroll"><table aria-label="Chord timeline"><thead><tr><th>Start</th><th>Chord</th><th>Chord tones</th></tr></thead><tbody>@foreach (var chord in score.Chords) { <tr><td>@chord.StartSeconds.ToString("0.00") s</td><td>@chord.Symbol</td><td>@string.Join(" · ", chord.Intervals.Select(i => Pitch.NameOf(48 + chord.Root + i)))</td></tr> }</tbody></table></div>
+			<pre>@System.Text.Json.JsonSerializer.Serialize(rendered.Metadata, StudioJsonContext.Default.LayeredRenderMetadata)</pre>
+		</details>
+	</section>
+}
+
+<section class="card library-panel" aria-label="Local song library">
+	<h2>Your browser song library</h2>
+	<p class="note">Save the written notes, instrument layers and settings, then reopen and re-render them. Audio is not stored in the library. This storage belongs to this browser and site; clearing site data removes it. Export a song file for a portable backup.</p>
+	<div class="control-row">
+		<button @onclick="SaveAsync" disabled="@(busy || score is null || dirty)">Save song locally</button>
+		<button class="secondary" @onclick="ExportSongAsync" disabled="@(busy || score is null || dirty)">Export song JSON</button>
+		<button class="secondary" @onclick="ExportSettingsAsync" disabled="@busy">Export settings JSON</button>
+		<label>Import settings / song <InputFile accept="application/json,.json" OnChange="ImportAsync" disabled="@busy" /></label>
+	</div>
+	@if (saved.Count == 0) { <p>No songs saved in this browser yet.</p> }
+	@foreach (var item in saved)
+	{
+		<div class="saved-row"><strong>@item.Title</strong><span class="note">@item.SavedUtc</span><button class="secondary" @onclick="() => OpenAsync(item.Id)" disabled="@busy">Open</button><button class="secondary" @onclick="() => DeleteAsync(item.Id)" disabled="@busy">Delete</button></div>
+	}
+</section>
+
+<p class="note">Need the original procedural generator or a caller-supplied SF2 bank? <a href="song/legacy">Open the original song page</a>. For playing strength and attack, try <a href="soundfonts">the SoundFont keyboard lesson</a>.</p>

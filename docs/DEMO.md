@@ -22,7 +22,10 @@ and serve `site/wwwroot` with a rule that returns `index.html` for unknown paths
 |---|---|
 | **Overview** | What a seed does and what the library is for. |
 | **Pitch and frequency** | Octaves as doublings, the twelve-tone ratio 2^(1/12), the formula `f = 440 * 2^((m - 69)/12)`, cents, and harmonics. Releasing the note or detune slider generates and plays a two-second tone; Play it replays the selection. The player's built-in spectrogram shows the actual audio's fundamental and harmonics. The initial tone is generated silently on page load. |
-| **Build a song** | Choose a seed, which parts play and the melody's range; see the piano roll of every note (axes labelled), play the result, and read how each part is made, with the formulas. |
+| **SoundFonts and expression** | Play sampled instruments on a keyboard; key position changes playing strength and the added attack ramp. |
+| **Build a song** | Select genre, independent rhythm, chord progressions and instrument layers; save written songs locally, import/export settings and download MP3 or WAV. See [STUDIO.md](STUDIO.md). |
+
+The following procedural/stem comparison controls remain available at `/song/legacy`. The new `/song` studio uses sequential layer rendering and explicit re-rendering after layer edits, rather than retaining raw stems.
 
 ## Hosting it (GitHub Pages)
 
@@ -52,8 +55,8 @@ The song page defaults the melody range to C3–C5 (MIDI 48–72). The range con
 
 The song page's Composition selector offers free-running generation, returning verses/choruses and a through-composed comparison. Selecting a structured example sets a 60-second preview; the length slider can then shorten or extend it. The player segment lane, piano-roll labels and section table share the same performed boundaries. Each complete verse and chorus contains four phrases. The table reports planned phrases, bars per phrase, cropped sections, transition fills and the final tonic cadence. Requests too short for the prescribed form crop its final audible section; longer requests fit whole-bar phrase lengths while retaining four repeats.
 
-For a direct structured preview, use `/song?form=sections`; `/song?form=through` selects the comparison. Both preserve the same opening, tempo, key and section allocation. Later returns in the through-composed mode use new material identities, so this compares repetition in composition rather than claiming an identical written score. Short durations can omit the bridge or outro; the table makes this visible.
+For a direct structured preview, use `/song/legacy?form=sections`; `/song/legacy?form=through` selects the comparison. Both preserve the same opening, tempo, key and section allocation. Later returns in the through-composed mode use new material identities, so this compares repetition in composition rather than claiming an identical written score. Short durations can omit the bridge or outro; the table makes this visible.
 
 ## SoundFont comparison
 
-Choose SoundFont instruments or open `/song?form=sections&sound=soundfont`. The demo loads GeneralUser GS 2.0.3 once (30.8 MiB), then renders the same written notes with selectable instruments and a drum kit. Procedural synthesis remains available for comparison. SF2 files can also be loaded locally. See [SoundFont design, asset terms and resource budgets](SOUNDFONTS.md).
+Choose SoundFont instruments or open `/song/legacy?form=sections&sound=soundfont`. The demo loads GeneralUser GS 2.0.3 once (30.8 MiB), then renders the same written notes with selectable instruments and a drum kit. Procedural synthesis remains available for comparison. SF2 files can also be loaded locally. See [SoundFont design, asset terms and resource budgets](SOUNDFONTS.md).
