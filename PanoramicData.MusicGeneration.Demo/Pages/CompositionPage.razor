@@ -1,0 +1,77 @@
+@page "/composition"
+@using System.Text.Json
+
+<PageTitle>Composition thesis and working rules</PageTitle>
+<h1>Composition: identity, expectation and change</h1>
+<p class="lead">Establish an idea the listener can recognise. Build expectations around it. Make departures and returns meaningful through harmony, rhythm, texture and performance.</p>
+<p>Our living thesis guides how this app develops. These are contextual working principles: a dance loop, a two-voice invention and a dramatic suite need different choices. Each rule explains its purpose, exceptions and what the app can do today.</p>
+<p class="note">Thesis revision @catalog.ThesisRevision · Rules @catalog.Version · Revised @catalog.Revised</p>
+<div class="reading-links">
+	<a href="https://github.com/panoramicdata/PanoramicData.MusicGeneration/blob/main/docs/COMPOSITION_THESIS.md">Read the full composition thesis</a>
+	<a href="https://github.com/panoramicdata/PanoramicData.MusicGeneration/blob/main/docs/composition-rules.json">View the rule catalogue and revision history</a>
+	<a href="https://github.com/panoramicdata/PanoramicData.MusicGeneration/blob/main/docs/HOOKS_AND_DEVELOPMENT.md">Explore the musical case studies and sources</a>
+	<a href="song">Try the current composition controls</a>
+</div>
+
+<section aria-labelledby="thesis-summary">
+	<h2 id="thesis-summary">From an idea to a piece</h2>
+	<div class="grid">
+		<article class="card"><h3>Establish</h3><p>Present a clear identity: a melody, bass figure, rhythm, texture or interaction. Give it enough space to be heard.</p></article>
+		<article class="card"><h3>Develop</h3><p>Choose what stays recognisable and what changes. A new ending, answering voice or harmonic setting can move the same idea forward.</p></article>
+		<article class="card"><h3>Recall and resolve</h3><p>Make a return matter by preparing it. Choose an ending that belongs to the piece and fits the duration ceiling.</p></article>
+	</div>
+	<p>SoundFonts expand the palette. Musical decisions give the sounds direction. More instruments can enrich a piece when their roles, registers and rhythms cooperate.</p>
+</section>
+
+<section aria-labelledby="working-rules">
+	<h2 id="working-rules">The evolving composition rules</h2>
+	<p>“Partial” means that we have a starting implementation with further work planned. “Planned” principles guide future development. The ending constraint is implemented; the other principles allow stylistic exceptions.</p>
+	<div class="rule-list">
+		@foreach (var rule in catalog.Rules)
+		{
+			<article class="card rule" id="@rule.Id">
+				<div class="rule-heading"><h3><a href="@($"composition#{rule.Id}")">@rule.Id</a> · @rule.Title</h3><span class="status">@rule.Status</span></div>
+				<p class="principle">@rule.Principle</p>
+				<details>
+					<summary>Why it matters, exceptions and controls</summary>
+					<dl>
+						<dt>Why</dt><dd>@rule.Rationale</dd>
+						<dt>When to relax it</dt><dd>@rule.Exception</dd>
+						<dt>In the app today</dt><dd>@rule.Implementation</dd>
+						<dt>Current levers</dt><dd>@rule.CurrentLevers</dd>
+						<dt>Future levers</dt><dd>@rule.PlannedLevers</dd>
+					</dl>
+					<a href="@($"https://github.com/panoramicdata/PanoramicData.MusicGeneration/issues/{rule.Issue}")">Follow the development work (#@rule.Issue)</a>
+				</details>
+			</article>
+		}
+	</div>
+</section>
+
+<section aria-labelledby="combinations">
+	<h2 id="combinations">Combinations of levers: the next lessons</h2>
+	<p>Future demonstrations will compare original musical examples while holding selected material constant. They will show how controls interact, rather than suggest that one setting describes an artist's whole career.</p>
+	<div class="grid">
+		<article class="card"><h3>A persistent dance groove</h3><p>Keep the hook and harmonic bed stable; vary complementary bass/guitar rhythms, breaks and re-entry. Our Daft Punk and Cotton Eye Joe studies motivate this combination.</p></article>
+		<article class="card"><h3>An idea passed between voices</h3><p>Retain a motif's landmarks; transform and imitate it, managing overlap and cadential direction. The Bach and In the Mood studies offer contrasting approaches.</p></article>
+		<article class="card"><h3>A prepared chorus arrival</h3><p>Change harmonic activity, register and density before a recognisable return. The ABBA and Bon Jovi studies motivate different examples.</p></article>
+		<article class="card"><h3>A slowly unfolding texture</h3><p>Separate energy from tension; use space, delayed entries and harmonic colour. Pink Floyd, the Cure and Debussy provide distinct references.</p></article>
+	</div>
+	<p class="note">These are lesson proposals, not playable artist presets. The case studies also cover Queen, Hey Jude, Alanis Morissette and Mozart. As we add levers, dated recordings and sources will support comparisons between works and periods, with the limits of each comparison explained. <a href="https://github.com/panoramicdata/PanoramicData.MusicGeneration/issues/39">Follow the lesson gallery work</a>.</p>
+</section>
+
+<section aria-labelledby="evolution">
+	<h2 id="evolution">How the thesis evolves</h2>
+	<p>Every rule keeps its ID. Changes record their reasoning and evidence, update the rule-set version and distinguish design intent from implemented behaviour. Listening comparisons assess recognition, groove, continuity, contrast and ending satisfaction for the intended style; listener disagreement remains part of the result.</p>
+	<p>Future composition changes will reference the affected rules. Saved written scores retain their decisions; revising a rule does not silently rewrite an existing song.</p>
+</section>
+
+@code {
+	private readonly CompositionRuleSet catalog = LoadRules();
+
+	private static CompositionRuleSet LoadRules()
+	{
+		using var stream = typeof(CompositionRuleSet).Assembly.GetManifestResourceStream("CompositionRules.json")!;
+		return JsonSerializer.Deserialize(stream, CompositionRulesJsonContext.Default.CompositionRuleSet)!;
+	}
+}

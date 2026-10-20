@@ -29,5 +29,8 @@
 		<ProjectReference Include="..\PanoramicData.MusicGeneration\PanoramicData.MusicGeneration.csproj" />
 		<ProjectReference Include="..\PanoramicData.MusicGeneration.SoundFonts\PanoramicData.MusicGeneration.SoundFonts.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="..\docs\composition-rules.json" LogicalName="CompositionRules.json" />
+	</ItemGroup>
 
 </Project>

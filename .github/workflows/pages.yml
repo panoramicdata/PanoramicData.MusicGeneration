@@ -8,6 +8,7 @@ on:
       - 'PanoramicData.MusicGeneration/**'
       - 'PanoramicData.MusicGeneration.SoundFonts/**'
       - 'PanoramicData.MusicGeneration.Demo/**'
+      - 'docs/composition-rules.json'
       - 'Directory.Build.props'
       - 'Directory.Packages.props'
       - '.github/workflows/pages.yml'

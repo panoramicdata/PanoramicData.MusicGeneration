@@ -40,6 +40,8 @@ Next listening priorities are melody-only auditions, phrase dynamics, interplay 
 
 For contrasting swing, rock, dance and classical case studies, see [Hooks, development and musical identity](HOOKS_AND_DEVELOPMENT.md). It maps the requested standards and representative artists to the existing enhancement issues and proposes the next implementation sequence.
 
+The [living composition thesis](COMPOSITION_THESIS.md) develops these findings into contextual design principles. Its [versioned rule catalogue](composition-rules.json) also supplies the app's Composition thesis page.
+
 ## Replay contract
 
 `ArrangementComposer.Version` is now 2. Legacy `SongGenerator.Version` remains 3 with both original golden fixtures unchanged. Written score schema remains 1: new optional performed-duration, ending and participation fields preserve replay of earlier saved notes. Earlier scores without ending metadata retain their original duration and audio shaping. Exact sampled audio still depends on the bank and renderer/runtime. Browser saves and song JSON retain performance decisions; settings-only imports deliberately recompose using the current composer.
