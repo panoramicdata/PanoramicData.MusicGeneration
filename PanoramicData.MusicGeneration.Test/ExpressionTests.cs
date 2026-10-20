@@ -75,6 +75,9 @@ public class ExpressionTests
 		var varied = ArrangementComposer.Compose(Settings with { ProgressionVariation = 1 });
 		varied.Chords.Select(c => c.Symbol).Should().NotEqual(plain.Chords.Select(c => c.Symbol));
 		varied.Participation.Should().Equal(plain.Participation);
+		var versePatterns = varied.Sections.Where(s => s.Kind == SectionKind.Verse).Select(s =>
+			string.Join(',', varied.Chords.Where(c => c.StartSeconds >= s.StartSeconds && c.StartSeconds < s.EndSeconds).Select(c => c.Symbol)));
+		versePatterns.Distinct().Count().Should().BeGreaterThan(1, "full variation still offers different functional substitutions and seventh colours across returns");
 		var introLengths = Enumerable.Range(0, 20).Select(seed => ArrangementComposer.Compose(Settings with { Seed = seed, IntroVariation = 1 }).Sections[0].Bars).ToHashSet();
 		introLengths.Should().Contain(4).And.Contain(8);
 	}

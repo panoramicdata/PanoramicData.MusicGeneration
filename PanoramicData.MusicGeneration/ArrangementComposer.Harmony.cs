@@ -54,7 +54,7 @@ public static partial class ArrangementComposer
 	{
 		var chord = plan[index % plan.Count];
 		if (section.Kind == SectionKind.Outro) { return OutroChord(settings, plan, index, section.Bars, ending); }
-		if (UseSubstitution(settings, section, index)) { chord = Substitute(settings, chord); }
+		if (UseSubstitution(settings, section, index)) { chord = PhraseVariant(settings, chord, section.Index, index); }
 		if (settings.SectionContrast > 0 && index == section.Bars - 1)
 		{
 			return ClosingChord(settings, section.Kind);
@@ -77,6 +77,15 @@ public static partial class ArrangementComposer
 		if (chord.Root == relative.Root) { return tonic; }
 		var subdominant = DiatonicChord(settings, 3);
 		return chord.Root == subdominant.Root ? DiatonicChord(settings, 1) : subdominant;
+	}
+
+	private static ChordDefinition PhraseVariant(ArrangementSettings settings, ChordDefinition chord, int section, int bar)
+	{
+		var substitute = Substitute(settings, chord);
+		if (new Pcg32(settings.Seed, 701 + section * 31L + bar).NextDouble() < 0.5) { return substitute; }
+		var root = Pitch.NameOf(60 + chord.Root)[..^1];
+		if (chord.Intervals.SequenceEqual([0, 4, 7])) { return ChordProgressions.Parse(root + "maj7"); }
+		return chord.Intervals.SequenceEqual([0, 3, 7]) ? ChordProgressions.Parse(root + "m7") : substitute;
 	}
 
 	private static ChordDefinition ClosingChord(ArrangementSettings settings, SectionKind kind) =>
