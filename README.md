@@ -105,6 +105,9 @@ If arithmetic speed matters more than bit-exactness (for example in an interpret
 | [docs/DESIGN.md](docs/DESIGN.md) | Goals, algorithm, parameters, determinism contract, API |
 | [docs/DEMO.md](docs/DEMO.md) | The browser demo and how to host it |
 | [docs/STUDIO.md](docs/STUDIO.md) | SoundFont keyboard, layered composition, browser library and MP3 export |
+| [docs/COMPOSITION_THESIS.md](docs/COMPOSITION_THESIS.md) | Living thesis, composition principles, evaluation and future artist/period lessons |
+| [docs/composition-rules.json](docs/composition-rules.json) | Canonical versioned rules, current/planned levers and implementation status; also displayed in the app |
+| [docs/HOOKS_AND_DEVELOPMENT.md](docs/HOOKS_AND_DEVELOPMENT.md) | Source-based case studies and a prioritised model-development proposal |
 | [docs/DEVELOPMENT_PROMPT.md](docs/DEVELOPMENT_PROMPT.md) | The brief for developing the library further |
 
 ## Development

@@ -24,6 +24,9 @@ and serve `site/wwwroot` with a rule that returns `index.html` for unknown paths
 | **Pitch and frequency** | Octaves as doublings, the twelve-tone ratio 2^(1/12), the formula `f = 440 * 2^((m - 69)/12)`, cents, and harmonics. Releasing the note or detune slider generates and plays a two-second tone; Play it replays the selection. The player's built-in spectrogram shows the actual audio's fundamental and harmonics. The initial tone is generated silently on page load. |
 | **SoundFonts and expression** | Play sampled instruments on a keyboard; key position changes playing strength and the added attack ramp. |
 | **Build a song** | Select genre, independent rhythm, chord progressions and instrument layers; save written songs locally, import/export settings and download MP3 or WAV. See [STUDIO.md](STUDIO.md). |
+| **Composition thesis** (`/composition`) | The living thesis and thirteen contextual composition rules, with exceptions, implementation status, current/planned levers and source-based future lesson combinations. See [COMPOSITION_THESIS.md](COMPOSITION_THESIS.md). |
+
+The app embeds the canonical `docs/composition-rules.json` at build time, using source-generated JSON metadata. Changes to that file trigger the demo deployment so its rule cards stay aligned with the repository. The catalogue version is independent of the composer version; this page does not change generated music or recompose saved songs.
 
 The following procedural/stem comparison controls remain available at `/song/legacy`. The new `/song` studio uses sequential layer rendering and explicit re-rendering after layer edits, rather than retaining raw stems.
 

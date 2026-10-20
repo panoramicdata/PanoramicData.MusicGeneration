@@ -15,6 +15,13 @@
 
 - New or modified library methods must satisfy Codacy's limits: at most 8 parameters, cyclomatic complexity 8, and 50 lines of code. Split responsibilities into helpers while preserving random-number draw order and both golden hashes.
 
-## Demo controls
+## Composition design
+
+- Before changing composition behaviour, read `docs/COMPOSITION_THESIS.md` and the canonical `docs/composition-rules.json`. Reference affected rule IDs in the change description.
+- Keep the rules contextual: document stylistic exceptions and distinguish implemented behaviour from proposed controls. Update rule status and the catalogue's version/history when its content changes; never reuse a rule ID.
+- For changes to musical behaviour, document the composer-version/replay impact and provide an appropriate audible comparison or explain the remaining listening validation. Event tests do not prove aesthetic success.
+- Artist/period demonstrations must name their work/recording references and evidence, use original generated examples, and distinguish analysis from measured parameter values. Do not invent artist-wide slider percentages.
+
+## Demo control bindings
 
 - Bind view selectors to named string values, such as `piano` and `spectrogram`. A native select bound to a boolean with lowercase `true`/`false` options produced an empty selection in browser verification. Verify both switching directions and playback continuity in the browser.

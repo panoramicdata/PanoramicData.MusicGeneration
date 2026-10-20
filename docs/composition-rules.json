@@ -1,0 +1,172 @@
+{
+	"schemaVersion": 1,
+	"version": "0.1.0",
+	"revised": "2026-10-21",
+	"thesisRevision": "0.1",
+	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
+	"rules": [
+		{
+			"id": "R01",
+			"title": "Give the piece an identity",
+			"principle": "Establish a recognisable melodic, rhythmic, harmonic or textural idea and make its intended presentation audible.",
+			"rationale": "A listener needs landmarks to recognise relationships and returns.",
+			"exception": "An intentionally evolving texture can use timbre or process as its identity instead of a singable hook.",
+			"status": "Partial",
+			"implementation": "Seeded contours and recurring section material; no independently stored or pinnable motif.",
+			"currentLevers": "Seed; motif variation",
+			"plannedLevers": "Audition and pin hooks; record motif identity and landmarks",
+			"issue": 8
+		},
+		{
+			"id": "R02",
+			"title": "Develop without losing the connection",
+			"principle": "Choose whether each phrase establishes, varies, develops or recalls earlier material.",
+			"rationale": "Purposeful transformation creates continuity while changing the musical argument.",
+			"exception": "Exact repetition can be the right choice for dance, meditation or participation; novelty is optional.",
+			"status": "Partial",
+			"implementation": "Limited phrase variation and recurring contours; no transformation provenance.",
+			"currentLevers": "Motif variation; section contrast",
+			"plannedLevers": "Phrase function; transformation type; landmark preservation",
+			"issue": 8
+		},
+		{
+			"id": "R03",
+			"title": "Make phrase and section roles audible",
+			"principle": "Give phrases a relationship and sections a function beyond their labels.",
+			"rationale": "Statement, response, departure and arrival help listeners understand scale and direction.",
+			"exception": "Four two-bar phrases are our pop default; alternative forms can choose other lengths.",
+			"status": "Partial",
+			"implementation": "Four two-bar verse/chorus phrases, a bridge and varied intro; fixed family of forms.",
+			"currentLevers": "Verse / chorus sections; intro variation",
+			"plannedLevers": "Prechorus; breakdown; suite form; explicit phrase intentions",
+			"issue": 20
+		},
+		{
+			"id": "R04",
+			"title": "Give harmony direction and duration",
+			"principle": "Plan harmonic spans, voice leading and arrivals in relation to the motif and form.",
+			"rationale": "A chord list alone does not specify pacing, expectation or melodic meaning.",
+			"exception": "Static harmony and unresolved colour can be intentional; tonic closure is not required at every phrase.",
+			"status": "Partial",
+			"implementation": "Progression choices, substitutions, section contrast and voice-led voicings; chords remain bar-sized.",
+			"currentLevers": "Chord progression; custom chords; progression variation; section contrast",
+			"plannedLevers": "Harmonic rhythm; held chords; local key; cadence targets",
+			"issue": 9
+		},
+		{
+			"id": "R05",
+			"title": "Build groove through relationships",
+			"principle": "Coordinate metre, subdivision, accents, durations and deliberate timing between roles.",
+			"rationale": "Groove depends on patterned interactions, not a tempo number or independent jitter.",
+			"exception": "Straight and quantised performances are legitimate; swing is a style choice.",
+			"status": "Partial",
+			"implementation": "Beat templates and offbeat delay; no compound-metre model or role-specific timing curves.",
+			"currentLevers": "Beat / rhythm; tempo; swing",
+			"plannedLevers": "Beat grouping; syncopation; role-specific lead/drag",
+			"issue": 17
+		},
+		{
+			"id": "R06",
+			"title": "Allocate attention and leave useful space",
+			"principle": "Give each layer a role and coordinate its density, entrances and responses with the foreground.",
+			"rationale": "Arbitrary layers can mask the hook; silence and answering gestures make relationships audible.",
+			"exception": "Counterpoint and deliberate dense textures can overlap; universal non-overlap is not a rule.",
+			"status": "Partial",
+			"implementation": "Section participation probabilities and fixed answer slots; parts do not generally react to actual lead occupancy.",
+			"currentLevers": "Instrument layers; per-section presence; occurrence overrides",
+			"plannedLevers": "Foreground priority; density budget; actual-rest responses",
+			"issue": 19
+		},
+		{
+			"id": "R07",
+			"title": "Write for the instrument",
+			"principle": "Choose register, articulation, feasible gestures and transitions appropriate to the part.",
+			"rationale": "A sampled instrument does not automatically supply idiomatic performance.",
+			"exception": "Unusual ranges and techniques can be deliberate choices with an explicit override.",
+			"status": "Partial",
+			"implementation": "Selectable SoundFont instruments and octave/gain/velocity controls; limited writing constraints.",
+			"currentLevers": "Instrument; octave; velocity; gain",
+			"plannedLevers": "Playable range; strumming; bowing; breath and transition models",
+			"issue": 16
+		},
+		{
+			"id": "R08",
+			"title": "Shape a journey across the piece",
+			"principle": "Plan changes in energy, tension, stability and density separately, with meaningful departures and returns.",
+			"rationale": "A loud stable passage and a quiet tense passage have different functions.",
+			"exception": "A sustained mood or process can be the goal; every work need not tell a dramatic story.",
+			"status": "Partial",
+			"implementation": "Section harmony, intro build, presence and outro choices; no explicit narrative-intent plan.",
+			"currentLevers": "Section contrast; intro variation; layer presence",
+			"plannedLevers": "Independent energy/tension arcs; delayed recall; transition intent",
+			"issue": 20
+		},
+		{
+			"id": "R09",
+			"title": "Perform phrases with intent",
+			"principle": "Relate stress, dynamics, attack, duration, breathing and timing to the phrase's role.",
+			"rationale": "Expression comes from coherent gestures and contrasts rather than arbitrary errors.",
+			"exception": "Mechanical articulation can be a deliberate aesthetic; expressive exaggeration is optional.",
+			"status": "Partial",
+			"implementation": "Note velocities and limited phrase/section shaping; no general performance-phrase model.",
+			"currentLevers": "Velocity; gain; swing",
+			"plannedLevers": "Phrase stress; articulation; tempo curves; controlled breathing",
+			"issue": 16
+		},
+		{
+			"id": "R10",
+			"title": "Finish within the promise",
+			"principle": "Reserve a complete audible outro and its release within the requested length ceiling; finish early when necessary.",
+			"rationale": "An arbitrary cutoff breaks the intended phrase and the user's duration contract.",
+			"exception": "A deliberate abrupt stop is valid when planned and rendered as the ending.",
+			"status": "Implemented constraint",
+			"implementation": "The arranger reserves an outro and completes sections within the ceiling, with fade, cadence, tag or coordinated stop.",
+			"currentLevers": "Length ceiling; ending probabilities",
+			"plannedLevers": "Repeated-refrain and staged-subtraction ending plans",
+			"issue": 35
+		},
+		{
+			"id": "R11",
+			"title": "Give the user independent musical choices",
+			"principle": "Explain what each lever changes and preserves; expose related levers progressively.",
+			"rationale": "Useful authorship requires controllable decisions, understandable interactions and comparisons.",
+			"exception": "A beginner can choose a coherent recipe without adjusting every parameter.",
+			"status": "Partial",
+			"implementation": "Independent harmony, groove, instrument and presence settings, score saves and exports; no hook/section pinning.",
+			"currentLevers": "Genre; settings controls; local saves; import/export",
+			"plannedLevers": "Pin material; regenerate selected sections; compare the same score",
+			"issue": 6
+		},
+		{
+			"id": "R12",
+			"title": "Ground recipes in works and periods",
+			"principle": "Describe artist-related combinations using named recordings, dates, evidence and explicit limits.",
+			"rationale": "Artists change over time and across collaborators; one slider setting cannot represent a whole career.",
+			"exception": "A broad genre recipe is useful when labelled as a starting point rather than a measured artist profile.",
+			"status": "Planned",
+			"implementation": "The research provides case studies; no artist timeline, measured artist factors or generated artist demonstrations are available.",
+			"currentLevers": "Genre starting points",
+			"plannedLevers": "Source-backed work/period comparisons; original mechanism demonstrations",
+			"issue": 39
+		},
+		{
+			"id": "R13",
+			"title": "Evaluate and revise honestly",
+			"principle": "Verify event-level promises, listen to controlled comparisons and version changes to rules and composition separately.",
+			"rationale": "Reproducibility establishes what happened; listening helps assess whether the intended effect worked.",
+			"exception": "Criteria depend on musical intent, and listener disagreement should be recorded.",
+			"status": "Partial",
+			"implementation": "Deterministic tests and saved scores exist; blinded musical listening comparisons remain planned.",
+			"currentLevers": "Written score; seed; saved settings",
+			"plannedLevers": "Blind comparisons; style-specific rubric; saved rule provenance",
+			"issue": 37
+		}
+	],
+	"history": [
+		{
+			"version": "0.1.0",
+			"date": "2026-10-21",
+			"changes": "Initial thirteen contextual rules, linked to thesis revision 0.1. Separates current capabilities from planned levers."
+		}
+	]
+}
