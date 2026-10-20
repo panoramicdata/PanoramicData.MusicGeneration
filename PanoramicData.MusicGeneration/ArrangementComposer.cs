@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration;
 public static partial class ArrangementComposer
 {
 	/// <summary>Written-arrangement algorithm version. Legacy SongGenerator output is unaffected.</summary>
-	public const int Version = 1;
+	public static int Version => 1;
 
 	/// <summary>Validates settings and writes harmony, recurring motifs, rhythm and independent instrumental parts.</summary>
 	public static ArrangedScore Compose(ArrangementSettings settings)
@@ -103,7 +103,8 @@ public static partial class ArrangementComposer
 		var result = new List<SectionEvent>();
 		var bar = Beats(settings) * 60.0 / settings.Tempo;
 		var at = 0.0;
-		for (var index = 0; at < settings.Seconds - 1e-9; index++)
+		var index = 0;
+		while (at < settings.Seconds - 1e-9)
 		{
 			var kind = SectionRole(settings, index, settings.Seconds - at, bar);
 			var bars = kind switch { SectionKind.Intro or SectionKind.Outro => 1, SectionKind.Bridge => 4, _ => 8 };
@@ -121,6 +122,7 @@ public static partial class ArrangementComposer
 				PhraseBars = bars == 8 ? 2 : bars
 			});
 			at = end;
+			index++;
 		}
 		return result;
 	}
@@ -130,8 +132,8 @@ public static partial class ArrangementComposer
 		if (!settings.Sections) { return SectionKind.Chorus; }
 		if (index == 0) { return SectionKind.Intro; }
 		if (remaining <= bar + 1e-9) { return SectionKind.Outro; }
-		if (index % 6 == 5) { return SectionKind.Bridge; }
-		return index % 2 == 1 ? SectionKind.Verse : SectionKind.Chorus;
+		if ((index + 1) % 6 == 0) { return SectionKind.Bridge; }
+		return index % 2 != 0 ? SectionKind.Verse : SectionKind.Chorus;
 	}
 
 	private static string Material(SectionKind kind) => kind switch
@@ -161,7 +163,7 @@ public static partial class ArrangementComposer
 	private sealed record BarContext(ArrangementSettings Settings, InstrumentLayer Layer, ChordEvent Chord,
 		SectionEvent Section, int Index, int[] Voicing)
 	{
-		public int Beats => ArrangementComposer.Beats(Settings);
+		public int BeatsPerBar => ArrangementComposer.Beats(Settings);
 		public double BeatSeconds => 60.0 / Settings.Tempo;
 	}
 

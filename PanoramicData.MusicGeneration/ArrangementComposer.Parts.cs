@@ -18,8 +18,8 @@ public static partial class ArrangementComposer
 	private static void Chords(BarContext bar, List<NoteEvent> notes)
 	{
 		var starts = ChordStarts(bar.Settings.Beat);
-		var sustain = starts.Length == 1 ? bar.Beats * 0.95 : 0.35;
-		foreach (var at in starts.Where(at => at < bar.Beats))
+		var sustain = starts.Length == 1 ? bar.BeatsPerBar * 0.95 : 0.35;
+		foreach (var at in starts.Where(at => at < bar.BeatsPerBar))
 		{
 			foreach (var midi in bar.Voicing) { Add(bar, notes, midi, at, sustain, -12); }
 		}
@@ -47,14 +47,14 @@ public static partial class ArrangementComposer
 		};
 		for (var index = 0; index < starts.Length; index++)
 		{
-			var pitch = 36 + bar.Chord.Root + (index % 2 == 1 ? 7 : 0);
+			var pitch = 36 + bar.Chord.Root + (index % 2 != 0 ? 7 : 0);
 			Add(bar, notes, pitch, starts[index], 0.8, index == 0 ? 4 : -5);
 		}
 	}
 
 	private static void Arpeggio(BarContext bar, List<NoteEvent> notes)
 	{
-		for (var step = 0; step < bar.Beats * 2; step++)
+		for (var step = 0; step < bar.BeatsPerBar * 2; step++)
 		{
 			var index = step % (bar.Voicing.Length * 2 - 2);
 			index = index < bar.Voicing.Length ? index : bar.Voicing.Length * 2 - 2 - index;
@@ -73,13 +73,21 @@ public static partial class ArrangementComposer
 		{
 			var degree = motif[(i + bar.Index % 2 * 3) % motif.Length];
 			var variation = MotifVariation(bar, rng);
-			var lift = bar.Section.Kind == SectionKind.Chorus ? 3 : 0;
-			var target = 55 + bar.Settings.Key + degree + variation + (answer ? 5 : 0) + lift;
-			var pitch = MelodyPitch(bar, target, times[i] % 1 == 0);
-			var next = i + 1 < times.Length ? times[i + 1] : bar.Beats - 0.15;
-			Add(bar, notes, pitch, times[i], Math.Max(0.15, next - times[i]) * 0.9, times[i] % 1 == 0 ? 2 : -12);
+			var target = MelodyTarget(bar, degree + variation, answer);
+			var strong = IsBeat(times[i]);
+			var pitch = MelodyPitch(bar, target, strong);
+			var next = i + 1 < times.Length ? times[i + 1] : bar.BeatsPerBar - 0.15;
+			Add(bar, notes, pitch, times[i], Math.Max(0.15, next - times[i]) * 0.9, strong ? 2 : -12);
 		}
 	}
+
+	private static int MelodyTarget(BarContext bar, int degree, bool answer)
+	{
+		var lift = bar.Section.Kind == SectionKind.Chorus ? 3 : 0;
+		return 55 + bar.Settings.Key + degree + (answer ? 5 : 0) + lift;
+	}
+
+	private static bool IsBeat(double at) => Math.Abs(at - Math.Round(at)) < 1e-8;
 
 	private static int MotifVariation(BarContext bar, Pcg32 rng) =>
 		bar.Index % 8 >= 6 && rng.NextDouble() < bar.Settings.Variation ? 1 : 0;
@@ -94,7 +102,7 @@ public static partial class ArrangementComposer
 
 	private static double[] MelodyRhythm(BarContext bar, bool answer)
 	{
-		if (bar.Beats == 3) { return answer ? [1.5, 2.5] : [0, 1, 1.5, 2]; }
+		if (bar.BeatsPerBar == 3) { return answer ? [1.5, 2.5] : [0, 1, 1.5, 2]; }
 		if (answer) { return [1.5, 2.5, 3]; }
 		if (bar.Settings.Beat == MusicBeat.Stride) { return [0, 0.5, 1.5, 2.5, 3.5]; }
 		return bar.Index % 2 == 0 ? [0, 0.75, 1.5, 2, 3] : [0, 0.5, 1, 2, 2.75];
@@ -116,7 +124,7 @@ public static partial class ArrangementComposer
 		var starts = DrumStarts(bar.Settings.Beat, bar.Layer.Pattern);
 		var key = bar.Layer.Pattern switch { LayerPattern.Kick => 36, LayerPattern.Snare => 38, _ => 42 };
 		if (bar.Settings.Beat == MusicBeat.BossaNova && key == 38) { key = 37; }
-		foreach (var at in starts) { Add(bar, notes, key, at, 0.18, at % 1 == 0 ? 0 : -16); }
+		foreach (var at in starts) { Add(bar, notes, key, at, 0.18, IsBeat(at) ? 0 : -16); }
 	}
 
 	private static double[] DrumStarts(MusicBeat beat, LayerPattern pattern)

@@ -68,14 +68,20 @@ public static partial class ChordProgressions
 
 	private static readonly Dictionary<string, Func<bool, (int Root, string Quality)[]>> Patterns = new(StringComparer.Ordinal)
 	{
-		["Four chords"] = m => [(0, m ? "m" : ""), (7, ""), (m ? 8 : 9, m ? "" : "m"), (5, m ? "m" : "")],
-		["Doo-wop"] = m => [(0, m ? "m" : ""), (m ? 8 : 9, m ? "" : "m"), (5, m ? "m" : ""), (7, "7")],
+		["Four chords"] = FourChords,
+		["Doo-wop"] = DooWop,
 		["Jazz turnaround"] = m => m ? [(2, "m7b5"), (7, "7"), (0, "m7"), (8, "7")] : [(2, "m7"), (7, "7"), (0, "maj7"), (9, "7")],
 		["Blues"] = _ => [(0, "7"), (0, "7"), (0, "7"), (0, "7"), (5, "7"), (5, "7"), (0, "7"), (0, "7"), (7, "7"), (5, "7"), (0, "7"), (7, "7")],
 		["Canon"] = m => m ? [(0, "m"), (7, ""), (8, ""), (3, ""), (5, "m"), (0, "m"), (5, "m"), (7, "")] : [(0, ""), (7, ""), (9, "m"), (4, "m"), (5, ""), (0, ""), (5, ""), (7, "")],
 		["Minor descent"] = _ => [(0, "m"), (10, ""), (8, ""), (7, "7")],
 		["Ragtime circle"] = _ => [(0, ""), (9, "7"), (2, "7"), (7, "7")]
 	};
+
+	private static (int, string)[] FourChords(bool minor) =>
+		[(0, minor ? "m" : ""), (7, ""), (minor ? 8 : 9, minor ? "" : "m"), (5, minor ? "m" : "")];
+
+	private static (int, string)[] DooWop(bool minor) =>
+		[(0, minor ? "m" : ""), (minor ? 8 : 9, minor ? "" : "m"), (5, minor ? "m" : ""), (7, "7")];
 
 	private static (int Root, string Quality)[] Pattern(string name, bool minor)
 	{
