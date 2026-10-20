@@ -20,6 +20,7 @@ internal sealed class LayerEditor
 	{
 		Id = layer.Id; Name = layer.Name; Pattern = layer.Pattern; Bank = layer.Bank;
 		Program = layer.Program; Velocity = layer.Velocity; Gain = layer.Gain; Octave = layer.Octave; Enabled = layer.Enabled;
+		Presence = new(layer.Presence);
 	}
 	public string Id { get; set; }
 	public string Name { get; set; }
@@ -30,6 +31,7 @@ internal sealed class LayerEditor
 	public double Gain { get; set; }
 	public int Octave { get; set; }
 	public bool Enabled { get; set; }
+	public PresenceEditor Presence { get; }
 	public int Preset { get => Bank * 128 + Program; set { Bank = value / 128; Program = value % 128; } }
 	public InstrumentLayer ToLayer() => new()
 	{
@@ -41,8 +43,35 @@ internal sealed class LayerEditor
 		Velocity = Velocity,
 		Gain = Gain,
 		Octave = Octave,
-		Enabled = Enabled
+		Enabled = Enabled,
+		Presence = Presence.ToPresence()
 	};
+}
+
+internal sealed class PresenceEditor(LayerPresence presence)
+{
+	public double Intro { get; set; } = presence.Intro;
+	public double Verse { get; set; } = presence.Verse;
+	public double Chorus { get; set; } = presence.Chorus;
+	public double Bridge { get; set; } = presence.Bridge;
+	public double Outro { get; set; } = presence.Outro;
+	public List<PresenceOverrideEditor> Overrides { get; } = [.. presence.Overrides.Select(o => new PresenceOverrideEditor { Kind = o.Kind, Occurrence = o.Occurrence, Probability = o.Probability })];
+	public LayerPresence ToPresence() => new()
+	{
+		Intro = Intro,
+		Verse = Verse,
+		Chorus = Chorus,
+		Bridge = Bridge,
+		Outro = Outro,
+		Overrides = [.. Overrides.Select(o => new SectionPresenceOverride(o.Kind, o.Occurrence, o.Probability))]
+	};
+}
+
+internal sealed class PresenceOverrideEditor
+{
+	public SectionKind Kind { get; set; } = SectionKind.Verse;
+	public int Occurrence { get; set; } = 3;
+	public double Probability { get; set; } = 0.25;
 }
 
 [JsonSourceGenerationOptions(WriteIndented = true, PropertyNameCaseInsensitive = true, UseStringEnumConverter = true)]

@@ -74,20 +74,22 @@ public class ArrangementTests
 		var score = ArrangementComposer.Compose(ArrangementPresets.ForGenre(MusicGenre.Pop) with { Seconds = seconds, Tempo = 87 });
 		score.Sections.Where(s => s.Kind is SectionKind.Verse or SectionKind.Chorus)
 			.Should().OnlyContain(s => s.Bars == 8 && s.PhraseCount == 4 && s.PhraseBars == 2);
-		score.Sections[^1].EndSeconds.Should().Be(seconds);
-		score.Chords[^1].EndSeconds.Should().Be(seconds);
+		score.Sections[^1].Kind.Should().Be(SectionKind.Outro);
+		score.Sections.Should().OnlyContain(s => !s.IsTruncated);
+		score.PerformedSeconds.Should().BeLessThanOrEqualTo(seconds);
+		score.Chords[^1].EndSeconds.Should().Be(score.Sections[^1].EndSeconds);
 	}
 
 	[Fact]
 	public void ReggaeAndBossa_AreDifferentRhythmicEventsRatherThanLabels()
 	{
-		var settings = ArrangementPresets.ForGenre(MusicGenre.Pop) with { Tempo = 120, Seconds = 12, Sections = false };
+		var settings = ArrangementPresets.ForGenre(MusicGenre.Pop) with { Tempo = 120, Seconds = 30, Sections = false };
 		var reggae = ArrangementComposer.Compose(settings with { Beat = MusicBeat.Reggae });
 		var rock = ArrangementComposer.Compose(settings with { Beat = MusicBeat.Rock });
 		var bossa = ArrangementComposer.Compose(settings with { Beat = MusicBeat.BossaNova });
-		reggae.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Kick).Notes.Should().OnlyContain(n => Math.Abs(n.StartSeconds % 2 - 1) < 1e-9);
+		reggae.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Kick).Notes.Where(n => n.StartSeconds < reggae.Ending!.StartSeconds).Should().OnlyContain(n => Math.Abs(n.StartSeconds % 2 - 1) < 1e-9);
 		reggae.Tracks[0].Notes.Select(n => n.StartSeconds).Should().NotEqual(rock.Tracks[0].Notes.Select(n => n.StartSeconds));
-		bossa.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Snare).Notes.Should().OnlyContain(n => n.MidiNote == 37);
+		bossa.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Snare).Notes.Where(n => n.StartSeconds < bossa.Ending!.StartSeconds).Should().OnlyContain(n => n.MidiNote == 37);
 		bossa.Tracks[0].Notes.Should().Contain(n => Math.Abs(n.StartSeconds - 0.375) < 1e-9);
 	}
 
@@ -119,7 +121,13 @@ public class ArrangementTests
 	[Fact]
 	public void Seed_ChangesTheOpeningMotifWithoutChangingTheSelectedHarmony()
 	{
-		var settings = ArrangementPresets.ForGenre(MusicGenre.Pop) with { Seconds = 12 };
+		var settings = ArrangementPresets.ForGenre(MusicGenre.Pop) with
+		{
+			Seconds = 40,
+			IntroVariation = 0,
+			ProgressionVariation = 0,
+			Endings = new() { Fade = 0, Cadence = 1, Tag = 0, Stop = 0 }
+		};
 		var first = ArrangementComposer.Compose(settings);
 		var different = Enumerable.Range(43, 8).Select(seed => ArrangementComposer.Compose(settings with { Seed = seed }));
 		var melody = first.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Melody).Notes.Select(n => n.MidiNote).ToArray();

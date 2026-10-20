@@ -22,7 +22,7 @@ public sealed partial class SoundFontRenderer
 	{
 		ValidateScore(score, sampleRate);
 		var info = new SongInfo(score.Settings.Seed, score.Settings.Tempo, score.Settings.Minor ? "Minor" : "Major", 36 + score.Settings.Key, 0, 0);
-		var frames = checked(score.Settings.Seconds * sampleRate);
+		var frames = checked((int)Math.Round(ArrangementEndingRenderer.Duration(score) * sampleRate));
 		var mix = new double[frames];
 		var template = new GeneratedSong(info, new float[frames], sampleRate, []);
 		var audible = new List<NoteEvent>();
@@ -39,6 +39,7 @@ public sealed partial class SoundFontRenderer
 			Accumulate(mix, stem, track.Instrument.Gain);
 			audible.AddRange(track.Notes);
 		}
+		ArrangementEndingRenderer.Shape(mix, sampleRate, score.Ending);
 		var song = FinishLayers(template, mix, audible, score.Sections);
 		if (progress is not null) { await progress(new("Complete", 1)).ConfigureAwait(false); }
 		return new(song, new(_name, _hash, typeof(MeltySynth.Synthesizer).Assembly.GetName().Version!.ToString(), sampleRate,
@@ -92,6 +93,7 @@ public sealed partial class SoundFontRenderer
 			ValidateTrack(score, track);
 		}
 		ValidateTimeline(score);
+		ArrangementEndingRenderer.Validate(score);
 	}
 
 	private static void ValidateTimeline(ArrangedScore score)
@@ -103,12 +105,12 @@ public sealed partial class SoundFontRenderer
 		foreach (var chord in score.Chords)
 		{
 			ValidateChord(chord);
-			ValidateMarker(chord.StartSeconds, chord.EndSeconds, score.Settings.Seconds);
+			ValidateMarker(chord.StartSeconds, chord.EndSeconds, ArrangementEndingRenderer.Duration(score));
 		}
 		foreach (var section in score.Sections)
 		{
 			ArgumentNullException.ThrowIfNull(section);
-			ValidateMarker(section.StartSeconds, section.EndSeconds, score.Settings.Seconds);
+			ValidateMarker(section.StartSeconds, section.EndSeconds, ArrangementEndingRenderer.Duration(score));
 		}
 	}
 
@@ -123,7 +125,7 @@ public sealed partial class SoundFontRenderer
 		if (chord.Intervals.Any(i => i is < 0 or > 11)) { throw new ArgumentException("Chord intervals must lie within an octave.", nameof(chord)); }
 	}
 
-	private static void ValidateMarker(double start, double end, int seconds)
+	internal static void ValidateMarker(double start, double end, double seconds)
 	{
 		if (!double.IsFinite(start) || !double.IsFinite(end) || start < 0 || end <= start || end > seconds)
 		{
@@ -152,7 +154,7 @@ public sealed partial class SoundFontRenderer
 		{
 			throw new ArgumentException("A note does not match its layer or velocity range.", nameof(score));
 		}
-		if (note.StartSeconds + note.DurationSeconds > score.Settings.Seconds + 1e-8)
+		if (note.StartSeconds + note.DurationSeconds > ArrangementEndingRenderer.Duration(score) + 1e-8)
 		{
 			throw new ArgumentException("A note does not match its layer or score duration.", nameof(score));
 		}

@@ -9,16 +9,23 @@ public sealed partial class StudioPage
 {
 	private string title = "My song";
 	private int seed = 42;
-	private int seconds = 60;
-	private int tempo = 100;
+	private int seconds = 210;
+	private int tempo = 160;
 	private int key;
 	private bool minor;
 	private MusicGenre genre;
 	private MusicBeat beat;
 	private string progression = "Four chords";
 	private string customChords = "C, G, Am, F";
-	private double swing;
+	private double swing = 0.1;
 	private double variation = 0.25;
+	private double progressionVariation = 0.35;
+	private double sectionContrast = 1;
+	private double introVariation = 0.65;
+	private double fadeWeight = 0.35;
+	private double cadenceWeight = 0.35;
+	private double tagWeight = 0.2;
+	private double stopWeight = 0.1;
 	private bool sections = true;
 	private List<LayerEditor> layers = [.. ArrangementPresets.ForGenre(MusicGenre.Pop).Layers.Select(l => new LayerEditor(l))];
 	private SoundFontRenderer? bank;
@@ -51,6 +58,10 @@ public sealed partial class StudioPage
 		CustomChords = customChords,
 		Swing = swing,
 		Variation = variation,
+		ProgressionVariation = progressionVariation,
+		SectionContrast = sectionContrast,
+		IntroVariation = introVariation,
+		Endings = new() { Fade = fadeWeight, Cadence = cadenceWeight, Tag = tagWeight, Stop = stopWeight },
 		Sections = sections,
 		Layers = [.. layers.Select(l => l.ToLayer())]
 	};
@@ -70,6 +81,8 @@ public sealed partial class StudioPage
 	{
 		"Four chords" => "Four chords · I–V–vi–IV",
 		"Doo-wop" => "Doo-wop · I–vi–IV–V",
+		"Anthem" => "Anthem · IV–V–I–vi",
+		"Minor pop" => "Minor pop · vi–IV–I–V",
 		"Jazz turnaround" => "Jazz · ii7–V7–Imaj7–VI7",
 		"Canon" => "Canon · I–V–vi–iii–IV–I–IV–V",
 		"Ragtime circle" => "Ragtime · I–VI7–II7–V7",

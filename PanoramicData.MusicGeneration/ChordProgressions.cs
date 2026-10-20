@@ -9,7 +9,7 @@ public sealed record ChordDefinition(string Symbol, int Root, IReadOnlyList<int>
 public static partial class ChordProgressions
 {
 	/// <summary>Selectable patterns. Four chords is the common I–V–vi–IV schema.</summary>
-	public static IReadOnlyList<string> Names { get; } = ["Four chords", "Doo-wop", "Jazz turnaround", "Blues", "Canon", "Minor descent", "Ragtime circle", "Custom"];
+	public static IReadOnlyList<string> Names { get; } = ["Four chords", "Doo-wop", "Anthem", "Minor pop", "Jazz turnaround", "Blues", "Canon", "Minor descent", "Ragtime circle", "Custom"];
 	private static readonly Dictionary<char, int> NoteRoots = new() { ['C'] = 0, ['D'] = 2, ['E'] = 4, ['F'] = 5, ['G'] = 7, ['A'] = 9, ['B'] = 11 };
 	private static readonly string[] RootNames = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
 	private static readonly Dictionary<string, int[]> Qualities = new(StringComparer.Ordinal)
@@ -70,6 +70,8 @@ public static partial class ChordProgressions
 	{
 		["Four chords"] = FourChords,
 		["Doo-wop"] = DooWop,
+		["Anthem"] = Anthem,
+		["Minor pop"] = MinorPop,
 		["Jazz turnaround"] = m => m ? [(2, "m7b5"), (7, "7"), (0, "m7"), (8, "7")] : [(2, "m7"), (7, "7"), (0, "maj7"), (9, "7")],
 		["Blues"] = _ => [(0, "7"), (0, "7"), (0, "7"), (0, "7"), (5, "7"), (5, "7"), (0, "7"), (0, "7"), (7, "7"), (5, "7"), (0, "7"), (7, "7")],
 		["Canon"] = m => m ? [(0, "m"), (7, ""), (8, ""), (3, ""), (5, "m"), (0, "m"), (5, "m"), (7, "")] : [(0, ""), (7, ""), (9, "m"), (4, "m"), (5, ""), (0, ""), (5, ""), (7, "")],
@@ -82,6 +84,13 @@ public static partial class ChordProgressions
 
 	private static (int, string)[] DooWop(bool minor) =>
 		[(0, minor ? "m" : ""), (minor ? 8 : 9, minor ? "" : "m"), (5, minor ? "m" : ""), (7, "7")];
+
+	private static (int, string)[] Anthem(bool minor) =>
+		[(5, minor ? "m" : ""), (7, ""), (0, minor ? "m" : ""), (minor ? 8 : 9, minor ? "" : "m")];
+
+	private static (int, string)[] MinorPop(bool minor) => minor
+		? [(0, "m"), (8, ""), (3, ""), (10, "")]
+		: [(9, "m"), (5, ""), (0, ""), (7, "")];
 
 	private static (int Root, string Quality)[] Pattern(string name, bool minor)
 	{

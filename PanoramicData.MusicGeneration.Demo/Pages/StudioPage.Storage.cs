@@ -70,7 +70,7 @@ public partial class StudioPage
 
 	private async Task ReadDocumentAsync(string json)
 	{
-		var document = JsonSerializer.Deserialize(json, StudioJsonContext.Default.StudioDocument)
+		var document = JsonSerializer.Deserialize(StudioDocumentMigration.ExpandDefaults(json), StudioJsonContext.Default.StudioDocument)
 			?? throw new ArgumentException("The file does not contain a song or settings.");
 		if (document.SchemaVersion != 1) { throw new ArgumentException("Unsupported settings/song file version."); }
 		var settings = document.Score?.Settings ?? document.Settings;
@@ -101,6 +101,8 @@ public partial class StudioPage
 		seed = settings.Seed; seconds = settings.Seconds; tempo = settings.Tempo; key = settings.Key; minor = settings.Minor;
 		genre = settings.Genre; beat = settings.Beat; progression = settings.Progression; customChords = settings.CustomChords;
 		swing = settings.Swing; variation = settings.Variation; sections = settings.Sections;
+		progressionVariation = settings.ProgressionVariation; sectionContrast = settings.SectionContrast; introVariation = settings.IntroVariation;
+		fadeWeight = settings.Endings.Fade; cadenceWeight = settings.Endings.Cadence; tagWeight = settings.Endings.Tag; stopWeight = settings.Endings.Stop;
 		layers = [.. settings.Layers.Select(l => new LayerEditor(l))];
 		MarkDirty();
 	}

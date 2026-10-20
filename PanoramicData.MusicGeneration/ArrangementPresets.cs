@@ -12,7 +12,7 @@ public static class ArrangementPresets
 
 	private static readonly Dictionary<MusicGenre, Func<ArrangementSettings, ArrangementSettings>> Factories = new()
 	{
-		[MusicGenre.Pop] = s => s with { Layers = Band(0, 48, 32), Beat = MusicBeat.Straight },
+		[MusicGenre.Pop] = s => s with { Layers = Pop(), Beat = MusicBeat.Straight },
 		[MusicGenre.Rock] = s => s with { Layers = Band(29, 27, 33), Beat = MusicBeat.Rock, Tempo = 112 },
 		[MusicGenre.Reggae] = s => s with { Layers = Band(16, 27, 34), Beat = MusicBeat.Reggae, Tempo = 82 },
 		[MusicGenre.BossaNova] = s => s with { Layers = Band(73, 24, 32), Beat = MusicBeat.BossaNova, Tempo = 124, Progression = "Jazz turnaround" },
@@ -29,7 +29,17 @@ public static class ArrangementPresets
 		Pattern = pattern,
 		Program = program,
 		Gain = gain,
+		Presence = DefaultPresence(pattern),
 		Bank = pattern is LayerPattern.Kick or LayerPattern.Snare or LayerPattern.HiHat ? 128 : 0
+	};
+
+	private static LayerPresence DefaultPresence(LayerPattern pattern) => pattern switch
+	{
+		LayerPattern.Countermelody => new() { Intro = 0.1, Verse = 0.25, Chorus = 0.75, Bridge = 0.6, Outro = 0.5 },
+		LayerPattern.Snare => new() { Intro = 0.35, Verse = 0.85, Chorus = 0.9, Bridge = 0.55 },
+		LayerPattern.Arpeggio => new() { Intro = 0.75, Verse = 0.65, Bridge = 0.8 },
+		LayerPattern.Melody => new() { Intro = 0.65 },
+		_ => new()
 	};
 
 	private static InstrumentLayer[] Band(int lead, int chords, int bass) =>
@@ -37,6 +47,11 @@ public static class ArrangementPresets
 		Layer("chords", "Chords", LayerPattern.Chords, chords, 0.65), Layer("bass", "Bass", LayerPattern.Bass, bass, 0.85),
 		Layer("lead", "Lead", LayerPattern.Melody, lead, 0.8), Layer("kick", "Kick", LayerPattern.Kick, 0, 0.8),
 		Layer("snare", "Snare / cross-stick", LayerPattern.Snare, 0, 0.65), Layer("hat", "Hi-hat", LayerPattern.HiHat, 0, 0.4)
+	];
+
+	private static InstrumentLayer[] Pop() =>
+	[
+		.. Band(0, 48, 32), Layer("answer", "Guitar answer", LayerPattern.Countermelody, 24, 0.35)
 	];
 
 	private static InstrumentLayer[] Ragtime() =>

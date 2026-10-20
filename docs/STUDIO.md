@@ -10,7 +10,7 @@ Choose a named progression or enter comma-separated chord symbols. In C major, F
 
 The composer uses inversions that reduce chord movement, chord tones on strong melody beats, scale passing tones, a recurring two-bar motif with phrase-end variations, and rhythm-specific bass, accompaniment and drum onsets. These are basic generative templates, with further phrasing and orchestration work remaining in the enhancement backlog. They do not reproduce an existing recording or melody.
 
-Length defaults to 60 seconds and permits 6–300 seconds. Complete verses and choruses contain four two-bar phrases. Short requests crop later sections; long requests add sections. Render changes explicitly after editing. Rendering yields to the browser and reports the current layer and percentage. The player owns the aligned section/chord lanes and note display; its visualizer selector also offers the built-in spectrogram.
+Length defaults to a 210-second ceiling at 160 bpm with 10% swing, and permits 6–300 seconds. Complete verses and choruses contain four two-bar phrases. The planner reserves an outro, adds complete sections and finishes early when necessary. Render changes explicitly after editing. Rendering yields to the browser and reports the current layer and percentage. The player owns the aligned section/chord lanes and note display; its visualizer selector also offers the built-in spectrogram.
 
 ## Library and portability
 
@@ -33,7 +33,7 @@ var audio = await renderer.RenderScoreAsync(score);
 File.WriteAllBytes("arrangement.wav", audio.Song.ToWav());
 ```
 
-Composition is separate from synthesis. `ArrangementComposer.Version` starts at 1 and governs written-note generation independently of legacy `SongGenerator.Version` 3. `ArrangedScore.Version` is the score file schema (1), while `ComposerVersion` records which algorithm wrote it. Saving notes supports replay after a later composer changes. `NoteEvent.LayerId` identifies the instrument and `Velocity` supplies per-event strength. The legacy default is 100, preserving existing SoundFont part velocities and procedural golden fixtures.
+Composition is separate from synthesis. `ArrangementComposer.Version` is now 2 and governs written-note generation independently of legacy `SongGenerator.Version` 3. `ArrangedScore.Version` is the score file schema (1), while `ComposerVersion` records which algorithm wrote it. Version 2 adds progression/intro factors, section presence decisions, a performed duration and a weighted ending plan. Earlier written scores retain their duration and are rendered without the new ending envelope. Saving notes supports replay after a later composer changes. `NoteEvent.LayerId` identifies the instrument and `Velocity` supplies per-event strength. The legacy default is 100, preserving existing SoundFont part velocities and procedural golden fixtures.
 
 `RenderScoreAsync` renders each layer separately and mixes sequentially, retaining one aggregate buffer rather than every raw stem. Layer edits require rendering again. The final mix is peak-normalised, so a layer's gain is relative to the other audible layers. The existing six-role `RenderAsync` API still returns raw stems. The studio renders at 22,050 Hz; 300-second, 24-layer sessions can take substantially longer than short previews. Bank bytes, renderer/runtime identity and settings affect sampled PCM; cross-platform bit-identical sampled audio is not promised. See [SOUNDFONTS.md](SOUNDFONTS.md) for bank terms and rendering limits.
 
@@ -42,3 +42,5 @@ Composition is separate from synthesis. `ArrangementComposer.Version` starts at 
 The demo redistributes unmodified **lamejs** by Alexander Shtadler and contributors, including the JavaScript port of LAME, from [zhuker/lamejs](https://github.com/zhuker/lamejs), commit `582bbba6a12f981b984d8fb9e1874499fed85675`. It is licensed under LGPL-3.0. It is loaded as a separate script by the MP3 worker, rather than embedded in either NuGet package.
 
 `wwwroot/vendor/lamejs/` contains the unmodified `lame.all.js`, upstream LICENSE notice, GNU LGPL/GPL texts and the complete corresponding source archive `source.zip`. The page links both licence and source at the same published location. Keep these assets together when hosting or redistributing the demo. GeneralUser GS has separate asset terms; the core and adapter package licences remain MIT.
+
+Research, musical examples, probability semantics and ending policies: [MUSICAL_EXPRESSION.md](MUSICAL_EXPRESSION.md).

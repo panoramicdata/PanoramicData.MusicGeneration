@@ -86,6 +86,8 @@ public sealed record InstrumentLayer
 	public int Octave { get; init; }
 	/// <summary>Whether this layer is audible.</summary>
 	public bool Enabled { get; init; } = true;
+	/// <summary>Whole-section participation probabilities and occurrence overrides.</summary>
+	public LayerPresence Presence { get; init; } = new();
 	/// <summary>Logical voice for existing note visualisers.</summary>
 	public VoiceKind Voice => Pattern switch
 	{
@@ -103,10 +105,10 @@ public sealed record ArrangementSettings
 {
 	/// <summary>Deterministic composition seed.</summary>
 	public int Seed { get; init; } = 42;
-	/// <summary>Requested duration, 6–300 seconds.</summary>
-	public int Seconds { get; init; } = 60;
+	/// <summary>Maximum performed duration, 6–300 seconds; the song may finish earlier.</summary>
+	public int Seconds { get; init; } = 210;
 	/// <summary>Quarter-note tempo, 40–220 bpm.</summary>
-	public int Tempo { get; init; } = 100;
+	public int Tempo { get; init; } = 160;
 	/// <summary>Tonic pitch class, C=0 through B=11.</summary>
 	public int Key { get; init; }
 	/// <summary>Major or natural-minor key for melody passing notes.</summary>
@@ -120,7 +122,15 @@ public sealed record ArrangementSettings
 	/// <summary>Comma-separated chord symbols when Custom is chosen.</summary>
 	public string CustomChords { get; init; } = "C, G, Am, F";
 	/// <summary>Offbeat delay as a fraction of a beat, 0–0.4.</summary>
-	public double Swing { get; init; }
+	public double Swing { get; init; } = 0.1;
+	/// <summary>Probability of a functional chord substitution in a four-bar phrase, 0–1.</summary>
+	public double ProgressionVariation { get; init; } = 0.35;
+	/// <summary>Strength of section-specific harmonic plans, 0–1; zero shares the base cycle.</summary>
+	public double SectionContrast { get; init; } = 1;
+	/// <summary>Seeded intro length, hook teaser and accompaniment build variation, 0–1.</summary>
+	public double IntroVariation { get; init; } = 0.65;
+	/// <summary>Relative weights for the four implemented ending types.</summary>
+	public EndingWeights Endings { get; init; } = new();
 	/// <summary>Controlled motif variation, 0–1.</summary>
 	public double Variation { get; init; } = 0.25;
 	/// <summary>Returning sections or continuous eight-bar blocks.</summary>
@@ -150,4 +160,10 @@ public sealed record ArrangedScore
 	public required IReadOnlyList<ChordEvent> Chords { get; init; }
 	/// <summary>Performed section boundaries.</summary>
 	public required IReadOnlyList<SectionEvent> Sections { get; init; }
+	/// <summary>Actual audio duration including release; zero denotes an older score using the requested duration.</summary>
+	public double PerformedSeconds { get; init; }
+	/// <summary>Planned ending, or null for scores written by composer version 1.</summary>
+	public EndingPlan? Ending { get; init; }
+	/// <summary>Saved whole-section decisions, including absent layers.</summary>
+	public IReadOnlyList<LayerParticipation> Participation { get; init; } = [];
 }
