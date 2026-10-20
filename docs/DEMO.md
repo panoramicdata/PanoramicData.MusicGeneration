@@ -53,3 +53,7 @@ The song page defaults the melody range to C3–C5 (MIDI 48–72). The range con
 The song page's Composition selector offers free-running generation, returning verses/choruses and a through-composed comparison. Selecting a structured example sets a 60-second preview; the length slider can then shorten or extend it. The player segment lane, piano-roll labels and section table share the same performed boundaries. Each complete verse and chorus contains four phrases. The table reports planned phrases, bars per phrase, cropped sections, transition fills and the final tonic cadence. Requests too short for the prescribed form crop its final audible section; longer requests fit whole-bar phrase lengths while retaining four repeats.
 
 For a direct structured preview, use `/song?form=sections`; `/song?form=through` selects the comparison. Both preserve the same opening, tempo, key and section allocation. Later returns in the through-composed mode use new material identities, so this compares repetition in composition rather than claiming an identical written score. Short durations can omit the bridge or outro; the table makes this visible.
+
+## SoundFont comparison
+
+Choose SoundFont instruments or open `/song?form=sections&sound=soundfont`. The demo loads GeneralUser GS 2.0.3 once (30.8 MiB), then renders the same written notes with selectable instruments and a drum kit. Procedural synthesis remains available for comparison. SF2 files can also be loaded locally. See [SoundFont design, asset terms and resource budgets](SOUNDFONTS.md).

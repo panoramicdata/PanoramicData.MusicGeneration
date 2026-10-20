@@ -112,7 +112,7 @@ xUnit v3 with AwesomeAssertions, skips treated as failures, regression coverage 
 
 - Not a general synthesiser, sequencer or MIDI library; no MIDI file I/O, no stereo, no effects.
 - Not an attempt at musically ambitious composition. The output is pleasant and varied, not memorable.
-- No real-instrument sample playback.
+- The core has no real-instrument sample playback. A separate opt-in SoundFont adapter is described in [SOUNDFONTS.md](SOUNDFONTS.md).
 
 ## 9. Intellectual property
 

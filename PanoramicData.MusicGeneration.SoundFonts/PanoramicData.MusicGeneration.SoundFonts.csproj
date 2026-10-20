@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+
+		<PackageId>PanoramicData.MusicGeneration.SoundFonts</PackageId>
+		<Owners>Panoramic Data Limited</Owners>
+		<PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.MusicGeneration</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.MusicGeneration</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>Icon.png</PackageIcon>
+		<Description>Optional SoundFont instrument-bank rendering for PanoramicData.MusicGeneration using MeltySynth. Caller-supplied SF2 assets, inspectable replay metadata and independent stems.</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageTags>music;audio;synthesis;procedural;generator;test-data;PanoramicData</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+		<PackageReference Include="MeltySynth" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\PanoramicData.MusicGeneration\Icon.png" Pack="true" PackagePath="" />
+		<None Include="..\README.md" Link="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PanoramicData.MusicGeneration\PanoramicData.MusicGeneration.csproj" />
+	</ItemGroup>
+
+</Project>

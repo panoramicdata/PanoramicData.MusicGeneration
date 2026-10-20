@@ -124,3 +124,7 @@ The library has unit tests for synthesis, voice independence and raw stem recons
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## Optional SoundFont instruments
+
+The separate `PanoramicData.MusicGeneration.SoundFonts` package renders existing scores using caller-supplied SF2 banks. The demo offers a GeneralUser GS comparison. See [usage and asset terms](docs/SOUNDFONTS.md).
