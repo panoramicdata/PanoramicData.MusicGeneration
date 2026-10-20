@@ -89,6 +89,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - PanoramicData.MusicGeneration
+          - PanoramicData.MusicGeneration.SoundFonts
     permissions:
       id-token: write
     steps:
@@ -111,7 +117,7 @@ jobs:
 
     # No --skip-duplicate: a nuget.org Conflict must fail the run, not pass it with nothing published.
     - name: Push to NuGet
+      env:
+        PACKAGE_ID: ${{ matrix.package }}
       run: |
-        for package in ./artifacts/*.nupkg; do
-          dotnet nuget push "$package" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
-        done
+        dotnet nuget push ./artifacts/"$PACKAGE_ID".[0-9]*.nupkg --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
