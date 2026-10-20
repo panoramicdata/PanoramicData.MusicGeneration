@@ -1,18 +1,18 @@
 namespace PanoramicData.MusicGeneration.SoundFonts;
 
-public sealed partial class SoundFontRenderer
+internal static class ArrangementEndingRenderer
 {
-	private static double ScoreDuration(ArrangedScore score) =>
+	internal static double Duration(ArrangedScore score) =>
 		score.PerformedSeconds > 0 ? score.PerformedSeconds : score.Settings.Seconds;
 
-	private static void ValidateEnding(ArrangedScore score)
+	internal static void Validate(ArrangedScore score)
 	{
 		ValidateParticipation(score);
 		if (!double.IsFinite(score.PerformedSeconds) || score.PerformedSeconds < 0)
 		{
 			throw new ArgumentException("Invalid performed score duration.", nameof(score));
 		}
-		var duration = ScoreDuration(score);
+		var duration = Duration(score);
 		if (duration > score.Settings.Seconds) { throw new ArgumentException("Performance exceeds the requested ceiling.", nameof(score)); }
 		if (score.Ending is null) { return; }
 		ValidateEndingPlan(score.Ending, duration);
@@ -47,7 +47,7 @@ public sealed partial class SoundFontRenderer
 	private static void ValidateEndingPlan(EndingPlan ending, double duration)
 	{
 		if (!Enum.IsDefined(ending.Kind)) { throw new ArgumentException("Unknown ending type.", nameof(ending)); }
-		ValidateMarker(ending.StartSeconds, ending.EndSeconds, duration);
+		SoundFontRenderer.ValidateMarker(ending.StartSeconds, ending.EndSeconds, duration);
 		if (!double.IsFinite(ending.ReleaseSeconds) || ending.ReleaseSeconds is < 0 or > 2)
 		{
 			throw new ArgumentException("Invalid ending release duration.", nameof(ending));
@@ -58,7 +58,7 @@ public sealed partial class SoundFontRenderer
 		}
 	}
 
-	private static void ShapeEnding(double[] mix, int rate, EndingPlan? ending)
+	internal static void Shape(double[] mix, int rate, EndingPlan? ending)
 	{
 		if (ending is null) { return; }
 		var fadeStart = (int)Math.Round(ending.StartSeconds * rate);

@@ -32,7 +32,8 @@ public class LayeredRenderTests
 		var score = ArrangementComposer.Compose(settings);
 		score.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Melody).Notes.Should().NotBeEmpty();
 		var result = await RenderAsync(score);
-		result.Song.Notes.Should().NotContain(n => n.Voice == VoiceKind.Melody);
+		var muted = settings.Layers.Single(l => l.Pattern == LayerPattern.Melody).Id;
+		result.Song.Notes.Should().NotContain(n => n.LayerId == muted);
 	}
 
 	[Fact]

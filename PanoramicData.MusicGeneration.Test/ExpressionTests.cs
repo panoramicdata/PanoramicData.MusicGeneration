@@ -29,6 +29,7 @@ public class ExpressionTests
 		settings.Tempo.Should().Be(160);
 		settings.Swing.Should().Be(0.1);
 		settings.Seconds.Should().Be(210);
+		settings.Layers.Should().Contain(l => l.Pattern == LayerPattern.Countermelody && l.Presence.Verse < l.Presence.Chorus);
 		ArrangementComposer.Version.Should().Be(2);
 	}
 
