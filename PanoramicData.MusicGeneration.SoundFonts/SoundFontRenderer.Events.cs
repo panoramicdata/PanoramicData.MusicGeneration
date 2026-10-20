@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration.SoundFonts;
 
 public sealed partial class SoundFontRenderer
 {
-	private readonly record struct RenderEvent(int Frame, int Channel, int Key, bool On);
+	private readonly record struct RenderEvent(int Frame, int Channel, int Key, bool On, int Velocity);
 
 	private static List<RenderEvent> Events(GeneratedSong score, int rate, int length, VoiceKind voice)
 	{
@@ -25,8 +25,8 @@ public sealed partial class SoundFontRenderer
 				throw new ArgumentException("A melodic role supports at most 15 overlapping notes.", nameof(score));
 			}
 			available[channel] = end;
-			events.Add(new(start, channel, note.MidiNote, true));
-			events.Add(new(end, channel, note.MidiNote, false));
+			events.Add(new(start, channel, note.MidiNote, true, note.Velocity));
+			events.Add(new(end, channel, note.MidiNote, false, note.Velocity));
 		}
 		return [.. events.OrderBy(e => e.Frame).ThenBy(e => e.On)];
 	}
@@ -93,7 +93,7 @@ public sealed partial class SoundFontRenderer
 		if (message.On)
 		{
 			held[message.Channel, message.Key]++;
-			synth.NoteOn(message.Channel, message.Key, velocity);
+			synth.NoteOn(message.Channel, message.Key, Math.Clamp((int)Math.Round(velocity * message.Velocity / 100.0), 1, 127));
 		}
 		else if (--held[message.Channel, message.Key] == 0)
 		{

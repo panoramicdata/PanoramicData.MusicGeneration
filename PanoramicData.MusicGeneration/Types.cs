@@ -30,6 +30,12 @@ public enum VoiceKind
 /// <param name="FrequencyHz">The frequency actually rendered, including the song's tuning offset; for noise drums, 0.</param>
 public readonly record struct NoteEvent(VoiceKind Voice, double StartSeconds, double DurationSeconds, int MidiNote, double FrequencyHz)
 {
+	/// <summary>MIDI playing strength, 1–127; 100 preserves the original renderer's fixed velocity.</summary>
+	public int Velocity { get; init; } = 100;
+
+	/// <summary>Optional instrument-layer identity in an arranged score.</summary>
+	public string? LayerId { get; init; }
+
 	/// <summary>Source section index, including pickups; null for free-running generation.</summary>
 	public int? SectionIndex { get; init; }
 }

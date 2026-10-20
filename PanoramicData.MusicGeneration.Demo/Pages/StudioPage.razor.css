@@ -1,0 +1,17 @@
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+label { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; max-width: 100%; }
+input, select { max-width: 100%; box-sizing: border-box; }
+input:not([type]), input[type=number] { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 0.45rem; }
+input[type=number] { width: 6rem; }
+.layer-panel, .library-panel { margin-top: 1rem; margin-bottom: 1rem; }
+.layer-row { display: grid; grid-template-columns: 45px 1fr 1fr 2fr; gap: 0.7rem; border-top: 1px solid var(--line); padding: 0.8rem 0; }
+.layer-row label { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.layer-row select, .layer-row input:not([type]) { width: 100%; }
+.layer-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.saved-row { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--line); padding-top: 0.7rem; margin-top: 0.7rem; }
+.chord-preview { font-size: 1.3rem; color: var(--accent); overflow-wrap: anywhere; }
+.table-scroll, pre { max-width: 100%; overflow-x: auto; }
+.error { color: #ffb2a7; }
+progress { display: block; width: 100%; margin-top: 0.5rem; }
+@media (max-width: 650px) { .layer-row { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 400px) { .layer-row { grid-template-columns: 1fr; } }

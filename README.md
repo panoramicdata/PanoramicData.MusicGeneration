@@ -10,7 +10,8 @@ Deterministic, seeded music generation for .NET. A **seed** becomes a whole song
 - **Reproducible for ever.** The same seed, length, sample rate and style give the same song on any machine and any .NET version: the library carries its own random number generator (PCG32) and its own bit-exact sine.
 - **Varied.** Tempo, key, scale, harmony, melody, drum pattern, timbre, tuning and lead-in all come from the seed. The default free-running mode avoids exact loops; opt into a form for returning verses and choruses.
 - **Ground truth included.** Every note and drum hit comes back with its start, length, MIDI note and rendered frequency.
-- **No samples, no copyright.** Everything is synthesised from sine waves and noise by arithmetic you can read in an afternoon.
+- **Dependency-free procedural core.** The original renderer synthesises sine waves and noise. Optional SoundFont rendering uses caller-supplied samples with their own asset licences.
+- **Arrangement studio.** Choose known chord progressions, independent genre/rhythm templates and up to 24 instrument layers; save written scores locally and download WAV or MP3 in the demo.
 - **Educational.** The demo site explains the maths: equal temperament, harmonics, envelopes, noise and the random number generator.
 
 > **Try it in your browser:** the demo runs the whole library locally (once published, at the address shown in the repository's About box). See [docs/DEMO.md](docs/DEMO.md).
@@ -21,7 +22,7 @@ Deterministic, seeded music generation for .NET. A **seed** becomes a whole song
 dotnet add package PanoramicData.MusicGeneration
 ```
 
-Targets .NET 10. Not yet published to NuGet.
+Targets .NET 10. Sampled rendering is available in the separate `PanoramicData.MusicGeneration.SoundFonts` NuGet package. See the [SoundFont guide](docs/SOUNDFONTS.md) and [arrangement studio](docs/STUDIO.md).
 
 ## Quick start
 
@@ -103,6 +104,7 @@ If arithmetic speed matters more than bit-exactness (for example in an interpret
 |---|---|
 | [docs/DESIGN.md](docs/DESIGN.md) | Goals, algorithm, parameters, determinism contract, API |
 | [docs/DEMO.md](docs/DEMO.md) | The browser demo and how to host it |
+| [docs/STUDIO.md](docs/STUDIO.md) | SoundFont keyboard, layered composition, browser library and MP3 export |
 | [docs/DEVELOPMENT_PROMPT.md](docs/DEVELOPMENT_PROMPT.md) | The brief for developing the library further |
 
 ## Development
@@ -117,7 +119,7 @@ The library has unit tests for synthesis, voice independence and raw stem recons
 
 ## Links
 
-- NuGet: https://www.nuget.org/packages/PanoramicData.MusicGeneration (once published)
+- NuGet: https://www.nuget.org/packages/PanoramicData.MusicGeneration
 - Source: https://github.com/panoramicdata/PanoramicData.MusicGeneration
 - Issues: https://github.com/panoramicdata/PanoramicData.MusicGeneration/issues
 

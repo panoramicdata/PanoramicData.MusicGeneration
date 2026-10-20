@@ -19,8 +19,10 @@ The bank must contain the selected presets. Inspect `renderer.Presets` and suppl
 `SoundFontRenderOptions.Parts` to change them. Bank and program numbers are zero-based.
 Defaults are strings (0:48), acoustic bass (0:32), piano (0:0), and the standard
 percussion kit (128:0), with fixed per-role MIDI velocities. Drum note keys use the
-score's General MIDI keys (36 kick, 38 snare, 42 closed hi-hat). Velocity is currently
-an instrument setting; expressive event velocities/articulations remain issue #12/#16.
+score's General MIDI keys (36 kick, 38 snare, 42 closed hi-hat). Event velocity scales
+the configured part velocity, with 100 preserving the original setting. The new
+[arrangement studio](STUDIO.md) supplies per-event accents and independent layers;
+more detailed articulation remains in issue #12/#16.
 Melodic banks are 0–127 and percussion banks 128–255. Unsupported/missing presets
 fail before rendering instead of silently changing instrument identity.
 
@@ -93,7 +95,7 @@ palette, with its precise custom terms above.
 
 ## Demo and resource budgets
 
-Open `/song?form=sections&sound=soundfont` or choose **SoundFont instruments**. It
+Open `/song/legacy?form=sections&sound=soundfont` or choose **SoundFont instruments**. It
 loads the self-hosted bank once per page. Subsequent sound switches reuse the exact
 written score; instrument changes re-render it. Mute/solo remix the selected renderer's
 stems. Both the piano roll and spectrogram describe the selected audible mix. The
