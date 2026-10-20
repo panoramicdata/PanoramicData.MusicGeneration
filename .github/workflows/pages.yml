@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'PanoramicData.MusicGeneration/**'
+      - 'PanoramicData.MusicGeneration.SoundFonts/**'
       - 'PanoramicData.MusicGeneration.Demo/**'
       - 'Directory.Build.props'
       - 'Directory.Packages.props'

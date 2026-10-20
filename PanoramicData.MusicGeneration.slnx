@@ -17,6 +17,7 @@
 		<File Path="version.json" />
 	</Folder>
 	<Project Path="PanoramicData.MusicGeneration/PanoramicData.MusicGeneration.csproj" />
+	<Project Path="PanoramicData.MusicGeneration.SoundFonts/PanoramicData.MusicGeneration.SoundFonts.csproj" />
 	<Project Path="PanoramicData.MusicGeneration.Test/PanoramicData.MusicGeneration.Test.csproj" />
 	<Project Path="PanoramicData.MusicGeneration.Demo/PanoramicData.MusicGeneration.Demo.csproj" />
 </Solution>

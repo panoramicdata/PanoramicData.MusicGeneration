@@ -1,0 +1,25 @@
+.soundfont-controls label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+	max-width: 100%;
+}
+
+.soundfont-controls select {
+	max-width: 100%;
+}
+
+.soundfont-file {
+	display: block;
+	max-width: 100%;
+}
+
+.soundfont-file ::deep input {
+	max-width: 100%;
+}
+
+.table-scroll, pre {
+	max-width: 100%;
+	overflow-x: auto;
+}

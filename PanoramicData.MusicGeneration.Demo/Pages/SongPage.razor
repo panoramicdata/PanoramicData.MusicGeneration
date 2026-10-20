@@ -1,6 +1,8 @@
 @page "/song"
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject HttpClient Http
+@using PanoramicData.MusicGeneration.SoundFonts
 
 <h1>Build a song</h1>
 <p class="lead">
@@ -34,6 +36,44 @@
 			<input type="range" min="12" max="36" step="1" @bind="melodySpan" @bind:event="oninput" disabled="@busy" />
 		</label>
 	</div>
+	<div class="control-row">
+		<label>Sound
+			<select @bind="soundMode" @bind:after="ChangeSoundAsync" disabled="@busy">
+				<option value="procedural">Procedural synthesis</option>
+				<option value="soundfont">SoundFont instruments</option>
+			</select>
+		</label>
+		@if (soundMode == "soundfont")
+		{
+			<span>@soundFontName</span>
+		}
+	</div>
+	@if (soundMode == "soundfont")
+	{
+		<p class="note">Play the same written notes with sampled instruments. GeneralUser GS by S. Christian Collins.
+			<a href="soundfonts/GeneralUser-GS-LICENSE.txt" target="_blank">Bank licence</a> ·
+			<a href="soundfonts/MeltySynth-LICENSE.txt" target="_blank">MeltySynth licence</a>.
+			Or load your own SF2 bank (up to 64 MiB); the file stays in your browser.</p>
+		<label class="soundfont-file">Your SF2 bank <InputFile OnChange="LoadSoundFontAsync" accept=".sf2" disabled="@busy" /></label>
+		@if (soundFont is not null)
+		{
+			<div class="control-row soundfont-controls">
+				<label>Pad <select @bind="padPreset" @bind:after="ChangeInstrumentsAsync" disabled="@busy">
+					@foreach (var preset in MelodicPresets) { <option value="@(preset.Bank * 128 + preset.Program)">@preset.Name (@preset.Bank:@preset.Program)</option> }
+				</select></label>
+				<label>Bass <select @bind="bassPreset" @bind:after="ChangeInstrumentsAsync" disabled="@busy">
+					@foreach (var preset in MelodicPresets) { <option value="@(preset.Bank * 128 + preset.Program)">@preset.Name (@preset.Bank:@preset.Program)</option> }
+				</select></label>
+				<label>Melody <select @bind="melodyPreset" @bind:after="ChangeInstrumentsAsync" disabled="@busy">
+					@foreach (var preset in MelodicPresets) { <option value="@(preset.Bank * 128 + preset.Program)">@preset.Name (@preset.Bank:@preset.Program)</option> }
+				</select></label>
+				<label>Drum kit <select @bind="drumPreset" @bind:after="ChangeInstrumentsAsync" disabled="@busy">
+					@foreach (var preset in DrumPresets) { <option value="@(preset.Bank * 128 + preset.Program)">@preset.Name (@preset.Bank:@preset.Program)</option> }
+				</select></label>
+			</div>
+			<p class="note">Loaded bank: @soundFontName. Instrument changes re-render the current score.</p>
+		}
+	}
 	@if (busy)
 	{
 		<div role="status" aria-live="polite">
@@ -49,7 +89,11 @@
 
 @if (song is not null)
 {
-	<p class="note" style="margin-top:1rem">Rendered @song.Duration.TotalSeconds.ToString("0") s of audio at 11,025 Hz in @renderSeconds.ToString("0.0") s, in your browser, using the browser's own sine function (SongStyle.UsePlatformSine) because the library's bit-exact sine is much slower in WebAssembly. The notes are identical either way; only the last bit of each sample can differ.</p>
+	<p class="note" style="margin-top:1rem">Rendered @song.Duration.TotalSeconds.ToString("0") s of audio at @song.SampleRate.ToString("N0") Hz in @renderSeconds.ToString("0.0") s, in your browser. @RenderDescription</p>
+	@if (soundMode == "soundfont" && soundFontResult is not null)
+	{
+		<details><summary>SoundFont rendering details</summary><pre>@System.Text.Json.JsonSerializer.Serialize(soundFontResult.Metadata, SoundFontJsonContext.Default.SoundFontRenderMetadata)</pre></details>
+	}
 	<div class="grid" style="margin-top:1rem">
 		<div class="card"><div class="stat">@song.Info.TempoBpm</div><p>beats per minute (one beat lasts @((60.0 / song.Info.TempoBpm).ToString("0.000")) s)</p></div>
 		<div class="card"><div class="stat">@Pitch.NameOf(song.Info.RootMidi)</div><p>root note, @song.Info.ScaleName scale</p></div>
@@ -72,7 +116,7 @@
 	@if (song.Sections.Count > 0)
 	{
 		<p class="note">A and B identify returning material. Register, density and voice choices can change its performance. The comparison mode keeps the same opening, section lengths, key and tempo, then introduces new material on each later return. Short requests keep only the sections that fit.</p>
-		<table aria-label="Section timeline">
+		<div class="table-scroll"><table aria-label="Section timeline">
 			<thead><tr><th>Section</th><th>Material</th><th>Start (s)</th><th>End (s)</th><th>Bars</th><th>Planned phrases</th><th>Bars / phrase</th><th>Ending</th></tr></thead>
 			<tbody>
 				@foreach (var section in song.Sections)
@@ -80,17 +124,17 @@
 					<tr><td>@section.Kind</td><td>@section.MaterialId</td><td>@section.StartSeconds.ToString("0.00")</td><td>@section.EndSeconds.ToString("0.00")</td><td>@section.Bars</td><td>@section.PhraseCount</td><td>@section.PhraseBars</td><td>@(section.IsTruncated ? "Cropped" : section.HasCadence ? "Tonic cadence" : section.HasTransitionFill ? "Drum fill" : "Transition")</td></tr>
 				}
 			</tbody>
-		</table>
+		</table></div>
 	}
 
 	<p class="note">Mute and solo remix the captured stems without generating new notes. Each part has independent random choices; removing one leaves the other parts unchanged. The original mix gain is retained, so soloing does not make a quiet track louder.</p>
 	<details><summary>Notes for the audible tracks (@song.Notes.Count)</summary>
-		<table><thead><tr><th>Voice</th><th>Start (s)</th><th>Length (s)</th><th>Pitch</th></tr></thead><tbody>
+		<div class="table-scroll"><table><thead><tr><th>Voice</th><th>Start (s)</th><th>Length (s)</th><th>Pitch</th></tr></thead><tbody>
 			@foreach (var n in song.Notes)
 			{
 				<tr><td>@n.Voice</td><td>@n.StartSeconds.ToString("0.00")</td><td>@n.DurationSeconds.ToString("0.00")</td><td>@Pitch.NameOf(n.MidiNote)</td></tr>
 			}
-		</tbody></table>
+		</tbody></table></div>
 	</details>
 	@if (!ShowSpectrogram)
 	{
@@ -102,7 +146,7 @@
 	}
 }
 
-<h2>How each part is made</h2>
+<h2>How the procedural instruments are made</h2>
 <div class="steps">
 	<div class="step"><strong>Pad.</strong> One chord per bar: a triad (scale degrees 0, 2 and 4 above a random degree) on the octave above the bass, optionally inverted by lifting the lowest notes one octave.
 		Folded below the melody, with two soft harmonics, amplitude 0.04 and a 0.12 s attack.</div>
@@ -167,12 +211,14 @@
 			const int rate = 11025;
 			var clock = System.Diagnostics.Stopwatch.StartNew();
 			var style = new SongStyle { UsePlatformSine = true, MelodyLowMidi = melodyLow, MelodyHighMidi = melodyLow + melodySpan, Form = ChosenForm() };
-			sourceSong = SongGenerator.GenerateStems(seed, seconds, rate, style);
+			proceduralSong = SongGenerator.GenerateStems(seed, seconds, rate, style);
+			soundFontResult = null;
+			await PrepareSoundAsync();
 			renderSeconds = clock.Elapsed.TotalSeconds;
 			await ShowProgressAsync("Preparing audio and player…");
 			await RemixAsync();
 		}
-		catch (ArgumentException ex)
+		catch (Exception ex) when (IsRenderError(ex))
 		{
 			error = ex.Message;
 		}
@@ -274,6 +320,7 @@
 	{
 		if (firstRender)
 		{
+			soundMode = SoundMode == "soundfont" ? "soundfont" : "procedural";
 			ChooseForm();
 			await GenerateAsync();
 		}
@@ -281,6 +328,8 @@
 
 	public async ValueTask DisposeAsync()
 	{
+		await renderCancellation.CancelAsync();
+		renderCancellation.Dispose();
 		if (module is not null)
 		{
 			if (audioUrl is not null)

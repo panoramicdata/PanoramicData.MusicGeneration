@@ -30,6 +30,8 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\PanoramicData.MusicGeneration\PanoramicData.MusicGeneration.csproj" />
+		<ProjectReference Include="..\PanoramicData.MusicGeneration.SoundFonts\PanoramicData.MusicGeneration.SoundFonts.csproj" />
+		<Content Include="..\PanoramicData.MusicGeneration.Demo\wwwroot\soundfonts\GeneralUser-GS.sf2" Link="TestAssets\GeneralUser-GS.sf2" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>
