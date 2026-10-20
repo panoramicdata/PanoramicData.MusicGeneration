@@ -17,21 +17,23 @@ public static partial class ArrangementComposer
 
 	private static void Chords(BarContext bar, List<NoteEvent> notes)
 	{
-		var starts = bar.Settings.Beat switch
-		{
-			MusicBeat.Reggae => new[] { 0.5, 1.5, 2.5, 3.5 },
-			MusicBeat.BossaNova => [0, 0.75, 1.5, 2.5, 3],
-			MusicBeat.Stride => [1, 3],
-			MusicBeat.Waltz => [1, 2],
-			MusicBeat.Rock => [0, 1.5, 2, 3.5],
-			_ => [0.0]
-		};
+		var starts = ChordStarts(bar.Settings.Beat);
 		var sustain = starts.Length == 1 ? bar.Beats * 0.95 : 0.35;
 		foreach (var at in starts.Where(at => at < bar.Beats))
 		{
 			foreach (var midi in bar.Voicing) { Add(bar, notes, midi, at, sustain, -12); }
 		}
 	}
+
+	private static double[] ChordStarts(MusicBeat beat) => beat switch
+	{
+		MusicBeat.Reggae => [0.5, 1.5, 2.5, 3.5],
+		MusicBeat.BossaNova => [0, 0.75, 1.5, 2.5, 3],
+		MusicBeat.Stride => [1, 3],
+		MusicBeat.Waltz => [1, 2],
+		MusicBeat.Rock => [0, 1.5, 2, 3.5],
+		_ => [0.0]
+	};
 
 	private static void Bass(BarContext bar, List<NoteEvent> notes)
 	{
