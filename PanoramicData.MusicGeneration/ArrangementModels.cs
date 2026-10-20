@@ -105,6 +105,8 @@ public sealed record ArrangementSettings
 {
 	/// <summary>Deterministic composition seed.</summary>
 	public int Seed { get; init; } = 42;
+	/// <summary>Optional independent seed for melodic ideas and their development; null follows Seed.</summary>
+	public int? MelodySeed { get; init; }
 	/// <summary>Maximum performed duration, 6–300 seconds; the song may finish earlier.</summary>
 	public int Seconds { get; init; } = 210;
 	/// <summary>Quarter-note tempo, 40–220 bpm.</summary>
@@ -125,14 +127,14 @@ public sealed record ArrangementSettings
 	public double Swing { get; init; } = 0.1;
 	/// <summary>Probability of a functional chord substitution in a four-bar phrase, 0–1.</summary>
 	public double ProgressionVariation { get; init; } = 0.35;
-	/// <summary>Strength of section-specific harmonic plans, 0–1; zero shares the base cycle.</summary>
+	/// <summary>Chance of deriving contrasting sections from the chosen cycle, 0–1; zero repeats the cycle unchanged.</summary>
 	public double SectionContrast { get; init; } = 1;
 	/// <summary>Seeded intro length, hook teaser and accompaniment build variation, 0–1.</summary>
 	public double IntroVariation { get; init; } = 0.65;
 	/// <summary>Relative weights for the four implemented ending types.</summary>
 	public EndingWeights Endings { get; init; } = new();
-	/// <summary>Controlled motif variation, 0–1.</summary>
-	public double Variation { get; init; } = 0.25;
+	/// <summary>Chance of developing later two-bar phrases through changed answers, fragmentation/inversion and closure, 0–1.</summary>
+	public double Variation { get; init; } = 0.6;
 	/// <summary>Returning sections or continuous eight-bar blocks.</summary>
 	public bool Sections { get; init; } = true;
 	/// <summary>One to 24 independently selectable instrument layers.</summary>
@@ -166,4 +168,6 @@ public sealed record ArrangedScore
 	public EndingPlan? Ending { get; init; }
 	/// <summary>Saved whole-section decisions, including absent layers.</summary>
 	public IReadOnlyList<LayerParticipation> Participation { get; init; } = [];
+	/// <summary>Saved two-bar melodic ideas in key-relative scale degrees; older written scores may omit these.</summary>
+	public IReadOnlyList<MelodyMotif> Motifs { get; init; } = [];
 }

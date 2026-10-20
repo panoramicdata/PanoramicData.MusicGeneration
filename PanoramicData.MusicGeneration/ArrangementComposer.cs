@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration;
 public static partial class ArrangementComposer
 {
 	/// <summary>Written-arrangement algorithm version. Legacy SongGenerator output is unaffected.</summary>
-	public static int Version => 2;
+	public static int Version => 3;
 
 	/// <summary>Validates settings and writes harmony, recurring motifs, rhythm and independent instrumental parts.</summary>
 	public static ArrangedScore Compose(ArrangementSettings settings)
@@ -14,7 +14,8 @@ public static partial class ArrangementComposer
 		var form = PlanForm(settings);
 		var chords = Harmony(settings, form);
 		var participation = PlanParticipation(settings, form.Sections);
-		var tracks = settings.Layers.Select(layer => new LayerScore(layer, WritePart(settings, layer, chords, form, participation))).ToArray();
+		var motifs = CreateMotifs(settings);
+		var tracks = settings.Layers.Select(layer => new LayerScore(layer, WritePart(settings, layer, chords, form, participation, motifs))).ToArray();
 		return new()
 		{
 			Settings = settings,
@@ -23,7 +24,8 @@ public static partial class ArrangementComposer
 			Sections = form.Sections,
 			PerformedSeconds = form.Duration,
 			Ending = form.Ending,
-			Participation = participation
+			Participation = participation,
+			Motifs = motifs
 		};
 	}
 
@@ -98,7 +100,7 @@ public static partial class ArrangementComposer
 	private static int Beats(ArrangementSettings settings) => settings.Beat == MusicBeat.Waltz ? 3 : 4;
 
 	private static List<NoteEvent> WritePart(ArrangementSettings settings, InstrumentLayer layer,
-		List<ChordEvent> chords, FormPlan form, List<LayerParticipation> participation)
+		List<ChordEvent> chords, FormPlan form, List<LayerParticipation> participation, IReadOnlyList<MelodyMotif> motifs)
 	{
 		var notes = new List<NoteEvent>();
 		var previous = new[] { 48 + settings.Key, 52 + settings.Key, 55 + settings.Key };
@@ -109,13 +111,13 @@ public static partial class ArrangementComposer
 			if (!participation.Single(p => p.LayerId == layer.Id && p.SectionIndex == section.Index).Present) { continue; }
 			var voicing = VoiceLead(chord, previous);
 			previous = voicing;
-			WriteBar(new(settings, layer, chord, section, index, voicing, form.Ending), notes);
+			WriteBar(new(settings, layer, chord, section, index, voicing, form.Ending, motifs), notes);
 		}
 		return notes;
 	}
 
 	private sealed record BarContext(ArrangementSettings Settings, InstrumentLayer Layer, ChordEvent Chord,
-		SectionEvent Section, int Index, int[] Voicing, EndingPlan Ending)
+		SectionEvent Section, int Index, int[] Voicing, EndingPlan Ending, IReadOnlyList<MelodyMotif> Motifs)
 	{
 		public int BeatsPerBar => ArrangementComposer.Beats(Settings);
 		public double BeatSeconds => 60.0 / Settings.Tempo;

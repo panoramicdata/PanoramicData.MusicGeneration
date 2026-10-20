@@ -25,20 +25,20 @@ public static partial class ArrangementComposer
 		if (settings.SectionContrast <= 0) { return baseChords; }
 		var rng = new Pcg32(settings.Seed, 601 + (int)kind);
 		if (rng.NextDouble() >= settings.SectionContrast) { return baseChords; }
-		return ContrastingChords(settings, kind, baseChords);
+		return ContrastingChords(kind, baseChords);
 	}
 
-	private static IReadOnlyList<ChordDefinition> ContrastingChords(ArrangementSettings settings, SectionKind kind,
+	private static IReadOnlyList<ChordDefinition> ContrastingChords(SectionKind kind,
 		IReadOnlyList<ChordDefinition> baseChords) => kind switch
 		{
-			SectionKind.Verse => TonalChords(settings, [5, 3, 1, 4]),
-			SectionKind.Bridge => TonalChords(settings, [3, 1, 5, 4]),
-			SectionKind.Intro => TonalChords(settings, [0, 3, 1, 4]),
+			SectionKind.Verse => RotateChords(baseChords, baseChords.Count / 2),
+			SectionKind.Bridge => [.. baseChords.Reverse()],
+			SectionKind.Intro => [baseChords[0], baseChords[^1]],
 			_ => baseChords
 		};
 
-	private static IReadOnlyList<ChordDefinition> TonalChords(ArrangementSettings settings, int[] degrees) =>
-		[.. degrees.Select(d => DiatonicChord(settings, d))];
+	private static IReadOnlyList<ChordDefinition> RotateChords(IReadOnlyList<ChordDefinition> chords, int offset) =>
+		[.. Enumerable.Range(0, chords.Count).Select(i => chords[(i + offset) % chords.Count])];
 
 	private static ChordDefinition DiatonicChord(ArrangementSettings settings, int degree)
 	{
@@ -55,7 +55,7 @@ public static partial class ArrangementComposer
 		var chord = plan[index % plan.Count];
 		if (section.Kind == SectionKind.Outro) { return OutroChord(settings, plan, index, section.Bars, ending); }
 		if (UseSubstitution(settings, section, index)) { chord = PhraseVariant(settings, chord, section.Index, index); }
-		if (settings.SectionContrast > 0 && index == section.Bars - 1)
+		if (settings.Progression != "Custom" && settings.SectionContrast > 0 && index == section.Bars - 1)
 		{
 			return ClosingChord(settings, section.Kind);
 		}

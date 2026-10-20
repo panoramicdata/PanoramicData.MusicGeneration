@@ -30,9 +30,10 @@
 		<p class="note">The “four chords” choice is the common I–V–vi–IV pattern in a major key, associated with the Axis of Awesome medley. Here it drives original generated parts. Custom symbols support major, minor, seventh, major/minor seventh, diminished, augmented and suspended chords.</p>
 		<div class="control-row">
 			<label>Seed <input type="number" @bind="seed" @bind:after="MarkDirty" /></label>
+			<label>Melody seed <input type="number" @bind="melodySeed" @bind:after="MarkDirty" placeholder="Auto" /></label>
 			<label>Length ceiling <strong>@(TimeSpan.FromSeconds(seconds).ToString(@"m\:ss"))</strong><input type="range" min="6" max="300" step="2" @bind="seconds" @bind:after="MarkDirty" /></label>
 			<label>Swing <input type="range" min="0" max="0.4" step="0.01" @bind="swing" @bind:after="MarkDirty" /> @swing.ToString("P0")</label>
-			<label>Motif variation <input type="range" min="0" max="1" step="0.05" @bind="variation" @bind:after="MarkDirty" /> @variation.ToString("P0")</label>
+			<label>Phrase development <input type="range" min="0" max="1" step="0.05" @bind="variation" @bind:after="MarkDirty" /> @variation.ToString("P0")</label>
 			<label><input type="checkbox" @bind="sections" @bind:after="MarkDirty" /> Verse / chorus sections</label>
 		</div>
 		<div class="control-row expression-controls">
@@ -40,7 +41,8 @@
 			<label>Section contrast <input type="range" min="0" max="1" step="0.05" @bind="sectionContrast" @bind:after="MarkDirty" /> @sectionContrast.ToString("P0")</label>
 			<label>Intro variation <input type="range" min="0" max="1" step="0.05" @bind="introVariation" @bind:after="MarkDirty" /> @introVariation.ToString("P0")</label>
 		</div>
-		<p class="note">Variation substitutes related chords within phrases. Contrast gives section types their own harmonic plans: verses and bridges lean towards a dominant ending, while choruses return home. Intro variation changes the opening length, hook teaser and instrumental build. The length is a ceiling: complete sections and an outro take priority over filling every second.</p>
+		<p class="note">Your progression supplies every section's material. Section contrast creates related verse, bridge and intro variants; set contrast and progression variation to zero to repeat the selected cycle. Custom verses/bridges keep their symbols when progression variation is zero. Section and ending cadences follow the selected key. Intro variation changes the opening and build; complete sections and an outro take priority over filling the length ceiling.</p>
+		<p class="note">New melody changes the two-bar melodic idea while keeping the song seed, selected harmony and backing parts. Leave Melody seed blank to follow the song seed, or keep a number to retain an idea as you change other settings. Phrase development adds altered answers, a fragmented inversion and a closing phrase; zero repeats the idea. Pitches still adapt to the chords.</p>
 		<p class="note">A recognisable hook, space for answering parts and changes in texture help give a song direction. <a href="composition">Explore the composition thesis and working rules</a>, including what these controls do today and what we plan to add.</p>
 		<details class="ending-settings"><summary>Ending probabilities</summary>
 			<p class="note">Relative weights, normalised to a total of 100%. Set others to zero to force one ending. Every ending includes an outro and a short audio release.</p>
@@ -53,6 +55,7 @@
 		</details>
 		<button @onclick="GenerateAsync">@(busy ? "Working…" : "Generate / render changes")</button>
 		<button class="secondary" @onclick="RandomiseAsync">New seed</button>
+		<button class="secondary" @onclick="NewMelodyAsync">New melody</button>
 		@if (dirty) { <span class="note">Settings changed. Generate to hear them.</span> }
 	</fieldset>
 </section>
@@ -111,6 +114,10 @@
 		<div class="control-row"><button @onclick="DownloadMp3Async" disabled="@busy">Download MP3</button><button class="secondary" @onclick="DownloadWavAsync" disabled="@busy">Download WAV</button></div>
 		<p class="note">MP3 encoding runs locally with LAME / lamejs (LGPL). <a href="vendor/lamejs/COPYING.LESSER">Licence</a> · <a href="vendor/lamejs/source.zip">Corresponding source</a>. This page never uploads your songs.</p>
 		<details><summary>Score, harmony and rendering details</summary>
+			<p>Composer @score.ComposerVersion · melody seed @(score.Settings.MelodySeed ?? score.Settings.Seed). Written notes are saved for exact score replay; changing settings and generating uses the current composer.</p>
+			<div class="table-scroll"><table aria-label="Section harmony"><thead><tr><th>Section</th><th>Performed chords</th></tr></thead><tbody>
+				@foreach (var section in score.Sections) { <tr><td>@section.Kind</td><td>@string.Join(" → ", score.Chords.Where(c => c.StartSeconds >= section.StartSeconds && c.StartSeconds < section.EndSeconds).Select(c => c.Symbol))</td></tr> }
+			</tbody></table></div>
 			<p>Complete verses and choruses have four two-bar phrases. The arranger reserves the outro, adds complete sections, then finishes early when another section will not fit. Very short requests can contain just an outro.</p>
 			<div class="table-scroll"><table aria-label="Section participation"><thead><tr><th>Section</th><th>Instrument</th><th>Chance</th><th>Decision</th></tr></thead><tbody>
 				@foreach (var choice in score.Participation) { <tr><td>@score.Sections[choice.SectionIndex].Kind @choice.Occurrence</td><td>@LayerNames[choice.LayerId]</td><td>@choice.Probability.ToString("P0")</td><td>@(choice.Present ? "Present" : "Omitted")</td></tr> }

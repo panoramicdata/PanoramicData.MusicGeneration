@@ -38,9 +38,9 @@ Use four independently controllable operations:
 
 These are design categories, not measured laws of catchiness. A dance loop, a two-voice invention and a dramatic suite need different balances. ABBA's melody/chord craft and production hooks, covered in the companion report, fit this framework without becoming a compulsory template.
 
-## Why the present output can still feel staid
+## Why composer 2 output could feel staid
 
-The version 2 arranger has useful form, harmony, participation and ending controls. Its local composition is still narrow:
+The version 2 arranger introduced useful form, harmony, participation and ending controls. Its local composition remained narrow:
 
 - `ArrangementComposer.Parts.cs` selects one of four contour arrays, uses short fixed rhythm templates and adjusts pitches to each current chord/scale. It stores no motif identity or transformation history. A strong-beat chord snap can change an important interval unpredictably across returns.
 - Bass mostly alternates root and fifth. Multiple layers using the same pattern do not automatically acquire independent musical identities.
@@ -49,6 +49,8 @@ The version 2 arranger has useful form, harmony, participation and ending contro
 - The form is a fixed family of intro, eight-bar verses/choruses, bridge and outro. A probability that a layer participates is valuable, but is not a complete account of how it enters, responds, builds or leaves.
 
 SoundFonts improve instrumental sound. They do not supply any of these compositional decisions. More channels can increase masking unless each has a purpose.
+
+Composer 3 now addresses the fixed verse-harmony and four-contour limitations with selected-cycle section variants, stored two-bar motifs, independent melody seeds and controlled phrase development. Bass hooks, responding to actual lead rests, harmonic spans, alternative forms and instrument-specific articulation remain work to do. See [the current studio guide](STUDIO.md).
 
 ## Proposed model and implementation sequence
 
