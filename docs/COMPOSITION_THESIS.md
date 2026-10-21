@@ -2,7 +2,7 @@
 
 ## A living thesis for PanoramicData.MusicGeneration
 
-Thesis revision **0.1**, 21 October 2026. Companion rule set **0.1.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
+Thesis revision **0.1**, 21 October 2026. Companion rule set **0.2.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
 
 **Central proposition:** a convincing composition establishes an audible identity, develops expectations around it, and makes its departures and returns meaningful. Its instruments, harmony, rhythm, form and performance should cooperate in that purpose. Randomness supplies possibilities; selection and relationships give those possibilities direction.
 
@@ -116,4 +116,4 @@ Each composition change should identify affected rules, describe evidence or rea
 
 Revision 0.1 commits us to explicit musical relationships, transparent controls, contextual rules and honest evaluation. It does not promise an automatic hit generator. The immediate implementation sequence is persistent, auditionable motifs (#8), coordinated ensemble phrases (#19), harmonic spans and destinations (#9), richer functional forms (#20), then more idiomatic performance (#16, #10, #11).
 
-The app presents the rule catalogue with current and planned capabilities distinguished. As we develop further theory lessons, every new lever should join this explanation: what decision it gives the composer, which relationship it changes, and how we can demonstrate that change by listening.
+The app presents the rule catalogue with current and planned capabilities distinguished. Composer 3 supplies an initial step for R01/R02/R04/R11: stored two-bar ideas, a separate melody seed, stronger phrase development and harmony derived from the selected progression. Exact-note editing, candidate ranking and richer ensemble interaction remain proposed. As we develop further theory lessons, every new lever should join this explanation: what decision it gives the composer, which relationship it changes, and how we can demonstrate that change by listening.

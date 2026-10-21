@@ -9,6 +9,7 @@ public sealed partial class StudioPage
 {
 	private string title = "My song";
 	private int seed = 42;
+	private int? melodySeed;
 	private int seconds = 210;
 	private int tempo = 160;
 	private int key;
@@ -18,7 +19,7 @@ public sealed partial class StudioPage
 	private string progression = "Four chords";
 	private string customChords = "C, G, Am, F";
 	private double swing = 0.1;
-	private double variation = 0.25;
+	private double variation = 0.6;
 	private double progressionVariation = 0.35;
 	private double sectionContrast = 1;
 	private double introVariation = 0.65;
@@ -48,6 +49,7 @@ public sealed partial class StudioPage
 	private ArrangementSettings Settings() => new()
 	{
 		Seed = seed,
+		MelodySeed = melodySeed,
 		Seconds = seconds,
 		Tempo = tempo,
 		Key = key,
@@ -128,7 +130,14 @@ public sealed partial class StudioPage
 	}
 
 	private void Remove(LayerEditor layer) { if (layers.Count > 1) { layers.Remove(layer); MarkDirty(); } }
-	private async Task RandomiseAsync() { seed = Random.Shared.Next(1, 99999); await GenerateAsync(); }
+	private async Task RandomiseAsync() { seed = Random.Shared.Next(1, 99999); MarkDirty(); await GenerateAsync(); }
+	private async Task NewMelodyAsync()
+	{
+		var next = Random.Shared.Next(1, 99999);
+		melodySeed = next == (melodySeed ?? seed) ? next + 1 : next;
+		MarkDirty();
+		await GenerateAsync();
+	}
 
 	private async Task GenerateAsync()
 	{

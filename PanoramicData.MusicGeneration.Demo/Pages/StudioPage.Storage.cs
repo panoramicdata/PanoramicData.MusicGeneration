@@ -98,7 +98,7 @@ public partial class StudioPage
 
 	private void ApplySettings(ArrangementSettings settings)
 	{
-		seed = settings.Seed; seconds = settings.Seconds; tempo = settings.Tempo; key = settings.Key; minor = settings.Minor;
+		seed = settings.Seed; melodySeed = settings.MelodySeed; seconds = settings.Seconds; tempo = settings.Tempo; key = settings.Key; minor = settings.Minor;
 		genre = settings.Genre; beat = settings.Beat; progression = settings.Progression; customChords = settings.CustomChords;
 		swing = settings.Swing; variation = settings.Variation; sections = settings.Sections;
 		progressionVariation = settings.ProgressionVariation; sectionContrast = settings.SectionContrast; introVariation = settings.IntroVariation;

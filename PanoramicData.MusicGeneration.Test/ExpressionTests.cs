@@ -29,8 +29,9 @@ public class ExpressionTests
 		settings.Tempo.Should().Be(160);
 		settings.Swing.Should().Be(0.1);
 		settings.Seconds.Should().Be(210);
+		settings.Variation.Should().Be(0.6);
 		settings.Layers.Should().Contain(l => l.Pattern == LayerPattern.Countermelody && l.Presence.Verse < l.Presence.Chorus);
-		ArrangementComposer.Version.Should().Be(2);
+		ArrangementComposer.Version.Should().Be(3);
 	}
 
 	[Theory]
@@ -60,9 +61,9 @@ public class ExpressionTests
 	public void SectionHarmony_HasDistinctFunctionsAndContrastZeroSharesTheCycle()
 	{
 		var score = ArrangementComposer.Compose(Settings);
-		Symbols(score, SectionKind.Verse).Take(4).Should().Equal("Am", "F", "Dm", "G7");
+		Symbols(score, SectionKind.Verse).Take(4).Should().Equal("Am", "F", "C", "G");
 		Symbols(score, SectionKind.Chorus).Take(4).Should().Equal("C", "G", "Am", "F");
-		Symbols(score, SectionKind.Bridge).Take(4).Should().Equal("F", "Dm", "Am", "G7");
+		Symbols(score, SectionKind.Bridge).Take(4).Should().Equal("F", "Am", "G", "G7");
 		Symbols(score, SectionKind.Verse).Last().Should().Be("G7");
 		Symbols(score, SectionKind.Chorus).Last().Should().Be("C");
 		var shared = ArrangementComposer.Compose(Settings with { SectionContrast = 0 });

@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"revised": "2026-10-21",
 	"thesisRevision": "0.1",
 	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
@@ -12,9 +12,9 @@
 			"rationale": "A listener needs landmarks to recognise relationships and returns.",
 			"exception": "An intentionally evolving texture can use timbre or process as its identity instead of a singable hook.",
 			"status": "Partial",
-			"implementation": "Seeded contours and recurring section material; no independently stored or pinnable motif.",
-			"currentLevers": "Seed; motif variation",
-			"plannedLevers": "Audition and pin hooks; record motif identity and landmarks",
+			"implementation": "Stored two-bar verse/chorus motifs and a related bridge; independent melody seed retains the underlying pitch/rhythm idea.",
+			"currentLevers": "Song seed; melody seed; New melody; phrase development",
+			"plannedLevers": "Audition/select candidates; pin edited notes; record motif-instance transformations",
 			"issue": 8
 		},
 		{
@@ -24,8 +24,8 @@
 			"rationale": "Purposeful transformation creates continuity while changing the musical argument.",
 			"exception": "Exact repetition can be the right choice for dance, meditation or participation; novelty is optional.",
 			"status": "Partial",
-			"implementation": "Limited phrase variation and recurring contours; no transformation provenance.",
-			"currentLevers": "Motif variation; section contrast",
+			"implementation": "Later phrases can alter answers, fragment/invert and close; first-phrase recalls retain identity. Per-instance transformation provenance remains planned.",
+			"currentLevers": "Phrase development; melody seed; section contrast",
 			"plannedLevers": "Phrase function; transformation type; landmark preservation",
 			"issue": 8
 		},
@@ -48,7 +48,7 @@
 			"rationale": "A chord list alone does not specify pacing, expectation or melodic meaning.",
 			"exception": "Static harmony and unresolved colour can be intentional; tonic closure is not required at every phrase.",
 			"status": "Partial",
-			"implementation": "Progression choices, substitutions, section contrast and voice-led voicings; chords remain bar-sized.",
+			"implementation": "Verse/bridge/intro plans derive from the selected cycle, with explicit substitutions/cadences and voice-led voicings. Chords remain bar-sized.",
 			"currentLevers": "Chord progression; custom chords; progression variation; section contrast",
 			"plannedLevers": "Harmonic rhythm; held chords; local key; cadence targets",
 			"issue": 9
@@ -132,7 +132,7 @@
 			"rationale": "Useful authorship requires controllable decisions, understandable interactions and comparisons.",
 			"exception": "A beginner can choose a coherent recipe without adjusting every parameter.",
 			"status": "Partial",
-			"implementation": "Independent harmony, groove, instrument and presence settings, score saves and exports; no hook/section pinning.",
+			"implementation": "Independent harmony, groove, instrument and presence settings; New melody keeps backing parts fixed. Melody seeds, scores and settings are saved; exact-note/section pinning remains planned.",
 			"currentLevers": "Genre; settings controls; local saves; import/export",
 			"plannedLevers": "Pin material; regenerate selected sections; compare the same score",
 			"issue": 6
@@ -156,13 +156,18 @@
 			"rationale": "Reproducibility establishes what happened; listening helps assess whether the intended effect worked.",
 			"exception": "Criteria depend on musical intent, and listener disagreement should be recorded.",
 			"status": "Partial",
-			"implementation": "Deterministic tests and saved scores exist; blinded musical listening comparisons remain planned.",
+			"implementation": "Deterministic diversity, recurrence, independence and replay tests exist; blinded musical listening comparisons remain planned.",
 			"currentLevers": "Written score; seed; saved settings",
 			"plannedLevers": "Blind comparisons; style-specific rubric; saved rule provenance",
 			"issue": 37
 		}
 	],
 	"history": [
+		{
+			"version": "0.2.0",
+			"date": "2026-10-21",
+			"changes": "Composer 3 updates R01/R02/R04/R11/R13: selected-cycle section harmony, stored motifs, independent melody seed, phrase development and diversity/replay checks."
+		},
 		{
 			"version": "0.1.0",
 			"date": "2026-10-21",

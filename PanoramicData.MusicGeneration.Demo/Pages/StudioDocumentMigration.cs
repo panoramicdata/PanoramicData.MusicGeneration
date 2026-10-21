@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 namespace PanoramicData.MusicGeneration.Demo.Pages;
 
 // Source-generated init-only record construction does not retain every initializer for absent JSON members.
-// Expand optional v2 fields explicitly before deserializing v1 exports; explicit null values still fail validation.
+// Expand optional fields explicitly before deserializing older exports; explicit null values still fail validation.
 internal static class StudioDocumentMigration
 {
 	public static string ExpandDefaults(string json)
@@ -17,6 +17,7 @@ internal static class StudioDocumentMigration
 			SettingsDefaults(score["Settings"]);
 			Add(score, "ComposerVersion", JsonValue.Create(1)!);
 			Add(score, "Participation", new JsonArray());
+			Add(score, "Motifs", new JsonArray());
 			if (score["Tracks"] is JsonArray tracks)
 			{
 				foreach (var track in tracks) { InstrumentDefaults((track as JsonObject)?["Instrument"]); }
