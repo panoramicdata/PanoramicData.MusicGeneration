@@ -9,7 +9,7 @@ public static partial class ArrangementComposer
 	{
 		var motif = MotifForBar(bar);
 		if (answer) { WriteAnswer(bar, notes, motif); return; }
-		var offset = bar.LocalBar % 2 * bar.BeatsPerBar;
+		var offset = SecondMotifBar(bar) ? bar.BeatsPerBar : 0;
 		var tones = motif.Notes.Where(n => n.Beat >= offset && n.Beat < offset + bar.BeatsPerBar).ToArray();
 		for (var i = 0; i < tones.Length; i++)
 		{
@@ -30,7 +30,7 @@ public static partial class ArrangementComposer
 
 	private static bool DevelopPhrase(BarContext bar)
 	{
-		if (bar.LocalBar / 2 % 4 == 0) { return false; }
+		if (PhrasePosition(bar) == 0) { return false; }
 		return new Pcg32(MelodicSeed(bar.Settings), 1000 + bar.Section.Index * 13L + bar.LocalBar / 2)
 			.NextDouble() < bar.Settings.Variation;
 	}
@@ -38,32 +38,36 @@ public static partial class ArrangementComposer
 	private static bool OmitMelodyTone(BarContext bar, int index)
 	{
 		if (SparseIntro(bar) && index > 0) { return true; }
-		return bar.LocalBar / 2 % 4 == 2 && index % 2 != 0 && DevelopPhrase(bar);
+		return PhrasePosition(bar) == 2 && index % 2 != 0 && DevelopPhrase(bar);
 	}
 
 	private static int DevelopedDegree(BarContext bar, int degree, bool last)
 	{
 		if (!DevelopPhrase(bar)) { return degree; }
-		return (bar.LocalBar / 2 % 4) switch
+		return PhrasePosition(bar) switch
 		{
 			1 => last ? degree + 1 : degree,
 			2 => MotifForBar(bar).Notes[0].Degree * 2 - degree,
-			_ => last && bar.LocalBar % 2 == 1 ? ClosingDegree(bar) : degree
+			_ => last && SecondMotifBar(bar) ? ClosingDegree(bar) : degree
 		};
 	}
 
 	private static int ClosingDegree(BarContext bar) => UsesHook(bar) ? 7 : 11;
 
+	private static int PhrasePosition(BarContext bar) => (bar.LocalBar / 2) & 3;
+
+	private static bool SecondMotifBar(BarContext bar) => (bar.LocalBar & 1) != 0;
+
 	private static double LeadDuration(BarContext bar, MotifTone tone, double at)
 	{
-		var limit = bar.BeatsPerBar - (bar.LocalBar % 2 == 1 ? AnswerSpace(bar.Settings) : 0);
+		var limit = bar.BeatsPerBar - (SecondMotifBar(bar) ? AnswerSpace(bar.Settings) : 0);
 		var delay = Math.Abs(at % 1 - 0.5) < 0.01 ? bar.Settings.Swing : 0;
 		return Math.Max(0, Math.Min(tone.DurationBeats, limit - at - delay));
 	}
 
 	private static void WriteAnswer(BarContext bar, List<NoteEvent> notes, MelodyMotif motif)
 	{
-		if (bar.LocalBar % 2 == 0) { return; }
+		if (!SecondMotifBar(bar)) { return; }
 		var start = bar.BeatsPerBar - AnswerSpace(bar.Settings);
 		var count = bar.BeatsPerBar == 3 ? 1 : 2;
 		for (var i = 0; i < count; i++)
