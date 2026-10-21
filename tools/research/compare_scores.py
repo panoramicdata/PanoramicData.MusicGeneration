@@ -12,6 +12,7 @@ from research_io import load_reference
 
 class TrackReader:
 	def __init__(self, ppq, name):
+		"""Start one track's clock, channel note queues and metadata counters."""
 		self.ppq, self.name, self.tick, self.pedals = ppq, name, 0, 0
 		self.active, self.parts = defaultdict(deque), defaultdict(list)
 		self.tempos, self.meters = [], []
