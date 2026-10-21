@@ -9,6 +9,8 @@ public sealed record OrchestralTimbre
 	public required IReadOnlyList<double> AttackSpectrum { get; init; }
 	/// <summary>Relative amplitudes of harmonics 1–64 during the held tone.</summary>
 	public required IReadOnlyList<double> SustainSpectrum { get; init; }
+	/// <summary>Optional measured register anchors. Spectra interpolate by MIDI pitch; outside anchors they clamp.</summary>
+	public IReadOnlyList<OrchestralRegister> RegisterSpectra { get; init; } = [];
 	/// <summary>Amplitude rise duration, seconds.</summary>
 	public double AttackSeconds { get; init; } = 0.1;
 	/// <summary>Release after note-off, seconds.</summary>
@@ -32,6 +34,12 @@ public sealed record OrchestralTimbre
 	/// <summary>Additional darkening at soft velocities, 0–2.</summary>
 	public double VelocityBrightness { get; init; } = 0.6;
 }
+
+/// <summary>A harmonic response measured at one pitch, allowing register-dependent colour without PCM samples.</summary>
+/// <param name="MidiNote">Anchor pitch, 24–108.</param>
+/// <param name="AttackSpectrum">Attack harmonic amplitudes.</param>
+/// <param name="SustainSpectrum">Held harmonic amplitudes.</param>
+public sealed record OrchestralRegister(int MidiNote, IReadOnlyList<double> AttackSpectrum, IReadOnlyList<double> SustainSpectrum);
 
 /// <summary>A single generated note. Profile and note settings are independent.</summary>
 public sealed record OrchestralNote

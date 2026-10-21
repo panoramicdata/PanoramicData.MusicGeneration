@@ -6,6 +6,7 @@ public static partial class OrchestralSynthesizer
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(timbre.Name);
 		ValidateSpectra(timbre);
+		ValidateRegisters(timbre);
 		Check(note.MidiNote, 24, 108, nameof(note.MidiNote));
 		Check(note.Seconds, 0.1, 10, nameof(note.Seconds));
 		Check(note.Velocity, 1, 127, nameof(note.Velocity));
@@ -15,6 +16,21 @@ public static partial class OrchestralSynthesizer
 		Check(timbre.SpectralTransitionSeconds, 0.001, 3, nameof(timbre.SpectralTransitionSeconds));
 		Check(timbre.HarmonicTilt, -1, 3, nameof(timbre.HarmonicTilt));
 		ValidateExpression(timbre);
+	}
+
+	private static void ValidateRegisters(OrchestralTimbre timbre)
+	{
+		ArgumentNullException.ThrowIfNull(timbre.RegisterSpectra);
+		if (timbre.RegisterSpectra.Count > 16) { throw new ArgumentException("At most 16 register anchors are supported."); }
+		var pitches = new HashSet<int>();
+		foreach (var anchor in timbre.RegisterSpectra)
+		{
+			ArgumentNullException.ThrowIfNull(anchor);
+			Check(anchor.MidiNote, 24, 108, nameof(anchor.MidiNote));
+			if (!pitches.Add(anchor.MidiNote)) { throw new ArgumentException("Register pitches must be unique."); }
+			ValidateSpectra(timbre with { AttackSpectrum = anchor.AttackSpectrum, SustainSpectrum = anchor.SustainSpectrum });
+			if (anchor.SustainSpectrum.Count != timbre.SustainSpectrum.Count) { throw new ArgumentException("All register spectra must have matching lengths."); }
+		}
 	}
 
 	private static void ValidateExpression(OrchestralTimbre timbre)

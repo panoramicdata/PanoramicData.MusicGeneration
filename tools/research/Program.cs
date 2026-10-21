@@ -21,7 +21,7 @@ foreach (var (name, profile, program) in profiles)
 		var samples = OrchestralSynthesizer.Render(profile, note);
 		File.WriteAllBytes(Path.Combine(output, $"{name}-{midi}-generated.wav"), WavEncoder.Encode(samples, note.SampleRate));
 		var geometric = Array.AsReadOnly(Enumerable.Range(0, 6).Select(h => Math.Pow(0.6, h)).ToArray());
-		var baseline = profile with { AttackSpectrum = geometric, SustainSpectrum = geometric, NoiseLevel = 0, VibratoCents = 0, PitchDriftCents = 0, VelocityBrightness = 0 };
+		var baseline = profile with { AttackSpectrum = geometric, SustainSpectrum = geometric, RegisterSpectra = [], NoiseLevel = 0, VibratoCents = 0, PitchDriftCents = 0, VelocityBrightness = 0 };
 		File.WriteAllBytes(Path.Combine(output, $"{name}-{midi}-baseline.wav"), WavEncoder.Encode(OrchestralSynthesizer.Render(baseline, note), note.SampleRate));
 		var written = new GeneratedSong(new(42, 120, "Major", 36, 0, 0), new float[3 * note.SampleRate], note.SampleRate,
 			[new(VoiceKind.Melody, 0, 2, midi, Pitch.FrequencyOf(midi)) { Velocity = 90 }]);

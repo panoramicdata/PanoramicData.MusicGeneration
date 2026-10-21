@@ -3,14 +3,17 @@ namespace PanoramicData.MusicGeneration;
 /// <summary>Experimental sample-free harmonic/noise synthesis. Not a claim of perceptual equivalence.</summary>
 public static partial class OrchestralSynthesizer
 {
+	/// <summary>Independent synthesis contract version; legacy generator and arranger versions are unchanged by this value.</summary>
+	public static int Version => 1;
+
 	/// <summary>Generates a note and release. Repeatable on the same runtime; does not affect legacy synthesis.</summary>
 	public static float[] Render(OrchestralTimbre timbre, OrchestralNote note)
 	{
 		ArgumentNullException.ThrowIfNull(timbre);
 		ArgumentNullException.ThrowIfNull(note);
 		Validate(timbre, note);
-		var attack = timbre.AttackSpectrum.ToArray();
-		var sustain = timbre.SustainSpectrum.ToArray();
+		var (attack, sustain) = ResolveSpectra(timbre, note.MidiNote);
+		ApplyTilt(timbre, note, attack, sustain);
 		var frames = checked((int)Math.Ceiling((note.Seconds + timbre.ReleaseSeconds) * note.SampleRate));
 		var samples = new float[frames];
 		var rng = new Pcg32(note.Seed, 710);
@@ -24,7 +27,7 @@ public static partial class OrchestralSynthesizer
 			var frequency = Pitch.FrequencyOf(note.MidiNote) * Math.Pow(2, PitchCents(timbre, time, note.Seed) / 1200);
 			phase += 2 * Math.PI * frequency / note.SampleRate;
 			phase -= Math.Floor(phase / (2 * Math.PI)) * (2 * Math.PI);
-			var tone = Harmonics(timbre, note, attack, sustain, time, phase, frequency);
+			var tone = Harmonics(timbre, note.SampleRate, attack, sustain, time, phase, frequency);
 			var white = rng.NextDouble() * 2 - 1;
 			lowNoise += corner * (white - lowNoise);
 			var noise = (white - lowNoise) * timbre.NoiseLevel * (0.5 + 0.5 * Math.Exp(-time / 0.1));
@@ -33,18 +36,28 @@ public static partial class OrchestralSynthesizer
 		return samples;
 	}
 
-	private static double Harmonics(OrchestralTimbre timbre, OrchestralNote note, double[] attack,
+	private static double Harmonics(OrchestralTimbre timbre, int rate, double[] attack,
 		double[] sustain, double time, double phase, double frequency)
 	{
 		var transition = Math.Exp(-time / timbre.SpectralTransitionSeconds);
-		var tilt = timbre.HarmonicTilt + (1 - note.Velocity / 127.0) * timbre.VelocityBrightness;
 		var result = 0.0;
-		for (var h = 1; h <= sustain.Length && h * frequency < note.SampleRate * 0.48; h++)
+		for (var h = 1; h <= sustain.Length && h * frequency < rate * 0.48; h++)
 		{
 			var amplitude = sustain[h - 1] + transition * (attack[h - 1] - sustain[h - 1]);
-			result += amplitude * Math.Pow(h, -tilt) * Math.Sin(h * phase);
+			result += amplitude * Math.Sin(h * phase);
 		}
 		return result;
+	}
+
+	private static void ApplyTilt(OrchestralTimbre timbre, OrchestralNote note, double[] attack, double[] sustain)
+	{
+		var tilt = timbre.HarmonicTilt + (1 - note.Velocity / 127.0) * timbre.VelocityBrightness;
+		for (var h = 1; h <= sustain.Length; h++)
+		{
+			var weight = Math.Pow(h, -tilt);
+			attack[h - 1] *= weight;
+			sustain[h - 1] *= weight;
+		}
 	}
 
 	private static double PitchCents(OrchestralTimbre timbre, double time, int seed)

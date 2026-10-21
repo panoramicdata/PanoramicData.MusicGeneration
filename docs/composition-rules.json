@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"revised": "2026-10-21",
-	"thesisRevision": "0.1",
+	"thesisRevision": "0.2",
 	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
 	"rules": [
 		{
@@ -36,7 +36,7 @@
 			"rationale": "Statement, response, departure and arrival help listeners understand scale and direction.",
 			"exception": "Four two-bar phrases are our pop default; alternative forms can choose other lengths.",
 			"status": "Partial",
-			"implementation": "Four two-bar verse/chorus phrases, a bridge and varied intro; fixed family of forms.",
+			"implementation": "Composer 4 fixes intro and bridge/break at four bars, moving the break near two-thirds of the available body after complete pairs. Verses/choruses remain four two-bar phrases; alternative forms remain planned.",
 			"currentLevers": "Verse / chorus sections; intro variation",
 			"plannedLevers": "Prechorus; breakdown; suite form; explicit phrase intentions",
 			"issue": 20
@@ -84,8 +84,8 @@
 			"rationale": "A sampled instrument does not automatically supply idiomatic performance.",
 			"exception": "Unusual ranges and techniques can be deliberate choices with an explicit override.",
 			"status": "Partial",
-			"implementation": "Selectable SoundFont instruments and octave/gain/velocity controls; limited writing constraints.",
-			"currentLevers": "Instrument; octave; velocity; gain",
+			"implementation": "Selectable sampled instruments plus a separate experimental sample-free flute/violin/trumpet lab with measured register-dependent attack/sustain spectra. Instrument-specific writing and connected articulations remain limited.",
+			"currentLevers": "Instrument; octave; velocity; gain; separate synthetic-note attack/brightness/noise/vibrato experiment",
 			"plannedLevers": "Playable range; strumming; bowing; breath and transition models",
 			"issue": 16
 		},
@@ -96,7 +96,7 @@
 			"rationale": "A loud stable passage and a quiet tense passage have different functions.",
 			"exception": "A sustained mood or process can be the goal; every work need not tell a dramatic story.",
 			"status": "Partial",
-			"implementation": "Section harmony, intro build, presence and outro choices; no explicit narrative-intent plan.",
+			"implementation": "Section harmony, intro build, presence, later break placement in longer songs and outro choices; no explicit narrative-intent plan.",
 			"currentLevers": "Section contrast; intro variation; layer presence",
 			"plannedLevers": "Independent energy/tension arcs; delayed recall; transition intent",
 			"issue": 20
@@ -156,13 +156,18 @@
 			"rationale": "Reproducibility establishes what happened; listening helps assess whether the intended effect worked.",
 			"exception": "Criteria depend on musical intent, and listener disagreement should be recorded.",
 			"status": "Partial",
-			"implementation": "Deterministic diversity, recurrence, independence and replay tests exist; blinded musical listening comparisons remain planned.",
+			"implementation": "Thirteen reference MIDI files compared with eight presets; repeatable real/generated/sampled spectrograms and unfitted-pitch diagnostics expose mixed results. Blinded perceptual listening remains planned.",
 			"currentLevers": "Written score; seed; saved settings",
 			"plannedLevers": "Blind comparisons; style-specific rubric; saved rule provenance",
 			"issue": 37
 		}
 	],
 	"history": [
+		{
+			"version": "0.3.0",
+			"date": "2026-10-21",
+			"changes": "Composer 4 updates R03/R08 with fixed four-bar intro/break and later departures. R07/R13 gain measured MIDI/timbre comparisons and an experimental sample-free instrument lab; thesis revision 0.2 records evidence and limits."
+		},
 		{
 			"version": "0.2.0",
 			"date": "2026-10-21",

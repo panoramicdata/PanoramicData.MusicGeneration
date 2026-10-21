@@ -55,6 +55,19 @@ public class OrchestralSynthesisTests
 	}
 
 	[Fact]
+	public void RegisterAnchors_InterpolateColourWithoutUsingRecordedAudio()
+	{
+		var profile = Pure with
+		{
+			RegisterSpectra = [new(60, [1, 0, 0], [1, 0, 0]), new(72, [0, 1, 0], [0, 1, 0])]
+		};
+		var note = Note with { MidiNote = 66 };
+		var actual = OrchestralSynthesizer.Render(profile, note);
+		var expected = OrchestralSynthesizer.Render(Pure with { AttackSpectrum = [0.5, 0.5, 0], SustainSpectrum = [0.5, 0.5, 0] }, note);
+		actual.Should().Equal(expected);
+	}
+
+	[Fact]
 	public void InvalidImportedParameters_AreRejectedBeforeAllocation()
 	{
 		var render = () => OrchestralSynthesizer.Render(Pure with { NoiseLevel = double.NaN }, Note);

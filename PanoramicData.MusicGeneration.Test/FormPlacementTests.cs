@@ -15,7 +15,9 @@ public class FormPlacementTests
 		{
 			var settings = ArrangementPresets.ForGenre(MusicGenre.Pop) with
 			{
-				Seed = seed, Seconds = seconds, Tempo = tempo,
+				Seed = seed,
+				Seconds = seconds,
+				Tempo = tempo,
 				Endings = new() { Fade = 0, Cadence = 1, Tag = 0, Stop = 0 }
 			};
 			var score = ArrangementComposer.Compose(settings);

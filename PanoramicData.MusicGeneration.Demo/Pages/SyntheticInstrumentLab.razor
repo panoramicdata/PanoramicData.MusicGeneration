@@ -1,0 +1,89 @@
+@using PanoramicData.Blazor
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<section class="card" aria-label="Generated orchestral instrument lab">
+	<h2>5. Generate an instrument</h2>
+	<p>These experimental flute, violin and trumpet tones are built from sine waves and coloured noise. Their harmonic profiles were measured from University of Iowa recordings; no recorded audio is used during synthesis. They are an early approximation, with audible limitations.</p>
+	<div class="control-row">
+		<label>Synthetic instrument <select @bind="instrument" @bind:after="ResetProfile"><option>Flute</option><option>Violin</option><option>Trumpet</option></select></label>
+		<label>Pitch <input type="range" min="48" max="84" @bind="midi" /> @Pitch.NameOf(midi)</label>
+		<label>Strength <input type="range" min="1" max="127" @bind="strength" /> @strength</label>
+	</div>
+	<div class="control-row">
+		<label>Attack <input type="range" min="0.005" max="0.6" step="0.005" @bind="attack" /> @attack.ToString("0.000") s</label>
+		<label>Harmonic darkening <input type="range" min="-0.5" max="2" step="0.05" @bind="tilt" /> @tilt.ToString("0.00")</label>
+		<label>Breath / bow noise <input type="range" min="0" max="0.15" step="0.005" @bind="noise" /> @noise.ToString("0.000")</label>
+		<label>Vibrato <input type="range" min="0" max="40" step="1" @bind="vibrato" /> @vibrato.ToString("0") cents</label>
+		<button @onclick="PlayAsync" disabled="@busy">@(busy ? "Generating tone…" : "Generate synthetic note")</button>
+	</div>
+	<p class="note">A two-second held note plus release. Strength changes brightness and level. Attack/sustain spectra, register anchors, spectral transition, noise colour, release, vibrato rate/delay and drift are separate library parameters. This experiment does not replace the sampled song instruments.</p>
+	@if (error is not null) { <p role="alert">@error</p> }
+	@if (url is not null)
+	{
+		<PDMediaPlayer @key="url" @ref="player" Src="@url" Title="@generatedTitle"
+			ShowSpectrogram="true" SpectrogramHeight="280" SpectrogramMaxFrequency="8000" SpectrogramSampleRate="22050" SpectrogramWindowSize="2048" />
+	}
+	<p><a href="https://github.com/panoramicdata/PanoramicData.MusicGeneration/blob/main/docs/SCORE_AND_TIMBRE_STUDY.md">Read the score and spectrogram comparisons</a> · <a href="https://theremin.music.uiowa.edu/MIS.html">Reference recordings and usage terms</a></p>
+</section>
+
+@code {
+	private string instrument = "Flute";
+	private int midi = 72;
+	private int strength = 90;
+	private double attack = OrchestralTimbres.Flute.AttackSeconds;
+	private double tilt;
+	private double noise = OrchestralTimbres.Flute.NoiseLevel;
+	private double vibrato = OrchestralTimbres.Flute.VibratoCents;
+	private bool busy;
+	private bool pendingPlay;
+	private string? url;
+	private string? error;
+	private string generatedTitle = "Generated tone";
+	private IJSObjectReference? audio;
+	private PDMediaPlayer? player;
+	private OrchestralTimbre Profile => instrument switch { "Violin" => OrchestralTimbres.Violin, "Trumpet" => OrchestralTimbres.Trumpet, _ => OrchestralTimbres.Flute };
+
+	private void ResetProfile()
+	{
+		attack = Profile.AttackSeconds;
+		tilt = Profile.HarmonicTilt;
+		noise = Profile.NoiseLevel;
+		vibrato = Profile.VibratoCents;
+	}
+
+	private async Task PlayAsync()
+	{
+		busy = true;
+		error = null;
+		await Task.Delay(20);
+		try
+		{
+			var profile = Profile with { AttackSeconds = attack, HarmonicTilt = tilt, NoiseLevel = noise, VibratoCents = vibrato };
+			var samples = OrchestralSynthesizer.Render(profile, new() { MidiNote = midi, Velocity = strength });
+			audio ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+			if (url is not null) { await audio.InvokeVoidAsync("revokeAudioUrl", url); }
+			url = await audio.InvokeAsync<string>("createAudioUrl", WavEncoder.Encode(samples, 22050));
+			generatedTitle = $"Generated {instrument} · {Pitch.NameOf(midi)}";
+			pendingPlay = true;
+		}
+		catch (Exception ex) when (ex is ArgumentException or JSException) { error = ex.Message; }
+		finally { busy = false; }
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (pendingPlay && player is not null)
+		{
+			pendingPlay = false;
+			await player.PlayAsync();
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (audio is null) { return; }
+		if (url is not null) { await audio.InvokeVoidAsync("revokeAudioUrl", url); }
+		await audio.DisposeAsync();
+	}
+}
