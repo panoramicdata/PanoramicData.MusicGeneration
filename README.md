@@ -108,6 +108,7 @@ If arithmetic speed matters more than bit-exactness (for example in an interpret
 | [docs/COMPOSITION_THESIS.md](docs/COMPOSITION_THESIS.md) | Living thesis, composition principles, evaluation and future artist/period lessons |
 | [docs/composition-rules.json](docs/composition-rules.json) | Canonical versioned rules, current/planned levers and implementation status; also displayed in the app |
 | [docs/HOOKS_AND_DEVELOPMENT.md](docs/HOOKS_AND_DEVELOPMENT.md) | Source-based case studies and a prioritised model-development proposal |
+| [docs/SCORE_AND_TIMBRE_STUDY.md](docs/SCORE_AND_TIMBRE_STUDY.md) | Measured reference MIDI and orchestral spectrogram comparisons; generated instrument experiment |
 | [docs/DEVELOPMENT_PROMPT.md](docs/DEVELOPMENT_PROMPT.md) | The brief for developing the library further |
 
 ## Development

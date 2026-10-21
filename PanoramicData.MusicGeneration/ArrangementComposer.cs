@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration;
 public static partial class ArrangementComposer
 {
 	/// <summary>Written-arrangement algorithm version. Legacy SongGenerator output is unaffected.</summary>
-	public static int Version => 3;
+	public static int Version => 4;
 
 	/// <summary>Validates settings and writes harmony, recurring motifs, rhythm and independent instrumental parts.</summary>
 	public static ArrangedScore Compose(ArrangementSettings settings)

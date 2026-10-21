@@ -31,7 +31,7 @@ public class ExpressionTests
 		settings.Seconds.Should().Be(210);
 		settings.Variation.Should().Be(0.6);
 		settings.Layers.Should().Contain(l => l.Pattern == LayerPattern.Countermelody && l.Presence.Verse < l.Presence.Chorus);
-		ArrangementComposer.Version.Should().Be(3);
+		ArrangementComposer.Version.Should().Be(4);
 	}
 
 	[Theory]
@@ -81,7 +81,7 @@ public class ExpressionTests
 			string.Join(',', varied.Chords.Where(c => c.StartSeconds >= s.StartSeconds && c.StartSeconds < s.EndSeconds).Select(c => c.Symbol)));
 		versePatterns.Distinct().Count().Should().BeGreaterThan(1, "full variation still offers different functional substitutions and seventh colours across returns");
 		var introLengths = Enumerable.Range(0, 20).Select(seed => ArrangementComposer.Compose(Settings with { Seed = seed, IntroVariation = 1 }).Sections[0].Bars).ToHashSet();
-		introLengths.Should().Contain(4).And.Contain(8);
+		introLengths.Should().Equal(4);
 	}
 
 	[Fact]

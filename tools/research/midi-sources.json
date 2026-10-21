@@ -1,0 +1,93 @@
+[
+  {
+    "name": "bach",
+    "page": "https://www.mutopiaproject.org/ftp/BachJS/BWV772/bach-invention-01/bach-invention-01.mid",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV772/bach-invention-01/bach-invention-01.mid",
+    "sha256": "9b9a6213941932d5171d9102d85912c3c1c61f8176ce02005cd2198881823c2d",
+    "bytes": 3929
+  },
+  {
+    "name": "mozart",
+    "page": "https://www.mutopiaproject.org/ftp/MozartWA/KV545/K545-1/K545-1.mid",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV545/K545-1/K545-1.mid",
+    "sha256": "54e510ba1e5865aeedc4e96bf70b83c93ecddf5b66660033ef98a5a8204ab02d",
+    "bytes": 11580
+  },
+  {
+    "name": "debussy",
+    "page": "https://www.mutopiaproject.org/ftp/DebussyC/L75/debussy_Ste_Bergamesq_Clair/debussy_Ste_Bergamesq_Clair.mid",
+    "url": "https://www.mutopiaproject.org/ftp/DebussyC/L75/debussy_Ste_Bergamesq_Clair/debussy_Ste_Bergamesq_Clair.mid",
+    "sha256": "4eee9a1546ffde1ff74cb9824ba0e57cbc821185a15185bfea9faed97820bf8c",
+    "bytes": 12476
+  },
+  {
+    "name": "queen",
+    "page": "https://bitmidi.com/bohemian-rhapsody-1-mid",
+    "url": "https://bitmidi.com/uploads/18908.mid",
+    "sha256": "8fc2a6121fea58c4a9bb9c00053017161bc855e8a39f04dbd79fd2ac4281a4f1",
+    "bytes": 54386
+  },
+  {
+    "name": "beatles",
+    "page": "https://bitmidi.com/hey-jude-1-mid",
+    "url": "https://bitmidi.com/uploads/56313.mid",
+    "sha256": "23416d06070422a2db4cd220fb00444da1b6e3bc5d3acfe9d385bd0b0958bf15",
+    "bytes": 40765
+  },
+  {
+    "name": "pink-floyd",
+    "page": "https://bitmidi.com/pink-floyd-shine-on-you-crazy-diamond-mid",
+    "url": "https://bitmidi.com/uploads/85152.mid",
+    "sha256": "3a579e7a8240608ddc59870e121e5b8776c330b407e369632d7f87ca8aaae526",
+    "bytes": 75826
+  },
+  {
+    "name": "alanis",
+    "page": "https://bhs.minor9.com/midi/assortment/A-F/",
+    "url": "https://bhs.minor9.com/midi/assortment/A-F/Alanis%20Morissette%20-%20You%20Oughta%20Know%20%5bMet%20Tekst%5d.mid",
+    "sha256": "b91ac03ba1ac3454cb53ba3184c152bf8e70fa7d45141faefbd1246a297cce12",
+    "bytes": 23622
+  },
+  {
+    "name": "bon-jovi",
+    "page": "https://bitmidi.com/bon-jovi-livin-on-a-prayer-k-mid",
+    "url": "https://bitmidi.com/uploads/19013.mid",
+    "sha256": "50a4e121de5db5a00e602cf44af155ec70e7243638c88cbbf87201656e8a9b87",
+    "bytes": 61503
+  },
+  {
+    "name": "abba",
+    "page": "https://bitmidi.com/abba-dancing-queen-k-mid",
+    "url": "https://bitmidi.com/uploads/3411.mid",
+    "sha256": "f026231af82210295f0688d72624f6ec5b3f0e377ad9505175906dbce2e996fa",
+    "bytes": 34451
+  },
+  {
+    "name": "glenn-miller",
+    "page": "https://bitmidi.com/g-miller-in-the-mood-mid",
+    "url": "https://bitmidi.com/uploads/48385.mid",
+    "sha256": "4a70246d5887457c41fa6b96df94375080cee9bb634cd319f97a776917448f68",
+    "bytes": 96600
+  },
+  {
+    "name": "rednex",
+    "page": "https://bitmidi.com/r-nex-cotton-eye-joe-mid",
+    "url": "https://bitmidi.com/uploads/87448.mid",
+    "sha256": "0254f5b53baf4ca42e874d8a0f796ce054382467c05746845ecf146cceea589a",
+    "bytes": 62773
+  },
+  {
+    "name": "daft-punk",
+    "page": "https://bitmidi.com/daft-punk-around-the-world-mid",
+    "url": "https://bitmidi.com/uploads/37335.mid",
+    "sha256": "b1c1d7bfd63657402b2ccf6a20a4000f6c06e13caa08e8ba2fe68ef18440d0e5",
+    "bytes": 1763
+  },
+  {
+    "name": "cure",
+    "page": "https://bitmidi.com/the-cure-forest-mid",
+    "url": "https://bitmidi.com/uploads/101052.mid",
+    "sha256": "c41b354b5bf174acbc649c3455336e69d75116c30d2a4f4d3b5f7ad7ff131ccc",
+    "bytes": 21181
+  }
+]

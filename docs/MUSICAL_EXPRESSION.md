@@ -22,7 +22,7 @@ Progression variation controls functional substitutions or seventh-chord colours
 
 Each layer now has intro, verse, chorus, bridge and outro probabilities, plus one-based occurrence overrides. The decision is made once per entire section and saved with the notes. A bass can stay at 100%, an answer can use 25% in verses, and chorus 2 can explicitly omit the snare. Stable layer identifiers isolate decisions from unrelated instrument additions. Musical rests still occur inside a participating part.
 
-Preset probabilities are editable design defaults. Intro variation changes the seeded opening length and the likelihood of a hook teaser/build; dynamics rise through the intro. Verse endings add a short snare transition when that part participates. These rules create coordinated changes rather than independent per-note dropout.
+Preset probabilities are editable design defaults. Intro variation changes the likelihood of a hook teaser/build within the fixed four-bar opening; dynamics rise through the intro. Verse endings add a short snare transition when that part participates. These rules create coordinated changes rather than independent per-note dropout.
 
 ## Endings and the duration ceiling
 
@@ -44,4 +44,6 @@ The [living composition thesis](COMPOSITION_THESIS.md) develops these findings i
 
 ## Replay contract
 
-`ArrangementComposer.Version` is now 3. Legacy `SongGenerator.Version` remains 3 with both original golden fixtures unchanged. Written score schema remains 1: optional performed-duration, ending, participation and motif fields preserve replay of earlier saved notes. Composer 3 stores seeded two-bar ideas and adds an optional independent melody seed; its generated output intentionally differs. Earlier scores replay their notes; those without ending metadata retain their original duration and audio shaping. Exact sampled audio still depends on the bank and renderer/runtime. Settings-only imports deliberately recompose using the current composer. See [STUDIO.md](STUDIO.md) for the new melodic controls and remaining limitations.
+`ArrangementComposer.Version` is now 4. Legacy `SongGenerator.Version` remains 3 with both original golden fixtures unchanged. Written score schema remains 1: optional performed-duration, ending, participation and motif fields preserve replay of earlier saved notes. Composer 3 stores seeded two-bar ideas and adds an optional independent melody seed; its generated output intentionally differs. Earlier scores replay their notes; those without ending metadata retain their original duration and audio shaping. Exact sampled audio still depends on the bank and renderer/runtime. Settings-only imports deliberately recompose using the current composer. See [STUDIO.md](STUDIO.md) for the new melodic controls and remaining limitations.
+
+Composer 4 fixes the intro and bridge/break at four bars and schedules the break near two-thirds of the available body, after complete verse/chorus pairs. It reserves an eight-bar chorus return and the outro. Very short songs omit sections that cannot fit completely. The SoundFonts lesson now also offers a separate experimental sample-free instrument lab; song rendering continues to use the selected sampled bank. See [measured MIDI and timbre comparisons](SCORE_AND_TIMBRE_STUDY.md) for results and limitations.

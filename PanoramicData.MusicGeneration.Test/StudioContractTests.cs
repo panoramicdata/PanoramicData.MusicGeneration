@@ -53,7 +53,7 @@ public class StudioContractTests
 		var json = JsonSerializer.Serialize(new StudioDocument { Settings = score.Settings, Score = score }, StudioJsonContext.Default.StudioDocument);
 		var restored = JsonSerializer.Deserialize(StudioDocumentMigration.ExpandDefaults(json), StudioJsonContext.Default.StudioDocument)!;
 		restored.Settings.MelodySeed.Should().Be(1234);
-		restored.Score!.ComposerVersion.Should().Be(3);
+		restored.Score!.ComposerVersion.Should().Be(ArrangementComposer.Version);
 		foreach (var motif in score.Motifs) { restored.Score.Motifs.Single(m => m.Id == motif.Id).Notes.Should().Equal(motif.Notes); }
 		foreach (var track in score.Tracks) { restored.Score.Tracks.Single(t => t.Instrument.Id == track.Instrument.Id).Notes.Should().Equal(track.Notes); }
 	}
