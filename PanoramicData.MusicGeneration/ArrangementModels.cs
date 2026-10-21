@@ -129,7 +129,7 @@ public sealed record ArrangementSettings
 	public double ProgressionVariation { get; init; } = 0.35;
 	/// <summary>Chance of deriving contrasting sections from the chosen cycle, 0–1; zero repeats the cycle unchanged.</summary>
 	public double SectionContrast { get; init; } = 1;
-	/// <summary>Seeded intro length, hook teaser and accompaniment build variation, 0–1.</summary>
+	/// <summary>Hook teaser and accompaniment build variation within the four-bar intro, 0–1.</summary>
 	public double IntroVariation { get; init; } = 0.65;
 	/// <summary>Relative weights for the four implemented ending types.</summary>
 	public EndingWeights Endings { get; init; } = new();

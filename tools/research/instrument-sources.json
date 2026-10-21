@@ -1,0 +1,23 @@
+[
+  {
+    "name": "flute",
+    "page": "https://theremin.music.uiowa.edu/MISflute.html",
+    "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/flute/Flute.nonvib.mf.C5B5.aiff",
+    "sha256": "43d8d6c620fe9c508c30b568b023e54fc226960adcb8455467e511a22866066c",
+    "label": "Flute.nonvib.mf.C5B5.aiff"
+  },
+  {
+    "name": "violin",
+    "page": "https://theremin.music.uiowa.edu/MISviolin.html",
+    "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Strings/violin/Violin.arco.mf.sulA.C5C6.aiff",
+    "sha256": "6cd86026a7786f6052bb78467e2428fe79c2e95a128b1f89637e10d28d1e3c67",
+    "label": "Violin.arco.mf.sulA.C5C6.aiff"
+  },
+  {
+    "name": "trumpet",
+    "page": "https://theremin.music.uiowa.edu/MISBbtrumpet.html",
+    "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Brass/Bbtrumpet/Trumpet.novib.mf.C5B5.aiff",
+    "sha256": "ac3fc8f64f62e95a0386d805d6ca7c735521fe76ace7ffe33b30fa1a6d245b6a",
+    "label": "Trumpet.novib.mf.C5B5.aiff"
+  }
+]

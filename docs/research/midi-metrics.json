@@ -1,0 +1,1766 @@
+{
+	"bach": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 458,
+		"pitchedTracks": 2,
+		"quarterBeats": 88.0,
+		"pitchMin": 36,
+		"pitchMax": 84,
+		"medianGateBeats": 0.25,
+		"durationTypes": 7,
+		"velocities": 1,
+		"meanPolyphony": 2.0,
+		"densityCV": 0.171,
+		"trackStats": [
+			{
+				"name": "one / channel 2",
+				"notes": 240,
+				"pitchMin": 60,
+				"pitchMax": 84,
+				"uniqueTwoBarPatterns": 11,
+				"occupiedTwoBarWindows": 11,
+				"mostRepeatedPattern": 1,
+				"velocities": 1
+			},
+			{
+				"name": "two / channel 3",
+				"notes": 218,
+				"pitchMin": 36,
+				"pitchMax": 70,
+				"uniqueTwoBarPatterns": 11,
+				"occupiedTwoBarWindows": 11,
+				"mostRepeatedPattern": 1,
+				"velocities": 1
+			}
+		]
+	},
+	"mozart": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 1288,
+		"pitchedTracks": 2,
+		"quarterBeats": 291.0,
+		"pitchMin": 36,
+		"pitchMax": 89,
+		"medianGateBeats": 0.25,
+		"durationTypes": 15,
+		"velocities": 23,
+		"meanPolyphony": 1.98,
+		"densityCV": 0.186,
+		"trackStats": [
+			{
+				"name": "1 / channel 1",
+				"notes": 610,
+				"pitchMin": 55,
+				"pitchMax": 89,
+				"uniqueTwoBarPatterns": 36,
+				"occupiedTwoBarWindows": 37,
+				"mostRepeatedPattern": 2,
+				"velocities": 23
+			},
+			{
+				"name": "2 / channel 2",
+				"notes": 678,
+				"pitchMin": 36,
+				"pitchMax": 74,
+				"uniqueTwoBarPatterns": 36,
+				"occupiedTwoBarWindows": 37,
+				"mostRepeatedPattern": 2,
+				"velocities": 3
+			}
+		]
+	},
+	"debussy": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"9/8"
+		],
+		"pedalEvents": 0,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.5,
+		"notes": 1468,
+		"pitchedTracks": 2,
+		"quarterBeats": 322.5,
+		"pitchMin": 27,
+		"pitchMax": 97,
+		"medianGateBeats": 0.5,
+		"durationTypes": 17,
+		"velocities": 1,
+		"meanPolyphony": 4.36,
+		"densityCV": 0.44,
+		"trackStats": [
+			{
+				"name": "upper / channel 2",
+				"notes": 743,
+				"pitchMin": 53,
+				"pitchMax": 97,
+				"uniqueTwoBarPatterns": 35,
+				"occupiedTwoBarWindows": 36,
+				"mostRepeatedPattern": 2,
+				"velocities": 1
+			},
+			{
+				"name": "lower / channel 3",
+				"notes": 725,
+				"pitchMin": 27,
+				"pitchMax": 85,
+				"uniqueTwoBarPatterns": 36,
+				"occupiedTwoBarWindows": 36,
+				"mostRepeatedPattern": 1,
+				"velocities": 1
+			}
+		]
+	},
+	"queen": {
+		"tempoValues": 16,
+		"tempoEvents": 22,
+		"meters": [
+			"2/4",
+			"4/4",
+			"5/4"
+		],
+		"pedalEvents": 241,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 4073,
+		"pitchedTracks": 14,
+		"quarterBeats": 692.15,
+		"pitchMin": 29,
+		"pitchMax": 86,
+		"medianGateBeats": 0.427,
+		"durationTypes": 233,
+		"velocities": 89,
+		"meanPolyphony": 5.12,
+		"densityCV": 0.668,
+		"trackStats": [
+			{
+				"name": "A.PIANO 1 / channel 1",
+				"notes": 1750,
+				"pitchMin": 31,
+				"pitchMax": 86,
+				"uniqueTwoBarPatterns": 55,
+				"occupiedTwoBarWindows": 55,
+				"mostRepeatedPattern": 1,
+				"velocities": 76
+			},
+			{
+				"name": "FINGERDBAS / channel 2",
+				"notes": 411,
+				"pitchMin": 29,
+				"pitchMax": 53,
+				"uniqueTwoBarPatterns": 52,
+				"occupiedTwoBarWindows": 54,
+				"mostRepeatedPattern": 2,
+				"velocities": 43
+			},
+			{
+				"name": "CHOIR AAHS / channel 3",
+				"notes": 505,
+				"pitchMin": 43,
+				"pitchMax": 82,
+				"uniqueTwoBarPatterns": 30,
+				"occupiedTwoBarWindows": 30,
+				"mostRepeatedPattern": 1,
+				"velocities": 73
+			},
+			{
+				"name": "ALTO SAX / channel 4",
+				"notes": 325,
+				"pitchMin": 52,
+				"pitchMax": 72,
+				"uniqueTwoBarPatterns": 45,
+				"occupiedTwoBarWindows": 45,
+				"mostRepeatedPattern": 1,
+				"velocities": 63
+			},
+			{
+				"name": "CHOIR AAHS / channel 5",
+				"notes": 241,
+				"pitchMin": 51,
+				"pitchMax": 75,
+				"uniqueTwoBarPatterns": 11,
+				"occupiedTwoBarWindows": 11,
+				"mostRepeatedPattern": 1,
+				"velocities": 43
+			},
+			{
+				"name": "CHOIR AAHS / channel 6",
+				"notes": 34,
+				"pitchMin": 60,
+				"pitchMax": 75,
+				"uniqueTwoBarPatterns": 5,
+				"occupiedTwoBarWindows": 6,
+				"mostRepeatedPattern": 2,
+				"velocities": 21
+			},
+			{
+				"name": "CHOIR AAHS / channel 7",
+				"notes": 39,
+				"pitchMin": 45,
+				"pitchMax": 75,
+				"uniqueTwoBarPatterns": 5,
+				"occupiedTwoBarWindows": 5,
+				"mostRepeatedPattern": 1,
+				"velocities": 22
+			},
+			{
+				"name": "DRUMS / channel 8",
+				"notes": 1,
+				"pitchMin": 57,
+				"pitchMax": 57,
+				"uniqueTwoBarPatterns": 1,
+				"occupiedTwoBarWindows": 1,
+				"mostRepeatedPattern": 1,
+				"velocities": 1
+			},
+			{
+				"name": "OVERDRIVE / channel 9",
+				"notes": 105,
+				"pitchMin": 57,
+				"pitchMax": 84,
+				"uniqueTwoBarPatterns": 9,
+				"occupiedTwoBarWindows": 9,
+				"mostRepeatedPattern": 1,
+				"velocities": 33
+			},
+			{
+				"name": "OVERDRIVE / channel 11",
+				"notes": 12,
+				"pitchMin": 67,
+				"pitchMax": 79,
+				"uniqueTwoBarPatterns": 2,
+				"occupiedTwoBarWindows": 2,
+				"mostRepeatedPattern": 1,
+				"velocities": 11
+			},
+			{
+				"name": "DRUMS / channel 13",
+				"notes": 1,
+				"pitchMin": 59,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 1,
+				"occupiedTwoBarWindows": 1,
+				"mostRepeatedPattern": 1,
+				"velocities": 1
+			},
+			{
+				"name": "OVERDRIVE / channel 14",
+				"notes": 164,
+				"pitchMin": 41,
+				"pitchMax": 75,
+				"uniqueTwoBarPatterns": 21,
+				"occupiedTwoBarWindows": 21,
+				"mostRepeatedPattern": 1,
+				"velocities": 44
+			},
+			{
+				"name": "OVERDRIVE / channel 15",
+				"notes": 232,
+				"pitchMin": 41,
+				"pitchMax": 70,
+				"uniqueTwoBarPatterns": 30,
+				"occupiedTwoBarWindows": 30,
+				"mostRepeatedPattern": 1,
+				"velocities": 54
+			},
+			{
+				"name": "OVERDRIVE / channel 16",
+				"notes": 253,
+				"pitchMin": 41,
+				"pitchMax": 70,
+				"uniqueTwoBarPatterns": 30,
+				"occupiedTwoBarWindows": 30,
+				"mostRepeatedPattern": 1,
+				"velocities": 63
+			}
+		]
+	},
+	"beatles": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"2/4",
+			"4/4"
+		],
+		"pedalEvents": 216,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 2559,
+		"pitchedTracks": 3,
+		"quarterBeats": 347.88,
+		"pitchMin": 28,
+		"pitchMax": 89,
+		"medianGateBeats": 0.484,
+		"durationTypes": 75,
+		"velocities": 102,
+		"meanPolyphony": 4.0,
+		"densityCV": 0.148,
+		"trackStats": [
+			{
+				"name": "MELODY / channel 1",
+				"notes": 365,
+				"pitchMin": 64,
+				"pitchMax": 89,
+				"uniqueTwoBarPatterns": 30,
+				"occupiedTwoBarWindows": 43,
+				"mostRepeatedPattern": 7,
+				"velocities": 52
+			},
+			{
+				"name": "ACOU BASS / channel 2",
+				"notes": 431,
+				"pitchMin": 36,
+				"pitchMax": 60,
+				"uniqueTwoBarPatterns": 24,
+				"occupiedTwoBarWindows": 35,
+				"mostRepeatedPattern": 7,
+				"velocities": 97
+			},
+			{
+				"name": "A.PIANO 1 / channel 3",
+				"notes": 1763,
+				"pitchMin": 28,
+				"pitchMax": 77,
+				"uniqueTwoBarPatterns": 33,
+				"occupiedTwoBarWindows": 44,
+				"mostRepeatedPattern": 7,
+				"velocities": 95
+			}
+		]
+	},
+	"pink-floyd": {
+		"tempoValues": 21,
+		"tempoEvents": 94,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 5509,
+		"pitchedTracks": 15,
+		"quarterBeats": 1391.89,
+		"pitchMin": 29,
+		"pitchMax": 96,
+		"medianGateBeats": 0.917,
+		"durationTypes": 318,
+		"velocities": 83,
+		"meanPolyphony": 11.04,
+		"densityCV": 0.506,
+		"trackStats": [
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 16",
+				"notes": 227,
+				"pitchMin": 50,
+				"pitchMax": 96,
+				"uniqueTwoBarPatterns": 20,
+				"occupiedTwoBarWindows": 20,
+				"mostRepeatedPattern": 1,
+				"velocities": 49
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 5",
+				"notes": 583,
+				"pitchMin": 29,
+				"pitchMax": 79,
+				"uniqueTwoBarPatterns": 96,
+				"occupiedTwoBarWindows": 139,
+				"mostRepeatedPattern": 5,
+				"velocities": 17
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 1",
+				"notes": 99,
+				"pitchMin": 53,
+				"pitchMax": 77,
+				"uniqueTwoBarPatterns": 28,
+				"occupiedTwoBarWindows": 28,
+				"mostRepeatedPattern": 1,
+				"velocities": 8
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 2",
+				"notes": 32,
+				"pitchMin": 43,
+				"pitchMax": 67,
+				"uniqueTwoBarPatterns": 6,
+				"occupiedTwoBarWindows": 7,
+				"mostRepeatedPattern": 2,
+				"velocities": 2
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 15",
+				"notes": 174,
+				"pitchMin": 43,
+				"pitchMax": 89,
+				"uniqueTwoBarPatterns": 40,
+				"occupiedTwoBarWindows": 44,
+				"mostRepeatedPattern": 2,
+				"velocities": 7
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 6",
+				"notes": 161,
+				"pitchMin": 53,
+				"pitchMax": 86,
+				"uniqueTwoBarPatterns": 28,
+				"occupiedTwoBarWindows": 29,
+				"mostRepeatedPattern": 2,
+				"velocities": 14
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 3",
+				"notes": 950,
+				"pitchMin": 41,
+				"pitchMax": 96,
+				"uniqueTwoBarPatterns": 100,
+				"occupiedTwoBarWindows": 130,
+				"mostRepeatedPattern": 6,
+				"velocities": 20
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 14",
+				"notes": 104,
+				"pitchMin": 36,
+				"pitchMax": 82,
+				"uniqueTwoBarPatterns": 14,
+				"occupiedTwoBarWindows": 24,
+				"mostRepeatedPattern": 4,
+				"velocities": 9
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 13",
+				"notes": 905,
+				"pitchMin": 53,
+				"pitchMax": 96,
+				"uniqueTwoBarPatterns": 88,
+				"occupiedTwoBarWindows": 119,
+				"mostRepeatedPattern": 6,
+				"velocities": 20
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 4",
+				"notes": 358,
+				"pitchMin": 64,
+				"pitchMax": 77,
+				"uniqueTwoBarPatterns": 64,
+				"occupiedTwoBarWindows": 86,
+				"mostRepeatedPattern": 4,
+				"velocities": 3
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 9",
+				"notes": 587,
+				"pitchMin": 41,
+				"pitchMax": 65,
+				"uniqueTwoBarPatterns": 95,
+				"occupiedTwoBarWindows": 138,
+				"mostRepeatedPattern": 5,
+				"velocities": 16
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 7",
+				"notes": 781,
+				"pitchMin": 48,
+				"pitchMax": 92,
+				"uniqueTwoBarPatterns": 67,
+				"occupiedTwoBarWindows": 83,
+				"mostRepeatedPattern": 3,
+				"velocities": 6
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 11",
+				"notes": 222,
+				"pitchMin": 66,
+				"pitchMax": 82,
+				"uniqueTwoBarPatterns": 19,
+				"occupiedTwoBarWindows": 38,
+				"mostRepeatedPattern": 4,
+				"velocities": 14
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 12",
+				"notes": 58,
+				"pitchMin": 63,
+				"pitchMax": 79,
+				"uniqueTwoBarPatterns": 13,
+				"occupiedTwoBarWindows": 21,
+				"mostRepeatedPattern": 2,
+				"velocities": 4
+			},
+			{
+				"name": "\u008b\u00b6\u0082\u00c1\u0082\u00bd\u0083_\u0083C\u0083A\u0083\u0082\u0083\u0093\u0083h\u0081@Part\u0082P\u0081|\u0082T             (GS)                  / channel 8",
+				"notes": 268,
+				"pitchMin": 42,
+				"pitchMax": 67,
+				"uniqueTwoBarPatterns": 28,
+				"occupiedTwoBarWindows": 28,
+				"mostRepeatedPattern": 1,
+				"velocities": 32
+			}
+		]
+	},
+	"alanis": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 240,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 1428,
+		"pitchedTracks": 4,
+		"quarterBeats": 425.93,
+		"pitchMin": 28,
+		"pitchMax": 81,
+		"medianGateBeats": 0.408,
+		"durationTypes": 110,
+		"velocities": 1,
+		"meanPolyphony": 4.93,
+		"densityCV": 0.474,
+		"trackStats": [
+			{
+				"name": "Bass / channel 2",
+				"notes": 539,
+				"pitchMin": 28,
+				"pitchMax": 42,
+				"uniqueTwoBarPatterns": 22,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			},
+			{
+				"name": "Guitar / channel 1",
+				"notes": 230,
+				"pitchMin": 51,
+				"pitchMax": 71,
+				"uniqueTwoBarPatterns": 16,
+				"occupiedTwoBarWindows": 33,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			},
+			{
+				"name": "Vocal / channel 3",
+				"notes": 513,
+				"pitchMin": 45,
+				"pitchMax": 81,
+				"uniqueTwoBarPatterns": 45,
+				"occupiedTwoBarWindows": 54,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			},
+			{
+				"name": "Guitar / channel 4",
+				"notes": 146,
+				"pitchMin": 40,
+				"pitchMax": 71,
+				"uniqueTwoBarPatterns": 16,
+				"occupiedTwoBarWindows": 35,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			}
+		]
+	},
+	"bon-jovi": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"3/4",
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 480,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 5574,
+		"pitchedTracks": 13,
+		"quarterBeats": 514.5,
+		"pitchMin": 28,
+		"pitchMax": 100,
+		"medianGateBeats": 0.479,
+		"durationTypes": 186,
+		"velocities": 78,
+		"meanPolyphony": 10.36,
+		"densityCV": 0.324,
+		"trackStats": [
+			{
+				"name": "untitled / channel 1",
+				"notes": 548,
+				"pitchMin": 36,
+				"pitchMax": 86,
+				"uniqueTwoBarPatterns": 32,
+				"occupiedTwoBarWindows": 63,
+				"mostRepeatedPattern": 6,
+				"velocities": 39
+			},
+			{
+				"name": "untitled / channel 2",
+				"notes": 915,
+				"pitchMin": 28,
+				"pitchMax": 48,
+				"uniqueTwoBarPatterns": 32,
+				"occupiedTwoBarWindows": 64,
+				"mostRepeatedPattern": 8,
+				"velocities": 11
+			},
+			{
+				"name": "untitled / channel 6",
+				"notes": 915,
+				"pitchMin": 28,
+				"pitchMax": 48,
+				"uniqueTwoBarPatterns": 32,
+				"occupiedTwoBarWindows": 64,
+				"mostRepeatedPattern": 8,
+				"velocities": 11
+			},
+			{
+				"name": "untitled / channel 9",
+				"notes": 368,
+				"pitchMin": 40,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 25,
+				"mostRepeatedPattern": 11,
+				"velocities": 18
+			},
+			{
+				"name": "untitled / channel 11",
+				"notes": 12,
+				"pitchMin": 60,
+				"pitchMax": 67,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 4,
+				"mostRepeatedPattern": 2,
+				"velocities": 8
+			},
+			{
+				"name": "untitled / channel 7",
+				"notes": 1203,
+				"pitchMin": 36,
+				"pitchMax": 81,
+				"uniqueTwoBarPatterns": 51,
+				"occupiedTwoBarWindows": 57,
+				"mostRepeatedPattern": 2,
+				"velocities": 44
+			},
+			{
+				"name": "untitled / channel 14",
+				"notes": 24,
+				"pitchMin": 36,
+				"pitchMax": 64,
+				"uniqueTwoBarPatterns": 4,
+				"occupiedTwoBarWindows": 4,
+				"mostRepeatedPattern": 1,
+				"velocities": 13
+			},
+			{
+				"name": "untitled / channel 4",
+				"notes": 384,
+				"pitchMin": 64,
+				"pitchMax": 87,
+				"uniqueTwoBarPatterns": 33,
+				"occupiedTwoBarWindows": 51,
+				"mostRepeatedPattern": 4,
+				"velocities": 29
+			},
+			{
+				"name": "untitled / channel 3",
+				"notes": 69,
+				"pitchMin": 83,
+				"pitchMax": 100,
+				"uniqueTwoBarPatterns": 11,
+				"occupiedTwoBarWindows": 17,
+				"mostRepeatedPattern": 4,
+				"velocities": 20
+			},
+			{
+				"name": "untitled / channel 8",
+				"notes": 290,
+				"pitchMin": 51,
+				"pitchMax": 95,
+				"uniqueTwoBarPatterns": 22,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 4,
+				"velocities": 39
+			},
+			{
+				"name": "untitled / channel 13",
+				"notes": 77,
+				"pitchMin": 43,
+				"pitchMax": 74,
+				"uniqueTwoBarPatterns": 14,
+				"occupiedTwoBarWindows": 18,
+				"mostRepeatedPattern": 2,
+				"velocities": 10
+			},
+			{
+				"name": "untitled / channel 5",
+				"notes": 119,
+				"pitchMin": 59,
+				"pitchMax": 91,
+				"uniqueTwoBarPatterns": 13,
+				"occupiedTwoBarWindows": 25,
+				"mostRepeatedPattern": 4,
+				"velocities": 10
+			},
+			{
+				"name": "untitled / channel 12",
+				"notes": 650,
+				"pitchMin": 40,
+				"pitchMax": 64,
+				"uniqueTwoBarPatterns": 37,
+				"occupiedTwoBarWindows": 37,
+				"mostRepeatedPattern": 1,
+				"velocities": 37
+			}
+		]
+	},
+	"abba": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 2,
+		"ppq": 192,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 1991,
+		"pitchedTracks": 5,
+		"quarterBeats": 383.96,
+		"pitchMin": 37,
+		"pitchMax": 108,
+		"medianGateBeats": 0.474,
+		"durationTypes": 118,
+		"velocities": 64,
+		"meanPolyphony": 3.1,
+		"densityCV": 0.197,
+		"trackStats": [
+			{
+				"name": "0 / channel 2",
+				"notes": 483,
+				"pitchMin": 52,
+				"pitchMax": 108,
+				"uniqueTwoBarPatterns": 22,
+				"occupiedTwoBarWindows": 33,
+				"mostRepeatedPattern": 5,
+				"velocities": 46
+			},
+			{
+				"name": "0 / channel 3",
+				"notes": 496,
+				"pitchMin": 37,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 33,
+				"occupiedTwoBarWindows": 48,
+				"mostRepeatedPattern": 2,
+				"velocities": 19
+			},
+			{
+				"name": "0 / channel 1",
+				"notes": 685,
+				"pitchMin": 57,
+				"pitchMax": 83,
+				"uniqueTwoBarPatterns": 27,
+				"occupiedTwoBarWindows": 42,
+				"mostRepeatedPattern": 2,
+				"velocities": 43
+			},
+			{
+				"name": "0 / channel 4",
+				"notes": 276,
+				"pitchMin": 57,
+				"pitchMax": 74,
+				"uniqueTwoBarPatterns": 21,
+				"occupiedTwoBarWindows": 35,
+				"mostRepeatedPattern": 3,
+				"velocities": 30
+			},
+			{
+				"name": "0 / channel 5",
+				"notes": 51,
+				"pitchMin": 71,
+				"pitchMax": 81,
+				"uniqueTwoBarPatterns": 2,
+				"occupiedTwoBarWindows": 4,
+				"mostRepeatedPattern": 3,
+				"velocities": 19
+			}
+		]
+	},
+	"glenn-miller": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 32,
+		"ppq": 384,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 5203,
+		"pitchedTracks": 7,
+		"quarterBeats": 290.0,
+		"pitchMin": 32,
+		"pitchMax": 84,
+		"medianGateBeats": 0.255,
+		"durationTypes": 92,
+		"velocities": 100,
+		"meanPolyphony": 6.4,
+		"densityCV": 0.267,
+		"trackStats": [
+			{
+				"name": "STEEL GT / channel 1",
+				"notes": 632,
+				"pitchMin": 44,
+				"pitchMax": 65,
+				"uniqueTwoBarPatterns": 11,
+				"occupiedTwoBarWindows": 14,
+				"mostRepeatedPattern": 2,
+				"velocities": 50
+			},
+			{
+				"name": "AC.BASS / channel 2",
+				"notes": 568,
+				"pitchMin": 32,
+				"pitchMax": 51,
+				"uniqueTwoBarPatterns": 27,
+				"occupiedTwoBarWindows": 35,
+				"mostRepeatedPattern": 4,
+				"velocities": 65
+			},
+			{
+				"name": "SAX SOPR / channel 3",
+				"notes": 859,
+				"pitchMin": 44,
+				"pitchMax": 75,
+				"uniqueTwoBarPatterns": 12,
+				"occupiedTwoBarWindows": 27,
+				"mostRepeatedPattern": 5,
+				"velocities": 69
+			},
+			{
+				"name": "SAX CONT / channel 4",
+				"notes": 1321,
+				"pitchMin": 44,
+				"pitchMax": 80,
+				"uniqueTwoBarPatterns": 31,
+				"occupiedTwoBarWindows": 36,
+				"mostRepeatedPattern": 4,
+				"velocities": 70
+			},
+			{
+				"name": "SAX TENO / channel 5",
+				"notes": 985,
+				"pitchMin": 44,
+				"pitchMax": 77,
+				"uniqueTwoBarPatterns": 22,
+				"occupiedTwoBarWindows": 31,
+				"mostRepeatedPattern": 4,
+				"velocities": 77
+			},
+			{
+				"name": "BRASS / channel 6",
+				"notes": 728,
+				"pitchMin": 32,
+				"pitchMax": 84,
+				"uniqueTwoBarPatterns": 27,
+				"occupiedTwoBarWindows": 32,
+				"mostRepeatedPattern": 2,
+				"velocities": 73
+			},
+			{
+				"name": "TROMBA / channel 7",
+				"notes": 110,
+				"pitchMin": 44,
+				"pitchMax": 80,
+				"uniqueTwoBarPatterns": 5,
+				"occupiedTwoBarWindows": 5,
+				"mostRepeatedPattern": 1,
+				"velocities": 27
+			}
+		]
+	},
+	"rednex": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 192,
+		"firstBarQuarterBeats": 4,
+		"notes": 4709,
+		"pitchedTracks": 12,
+		"quarterBeats": 359.61,
+		"pitchMin": 17,
+		"pitchMax": 88,
+		"medianGateBeats": 0.115,
+		"durationTypes": 63,
+		"velocities": 73,
+		"meanPolyphony": 2.9,
+		"densityCV": 0.411,
+		"trackStats": [
+			{
+				"name": "0 / channel 4",
+				"notes": 398,
+				"pitchMin": 50,
+				"pitchMax": 76,
+				"uniqueTwoBarPatterns": 6,
+				"occupiedTwoBarWindows": 26,
+				"mostRepeatedPattern": 9,
+				"velocities": 15
+			},
+			{
+				"name": "0 / channel 3",
+				"notes": 1126,
+				"pitchMin": 26,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 8,
+				"occupiedTwoBarWindows": 36,
+				"mostRepeatedPattern": 15,
+				"velocities": 19
+			},
+			{
+				"name": "0 / channel 2",
+				"notes": 986,
+				"pitchMin": 33,
+				"pitchMax": 40,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 36,
+				"mostRepeatedPattern": 16,
+				"velocities": 1
+			},
+			{
+				"name": "0 / channel 13",
+				"notes": 208,
+				"pitchMin": 17,
+				"pitchMax": 48,
+				"uniqueTwoBarPatterns": 9,
+				"occupiedTwoBarWindows": 17,
+				"mostRepeatedPattern": 5,
+				"velocities": 32
+			},
+			{
+				"name": "0 / channel 11",
+				"notes": 328,
+				"pitchMin": 25,
+				"pitchMax": 25,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 38,
+				"mostRepeatedPattern": 34,
+				"velocities": 1
+			},
+			{
+				"name": "0 / channel 5",
+				"notes": 526,
+				"pitchMin": 57,
+				"pitchMax": 78,
+				"uniqueTwoBarPatterns": 8,
+				"occupiedTwoBarWindows": 18,
+				"mostRepeatedPattern": 4,
+				"velocities": 17
+			},
+			{
+				"name": "0 / channel 12",
+				"notes": 1,
+				"pitchMin": 69,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 1,
+				"occupiedTwoBarWindows": 1,
+				"mostRepeatedPattern": 1,
+				"velocities": 1
+			},
+			{
+				"name": "0 / channel 6",
+				"notes": 792,
+				"pitchMin": 40,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 2,
+				"occupiedTwoBarWindows": 18,
+				"mostRepeatedPattern": 9,
+				"velocities": 1
+			},
+			{
+				"name": "0 / channel 7",
+				"notes": 96,
+				"pitchMin": 64,
+				"pitchMax": 76,
+				"uniqueTwoBarPatterns": 2,
+				"occupiedTwoBarWindows": 4,
+				"mostRepeatedPattern": 2,
+				"velocities": 1
+			},
+			{
+				"name": "0 / channel 8",
+				"notes": 196,
+				"pitchMin": 55,
+				"pitchMax": 66,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 7,
+				"mostRepeatedPattern": 3,
+				"velocities": 6
+			},
+			{
+				"name": "0 / channel 14",
+				"notes": 3,
+				"pitchMin": 60,
+				"pitchMax": 60,
+				"uniqueTwoBarPatterns": 1,
+				"occupiedTwoBarWindows": 3,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			},
+			{
+				"name": "0 / channel 9",
+				"notes": 49,
+				"pitchMin": 81,
+				"pitchMax": 88,
+				"uniqueTwoBarPatterns": 2,
+				"occupiedTwoBarWindows": 4,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			}
+		]
+	},
+	"daft-punk": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 15360,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 191,
+		"pitchedTracks": 3,
+		"quarterBeats": 49.0,
+		"pitchMin": 31,
+		"pitchMax": 76,
+		"medianGateBeats": 0.5,
+		"durationTypes": 3,
+		"velocities": 1,
+		"meanPolyphony": 1.82,
+		"densityCV": 0.024,
+		"trackStats": [
+			{
+				"name": "bass / channel 1",
+				"notes": 63,
+				"pitchMin": 31,
+				"pitchMax": 42,
+				"uniqueTwoBarPatterns": 2,
+				"occupiedTwoBarWindows": 6,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			},
+			{
+				"name": "melody / channel 2",
+				"notes": 68,
+				"pitchMin": 62,
+				"pitchMax": 76,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 6,
+				"mostRepeatedPattern": 3,
+				"velocities": 1
+			},
+			{
+				"name": "vocals / channel 3",
+				"notes": 60,
+				"pitchMin": 66,
+				"pitchMax": 71,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 7,
+				"mostRepeatedPattern": 5,
+				"velocities": 1
+			}
+		]
+	},
+	"cure": {
+		"tempoValues": 2,
+		"tempoEvents": 3,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"ppq": 120,
+		"firstBarQuarterBeats": 4.0,
+		"notes": 1277,
+		"pitchedTracks": 5,
+		"quarterBeats": 840.87,
+		"pitchMin": 39,
+		"pitchMax": 90,
+		"medianGateBeats": 0.467,
+		"durationTypes": 40,
+		"velocities": 50,
+		"meanPolyphony": 1.22,
+		"densityCV": 0.671,
+		"trackStats": [
+			{
+				"name": " OPENING PIANO / channel 1",
+				"notes": 23,
+				"pitchMin": 41,
+				"pitchMax": 50,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 12,
+				"mostRepeatedPattern": 6,
+				"velocities": 6
+			},
+			{
+				"name": "ROTO BASS / channel 2",
+				"notes": 929,
+				"pitchMin": 39,
+				"pitchMax": 72,
+				"uniqueTwoBarPatterns": 10,
+				"occupiedTwoBarWindows": 90,
+				"mostRepeatedPattern": 34,
+				"velocities": 24
+			},
+			{
+				"name": " STRINGS / channel 3",
+				"notes": 59,
+				"pitchMin": 50,
+				"pitchMax": 90,
+				"uniqueTwoBarPatterns": 17,
+				"occupiedTwoBarWindows": 29,
+				"mostRepeatedPattern": 3,
+				"velocities": 26
+			},
+			{
+				"name": "4 / channel 4",
+				"notes": 31,
+				"pitchMin": 57,
+				"pitchMax": 68,
+				"uniqueTwoBarPatterns": 6,
+				"occupiedTwoBarWindows": 15,
+				"mostRepeatedPattern": 5,
+				"velocities": 6
+			},
+			{
+				"name": "Cymbals / channel 8",
+				"notes": 235,
+				"pitchMin": 39,
+				"pitchMax": 60,
+				"uniqueTwoBarPatterns": 5,
+				"occupiedTwoBarWindows": 21,
+				"mostRepeatedPattern": 12,
+				"velocities": 11
+			}
+		]
+	},
+	"generated-BossaNova": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 2637,
+		"pitchedTracks": 3,
+		"quarterBeats": 422.8,
+		"pitchMin": 36,
+		"pitchMax": 69,
+		"medianGateBeats": 0.35,
+		"durationTypes": 16,
+		"velocities": 29,
+		"meanPolyphony": 2.98,
+		"densityCV": 0.063,
+		"trackStats": [
+			{
+				"name": "Chords",
+				"notes": 2043,
+				"pitchMin": 43,
+				"pitchMax": 57,
+				"uniqueTwoBarPatterns": 14,
+				"occupiedTwoBarWindows": 53,
+				"mostRepeatedPattern": 19,
+				"velocities": 10
+			},
+			{
+				"name": "Bass",
+				"notes": 316,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 11,
+				"occupiedTwoBarWindows": 53,
+				"mostRepeatedPattern": 20,
+				"velocities": 19
+			},
+			{
+				"name": "Lead",
+				"notes": 278,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 17,
+				"occupiedTwoBarWindows": 53,
+				"mostRepeatedPattern": 12,
+				"velocities": 12
+			}
+		]
+	},
+	"generated-Classical": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"3/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 3,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 2260,
+		"pitchedTracks": 7,
+		"quarterBeats": 389.1,
+		"pitchMin": 36,
+		"pitchMax": 71,
+		"medianGateBeats": 0.48,
+		"durationTypes": 17,
+		"velocities": 21,
+		"meanPolyphony": 3.26,
+		"densityCV": 0.147,
+		"trackStats": [
+			{
+				"name": "First violin",
+				"notes": 293,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 21,
+				"occupiedTwoBarWindows": 65,
+				"mostRepeatedPattern": 18,
+				"velocities": 11
+			},
+			{
+				"name": "Second violin",
+				"notes": 37,
+				"pitchMin": 57,
+				"pitchMax": 60,
+				"uniqueTwoBarPatterns": 3,
+				"occupiedTwoBarWindows": 37,
+				"mostRepeatedPattern": 28,
+				"velocities": 3
+			},
+			{
+				"name": "Viola harmony",
+				"notes": 803,
+				"pitchMin": 43,
+				"pitchMax": 62,
+				"uniqueTwoBarPatterns": 21,
+				"occupiedTwoBarWindows": 65,
+				"mostRepeatedPattern": 16,
+				"velocities": 10
+			},
+			{
+				"name": "Cello",
+				"notes": 130,
+				"pitchMin": 36,
+				"pitchMax": 45,
+				"uniqueTwoBarPatterns": 14,
+				"occupiedTwoBarWindows": 65,
+				"mostRepeatedPattern": 20,
+				"velocities": 10
+			},
+			{
+				"name": "Piano arpeggios",
+				"notes": 657,
+				"pitchMin": 48,
+				"pitchMax": 71,
+				"uniqueTwoBarPatterns": 17,
+				"occupiedTwoBarWindows": 55,
+				"mostRepeatedPattern": 16,
+				"velocities": 9
+			},
+			{
+				"name": "Flute",
+				"notes": 293,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 21,
+				"occupiedTwoBarWindows": 65,
+				"mostRepeatedPattern": 18,
+				"velocities": 11
+			},
+			{
+				"name": "Oboe answer",
+				"notes": 47,
+				"pitchMin": 52,
+				"pitchMax": 60,
+				"uniqueTwoBarPatterns": 4,
+				"occupiedTwoBarWindows": 47,
+				"mostRepeatedPattern": 28,
+				"velocities": 4
+			}
+		]
+	},
+	"generated-Jazz": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 1030,
+		"pitchedTracks": 3,
+		"quarterBeats": 390.8,
+		"pitchMin": 36,
+		"pitchMax": 69,
+		"medianGateBeats": 0.882,
+		"durationTypes": 16,
+		"velocities": 29,
+		"meanPolyphony": 5.16,
+		"densityCV": 0.131,
+		"trackStats": [
+			{
+				"name": "Chords",
+				"notes": 381,
+				"pitchMin": 43,
+				"pitchMax": 57,
+				"uniqueTwoBarPatterns": 20,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 10,
+				"velocities": 10
+			},
+			{
+				"name": "Bass",
+				"notes": 389,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 20,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 11,
+				"velocities": 19
+			},
+			{
+				"name": "Lead",
+				"notes": 260,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 26,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 6,
+				"velocities": 12
+			}
+		]
+	},
+	"generated-Orchestral": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 3041,
+		"pitchedTracks": 12,
+		"quarterBeats": 326.8,
+		"pitchMin": 36,
+		"pitchMax": 71,
+		"medianGateBeats": 0.689,
+		"durationTypes": 25,
+		"velocities": 31,
+		"meanPolyphony": 13.1,
+		"densityCV": 0.159,
+		"trackStats": [
+			{
+				"name": "First violin",
+				"notes": 302,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 17,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 5,
+				"velocities": 13
+			},
+			{
+				"name": "Second violin",
+				"notes": 44,
+				"pitchMin": 48,
+				"pitchMax": 64,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 22,
+				"mostRepeatedPattern": 8,
+				"velocities": 3
+			},
+			{
+				"name": "Viola harmony",
+				"notes": 255,
+				"pitchMin": 43,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 15,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 8,
+				"velocities": 10
+			},
+			{
+				"name": "Cello",
+				"notes": 163,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 14,
+				"velocities": 19
+			},
+			{
+				"name": "Piano arpeggios",
+				"notes": 491,
+				"pitchMin": 43,
+				"pitchMax": 71,
+				"uniqueTwoBarPatterns": 12,
+				"occupiedTwoBarWindows": 31,
+				"mostRepeatedPattern": 8,
+				"velocities": 9
+			},
+			{
+				"name": "Flute",
+				"notes": 302,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 17,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 5,
+				"velocities": 13
+			},
+			{
+				"name": "Oboe answer",
+				"notes": 61,
+				"pitchMin": 48,
+				"pitchMax": 64,
+				"uniqueTwoBarPatterns": 8,
+				"occupiedTwoBarWindows": 31,
+				"mostRepeatedPattern": 10,
+				"velocities": 4
+			},
+			{
+				"name": "String section",
+				"notes": 255,
+				"pitchMin": 43,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 15,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 8,
+				"velocities": 10
+			},
+			{
+				"name": "French horns",
+				"notes": 255,
+				"pitchMin": 43,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 15,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 8,
+				"velocities": 10
+			},
+			{
+				"name": "Bassoon",
+				"notes": 163,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 14,
+				"velocities": 19
+			},
+			{
+				"name": "Harp",
+				"notes": 587,
+				"pitchMin": 48,
+				"pitchMax": 71,
+				"uniqueTwoBarPatterns": 9,
+				"occupiedTwoBarWindows": 37,
+				"mostRepeatedPattern": 14,
+				"velocities": 7
+			},
+			{
+				"name": "Double basses",
+				"notes": 163,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 41,
+				"mostRepeatedPattern": 14,
+				"velocities": 19
+			}
+		]
+	},
+	"generated-Pop": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 1151,
+		"pitchedTracks": 4,
+		"quarterBeats": 550.8,
+		"pitchMin": 36,
+		"pitchMax": 69,
+		"medianGateBeats": 1.126,
+		"durationTypes": 17,
+		"velocities": 29,
+		"meanPolyphony": 4.07,
+		"densityCV": 0.093,
+		"trackStats": [
+			{
+				"name": "Chords",
+				"notes": 427,
+				"pitchMin": 43,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 16,
+				"occupiedTwoBarWindows": 69,
+				"mostRepeatedPattern": 22,
+				"velocities": 10
+			},
+			{
+				"name": "Bass",
+				"notes": 275,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 9,
+				"occupiedTwoBarWindows": 69,
+				"mostRepeatedPattern": 30,
+				"velocities": 19
+			},
+			{
+				"name": "Lead",
+				"notes": 364,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 15,
+				"occupiedTwoBarWindows": 69,
+				"mostRepeatedPattern": 16,
+				"velocities": 12
+			},
+			{
+				"name": "Guitar answer",
+				"notes": 85,
+				"pitchMin": 48,
+				"pitchMax": 60,
+				"uniqueTwoBarPatterns": 7,
+				"occupiedTwoBarWindows": 43,
+				"mostRepeatedPattern": 16,
+				"velocities": 4
+			}
+		]
+	},
+	"generated-Ragtime": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 2661,
+		"pitchedTracks": 7,
+		"quarterBeats": 390.8,
+		"pitchMin": 36,
+		"pitchMax": 67,
+		"medianGateBeats": 0.35,
+		"durationTypes": 23,
+		"velocities": 30,
+		"meanPolyphony": 3.6,
+		"densityCV": 0.077,
+		"trackStats": [
+			{
+				"name": "Stride piano chords",
+				"notes": 719,
+				"pitchMin": 43,
+				"pitchMax": 57,
+				"uniqueTwoBarPatterns": 13,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 9,
+				"velocities": 10
+			},
+			{
+				"name": "Left-hand bass",
+				"notes": 195,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 18,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 10,
+				"velocities": 19
+			},
+			{
+				"name": "Syncopated piano",
+				"notes": 390,
+				"pitchMin": 48,
+				"pitchMax": 67,
+				"uniqueTwoBarPatterns": 29,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 7,
+				"velocities": 13
+			},
+			{
+				"name": "Piano answer",
+				"notes": 57,
+				"pitchMin": 57,
+				"pitchMax": 64,
+				"uniqueTwoBarPatterns": 6,
+				"occupiedTwoBarWindows": 29,
+				"mostRepeatedPattern": 12,
+				"velocities": 3
+			},
+			{
+				"name": "Clarinet doubling",
+				"notes": 386,
+				"pitchMin": 48,
+				"pitchMax": 67,
+				"uniqueTwoBarPatterns": 28,
+				"occupiedTwoBarWindows": 47,
+				"mostRepeatedPattern": 7,
+				"velocities": 10
+			},
+			{
+				"name": "Banjo comping",
+				"notes": 719,
+				"pitchMin": 43,
+				"pitchMax": 57,
+				"uniqueTwoBarPatterns": 13,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 9,
+				"velocities": 10
+			},
+			{
+				"name": "Tuba bass",
+				"notes": 195,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 18,
+				"occupiedTwoBarWindows": 49,
+				"mostRepeatedPattern": 10,
+				"velocities": 19
+			}
+		]
+	},
+	"generated-Reggae": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 1257,
+		"pitchedTracks": 3,
+		"quarterBeats": 262.8,
+		"pitchMin": 36,
+		"pitchMax": 69,
+		"medianGateBeats": 0.35,
+		"durationTypes": 17,
+		"velocities": 29,
+		"meanPolyphony": 2.49,
+		"densityCV": 0.077,
+		"trackStats": [
+			{
+				"name": "Chords",
+				"notes": 811,
+				"pitchMin": 43,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 12,
+				"occupiedTwoBarWindows": 33,
+				"mostRepeatedPattern": 10,
+				"velocities": 10
+			},
+			{
+				"name": "Bass",
+				"notes": 261,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 8,
+				"occupiedTwoBarWindows": 33,
+				"mostRepeatedPattern": 14,
+				"velocities": 19
+			},
+			{
+				"name": "Lead",
+				"notes": 185,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 13,
+				"occupiedTwoBarWindows": 33,
+				"mostRepeatedPattern": 7,
+				"velocities": 11
+			}
+		]
+	},
+	"generated-Rock": {
+		"tempoValues": 1,
+		"tempoEvents": 1,
+		"meters": [
+			"4/4"
+		],
+		"pedalEvents": 0,
+		"firstBarQuarterBeats": 4,
+		"composerVersion": 4,
+		"seed": 42,
+		"notes": 1518,
+		"pitchedTracks": 3,
+		"quarterBeats": 358.8,
+		"pitchMin": 36,
+		"pitchMax": 69,
+		"medianGateBeats": 0.35,
+		"durationTypes": 16,
+		"velocities": 29,
+		"meanPolyphony": 2.17,
+		"densityCV": 0.098,
+		"trackStats": [
+			{
+				"name": "Chords",
+				"notes": 1107,
+				"pitchMin": 43,
+				"pitchMax": 59,
+				"uniqueTwoBarPatterns": 18,
+				"occupiedTwoBarWindows": 45,
+				"mostRepeatedPattern": 13,
+				"velocities": 10
+			},
+			{
+				"name": "Bass",
+				"notes": 179,
+				"pitchMin": 36,
+				"pitchMax": 52,
+				"uniqueTwoBarPatterns": 14,
+				"occupiedTwoBarWindows": 45,
+				"mostRepeatedPattern": 17,
+				"velocities": 19
+			},
+			{
+				"name": "Lead",
+				"notes": 232,
+				"pitchMin": 48,
+				"pitchMax": 69,
+				"uniqueTwoBarPatterns": 21,
+				"occupiedTwoBarWindows": 45,
+				"mostRepeatedPattern": 10,
+				"velocities": 12
+			}
+		]
+	}
+}

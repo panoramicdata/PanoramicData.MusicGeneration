@@ -11,7 +11,7 @@ public static partial class ArrangementComposer
 		var ending = ChooseEnding(settings);
 		var outroBars = Math.Min(available, EndingBars(ending));
 		var sections = new List<SectionEvent>();
-		var intro = Math.Min(available - outroBars, IntroBars(settings));
+		var intro = available - outroBars >= 4 ? 4 : 0;
 		if (intro > 0) { AppendSection(sections, SectionKind.Intro, intro, bar); }
 		FillBody(settings, sections, available - outroBars - intro, bar);
 		AppendSection(sections, SectionKind.Outro, outroBars, bar);
@@ -29,6 +29,7 @@ public static partial class ArrangementComposer
 	private static void FillBody(ArrangementSettings settings, List<SectionEvent> sections, int remaining, double bar)
 	{
 		var pairs = 0;
+		var breakAfter = BreakAfterPairs(remaining);
 		while (remaining >= 16)
 		{
 			var kind = settings.Sections ? SectionKind.Verse : SectionKind.Chorus;
@@ -36,7 +37,7 @@ public static partial class ArrangementComposer
 			AppendSection(sections, SectionKind.Chorus, 8, bar);
 			remaining -= 16;
 			pairs++;
-			if (settings.Sections && pairs == 2 && remaining >= 12)
+			if (settings.Sections && pairs == breakAfter && remaining >= 12)
 			{
 				AppendSection(sections, SectionKind.Bridge, 4, bar);
 				AppendSection(sections, SectionKind.Chorus, 8, bar);
@@ -73,12 +74,10 @@ public static partial class ArrangementComposer
 		_ => kind.ToString().ToLowerInvariant()
 	};
 
-	private static int IntroBars(ArrangementSettings settings)
-	{
-		var rng = new Pcg32(settings.Seed, 501);
-		if (rng.NextDouble() >= settings.IntroVariation) { return 2; }
-		return rng.NextDouble() < 0.7 ? 4 : 8;
-	}
+	// Place the departure near two-thirds of the body, on a complete pair boundary.
+	// Reserve its four bars and the eight-bar chorus return before choosing a slot.
+	private static int BreakAfterPairs(int bodyBars) => bodyBars < 44 ? int.MaxValue :
+		Math.Clamp((int)Math.Round(bodyBars * (2.0 / 3) / 16), 2, (bodyBars - 12) / 16);
 
 	private static int EndingBars(EndingKind kind) => kind switch
 	{
