@@ -1,14 +1,13 @@
 """Compare measured orchestral notes with generated and sampled notes, on one scale."""
 
 import argparse
-import hashlib
 import json
-import urllib.request
 from pathlib import Path
 
 import matplotlib
 import numpy as np
 import soundfile as sf
+from research_io import load_reference
 from scipy import signal
 from scipy.ndimage import binary_closing
 
@@ -51,15 +50,98 @@ def metrics(x, rate, midi):
 	f, t, z = signal.stft(x, fs=rate, nperseg=2048, noverlap=1792, boundary=None)
 	p = np.abs(z) ** 2
 	centroid = (f[:, None] * p).sum(axis=0) / np.maximum(p.sum(axis=0), 1e-20)
-	return dict(
-		frequencyHz=round(f0, 2),
-		centroidHz=round(float(np.median(centroid[(t > 0.3) & (t < 1.3)])), 1),
-		harmonicAmplitudes=amps.round(6).tolist(),
-	)
+	return {
+		"frequencyHz": round(f0, 2),
+		"centroidHz": round(float(np.median(centroid[(t > 0.3) & (t < 1.3)])), 1),
+		"harmonicAmplitudes": amps.round(6).tolist(),
+	}
 
 
 def normalise(x):
 	return x * (0.1 / np.sqrt(np.mean(x * x)))
+
+
+def load_variant(input_dir, key, kind, reference, rate):
+	if kind == "reference":
+		return reference
+	wave, sample_rate = sf.read(input_dir / f"{key}-{kind}.wav")
+	if sample_rate != rate:
+		raise ValueError("All timbre comparisons must use the same sample rate")
+	return wave[: 2 * rate]
+
+
+def draw_panel(ax, wave, rate, title, row, col):
+	f, t, z = signal.stft(
+		normalise(wave), fs=rate, nperseg=2048, noverlap=1792, boundary=None
+	)
+	plot = ax.pcolormesh(
+		t,
+		f / 1000,
+		20 * np.log10(np.maximum(np.abs(z), 1e-6)),
+		vmin=-90,
+		vmax=-20,
+		cmap="magma",
+		shading="auto",
+		rasterized=True,
+	)
+	ax.set_ylim(0, 8)
+	ax.set_xlim(0, 2)
+	ax.set_title(title)
+	if col == 0:
+		ax.set_ylabel("Frequency (kHz)")
+	if row == 2:
+		ax.set_xlabel("Seconds from detected onset")
+	return plot
+
+
+def compare_instrument(args, source, midi, segment, row, axes):
+	name = source["name"]
+	path = args.input / (name + ".aiff")
+	load_reference(path, source, args.download)
+	x, rate = sf.read(path)
+	start, end = segments(x, rate)[segment]
+	reference = x[int(start * rate) : int((start + 2) * rate)]
+	key = f"{name}-{midi}"
+	result = {"referenceStart": start, "referenceEnd": end}
+	refamps, _ = harmonics(reference, rate, midi)
+	for col, kind in enumerate(["reference", "baseline", "generated", "soundfont"]):
+		wave = load_variant(args.input, key, kind, reference, rate)
+		values = metrics(wave, rate, midi)
+		values["harmonicL1Distance"] = round(
+			float(np.abs(np.array(values["harmonicAmplitudes"]) - refamps).sum()), 4
+		)
+		result[kind] = values
+		plot = draw_panel(
+			axes[row, col], wave, rate, f"{name.title()} · {kind}", row, col
+		)
+	print(
+		key,
+		[
+			(k, result[k]["harmonicL1Distance"])
+			for k in ["baseline", "generated", "soundfont"]
+		],
+	)
+	return key, result, plot
+
+
+def compare_pitch(args, sources, midi, segment):
+	fig, axes = plt.subplots(
+		3, 4, figsize=(16, 9), layout="constrained", sharex=True, sharey=True
+	)
+	results = {}
+	for row, source in enumerate(sources):
+		key, values, plot = compare_instrument(args, source, midi, segment, row, axes)
+		results[key] = values
+	title = "C5 fit" if midi == 72 else "D5 unfitted interpolation check"
+	fig.suptitle(
+		title + " · each 2 s note RMS = 0.1 · 44.1 kHz · Hann 2048 / hop 256 · dry"
+	)
+	fig.colorbar(
+		plot, ax=axes, label="STFT amplitude (dBFS after RMS matching)", shrink=0.75
+	)
+	fig.savefig(args.output / f"spectrogram-{midi}.png", dpi=120)
+	plt.close(fig)
+	return results
 
 
 def main():
@@ -75,77 +157,7 @@ def main():
 	)
 	results = {}
 	for midi, segment in [(72, 0), (74, 2)]:
-		fig, axes = plt.subplots(
-			3, 4, figsize=(16, 9), layout="constrained", sharex=True, sharey=True
-		)
-		for row, source in enumerate(sources):
-			name = source["name"]
-			path = args.input / (name + ".aiff")
-			if args.download and not path.exists():
-				path.write_bytes(
-					urllib.request.urlopen(source["url"], timeout=90).read()
-				)
-			if hashlib.sha256(path.read_bytes()).hexdigest() != source["sha256"]:
-				raise ValueError(f"Reference changed: {path}")
-			x, rate = sf.read(path)
-			start, end = segments(x, rate)[segment]
-			reference = x[int(start * rate) : int((start + 2) * rate)]
-			key = f"{name}-{midi}"
-			results[key] = {"referenceStart": start, "referenceEnd": end}
-			refamps, _ = harmonics(reference, rate, midi)
-			for col, kind in enumerate(
-				["reference", "baseline", "generated", "soundfont"]
-			):
-				if kind == "reference":
-					wave = reference
-				else:
-					wave, sample_rate = sf.read(args.input / f"{key}-{kind}.wav")
-					assert sample_rate == rate
-					wave = wave[: 2 * rate]
-				values = metrics(wave, rate, midi)
-				values["harmonicL1Distance"] = round(
-					float(
-						np.abs(np.array(values["harmonicAmplitudes"]) - refamps).sum()
-					),
-					4,
-				)
-				results[key][kind] = values
-				f, t, z = signal.stft(
-					normalise(wave), fs=rate, nperseg=2048, noverlap=1792, boundary=None
-				)
-				ax = axes[row, col]
-				plot = ax.pcolormesh(
-					t,
-					f / 1000,
-					20 * np.log10(np.maximum(np.abs(z), 1e-6)),
-					vmin=-90,
-					vmax=-20,
-					cmap="magma",
-					shading="auto",
-					rasterized=True,
-				)
-				ax.set_ylim(0, 8)
-				ax.set_xlim(0, 2)
-				ax.set_title(f"{name.title()} · {kind}")
-				if col == 0:
-					ax.set_ylabel("Frequency (kHz)")
-				if row == 2:
-					ax.set_xlabel("Seconds from detected onset")
-			print(
-				key,
-				[
-					(k, results[key][k]["harmonicL1Distance"])
-					for k in ["baseline", "generated", "soundfont"]
-				],
-			)
-		fig.suptitle(
-			f"{'C5 fit' if midi == 72 else 'D5 held-out pitch'} · each 2 s note RMS = 0.1 · 44.1 kHz · Hann 2048 / hop 256 · dry"
-		)
-		fig.colorbar(
-			plot, ax=axes, label="STFT amplitude (dBFS after RMS matching)", shrink=0.75
-		)
-		fig.savefig(args.output / f"spectrogram-{midi}.png", dpi=120)
-		plt.close(fig)
+		results.update(compare_pitch(args, sources, midi, segment))
 	(args.output / "timbre-metrics.json").write_text(
 		json.dumps(results, indent="\t") + "\n", encoding="utf-8"
 	)

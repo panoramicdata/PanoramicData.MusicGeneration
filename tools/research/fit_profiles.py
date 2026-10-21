@@ -6,11 +6,17 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 from compare_timbres import harmonics, segments
+from research_io import load_reference
 
 root = Path("temp/score-research")
+sources = json.loads(
+	Path(__file__).with_name("instrument-sources.json").read_text(encoding="utf-8")
+)
 rows = []
 for name in ["flute", "violin", "trumpet"]:
-	x, rate = sf.read(root / (name + ".aiff"))
+	path = root / (name + ".aiff")
+	load_reference(path, next(source for source in sources if source["name"] == name))
+	x, rate = sf.read(path)
 	bounds = segments(x, rate)
 	anchors = []
 	for index in [0, 4, 7, 11]:
@@ -19,19 +25,19 @@ for name in ["flute", "violin", "trumpet"]:
 		# The helper measures .3–1.3 s: padding places the 30–140 ms attack there.
 		short = crop[int(0.03 * rate) : int(0.14 * rate)]
 		padded = np.r_[np.zeros(int(0.3 * rate)), short]
-		attack, f0 = harmonics(padded, rate, 72 + index)
+		attack, _ = harmonics(padded, rate, 72 + index)
 		sustain, f0 = harmonics(crop, rate, 72 + index)
 		anchors.append(
-			dict(
-				midi=72 + index,
-				attack=attack.round(6).tolist(),
-				sustain=sustain.round(6).tolist(),
-				frequencyHz=f0,
-				sourceStart=start,
-				sourceEnd=end,
-			)
+			{
+				"midi": 72 + index,
+				"attack": attack.round(6).tolist(),
+				"sustain": sustain.round(6).tolist(),
+				"frequencyHz": f0,
+				"sourceStart": start,
+				"sourceEnd": end,
+			}
 		)
-	rows.append(dict(name=name, anchors=anchors))
+	rows.append({"name": name, "anchors": anchors})
 Path(__file__).with_name("fitted-profiles.json").write_text(
 	json.dumps(rows, indent="\t") + "\n", encoding="utf-8"
 )
@@ -85,7 +91,8 @@ for row in rows:
 		+ "\n\t};\n\n"
 	)
 text += "}\n"
-Path("PanoramicData.MusicGeneration/OrchestralTimbres.cs").write_text(
-	text, encoding="utf-8", newline="\r\n"
-)
+with Path("PanoramicData.MusicGeneration/OrchestralTimbres.cs").open(
+	"w", encoding="utf-8", newline="\r\n"
+) as output:
+	output.write(text)
 print("Wrote three profiles; D5 excluded from fitting.")
