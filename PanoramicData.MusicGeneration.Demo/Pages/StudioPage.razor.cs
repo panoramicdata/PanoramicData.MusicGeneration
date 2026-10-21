@@ -130,11 +130,12 @@ public sealed partial class StudioPage
 	}
 
 	private void Remove(LayerEditor layer) { if (layers.Count > 1) { layers.Remove(layer); MarkDirty(); } }
-	private async Task RandomiseAsync() { seed = Random.Shared.Next(1, 99999); await GenerateAsync(); }
+	private async Task RandomiseAsync() { seed = Random.Shared.Next(1, 99999); MarkDirty(); await GenerateAsync(); }
 	private async Task NewMelodyAsync()
 	{
 		var next = Random.Shared.Next(1, 99999);
 		melodySeed = next == (melodySeed ?? seed) ? next + 1 : next;
+		MarkDirty();
 		await GenerateAsync();
 	}
 
