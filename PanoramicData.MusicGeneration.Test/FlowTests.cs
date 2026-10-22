@@ -61,10 +61,11 @@ public class FlowTests
 	[Fact]
 	public void FlowSettings_RoundTripAndMissingFieldsDefaultToZeroForOldDocuments()
 	{
-		var document = new StudioDocument { Settings = Settings };
+		var document = new StudioDocument { Settings = Settings, Score = ArrangementComposer.Compose(Settings) };
 		var json = JsonSerializer.Serialize(document, StudioJsonContext.Default.StudioDocument);
 		var restored = JsonSerializer.Deserialize(StudioDocumentMigration.ExpandDefaults(json), StudioJsonContext.Default.StudioDocument)!;
 		restored.Settings.Should().BeEquivalentTo(Settings);
+		restored.Score!.Chords.Should().BeEquivalentTo(document.Score!.Chords);
 		var old = JsonSerializer.Deserialize(StudioDocumentMigration.ExpandDefaults("{\"Settings\":{}}"), StudioJsonContext.Default.StudioDocument)!;
 		old.Settings.HarmonicMovement.Should().Be(0);
 		old.Settings.ChromaticColour.Should().Be(0);
