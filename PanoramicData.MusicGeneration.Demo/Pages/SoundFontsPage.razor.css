@@ -1,11 +1,11 @@
 .keyboard-lesson { margin-top: 1rem; }
 .keyboard-scroll { overflow-x: auto; padding-bottom: 0.5rem; }
-.keyboard { position: relative; height: 184px; min-width: 540px; user-select: none; touch-action: manipulation; }
-.piano-key { position: absolute; top: 0; padding: 0; border: 1px solid #596174; border-radius: 0 0 5px 5px; touch-action: manipulation; }
+.keyboard { position: relative; height: 184px; min-width: 540px; user-select: none; touch-action: none; }
+.piano-key { position: absolute; top: 0; padding: 0; border: 1px solid #596174; border-radius: 0 0 5px 5px; touch-action: none; }
 .white { width: 7.14%; height: 180px; background: #edf1f7; color: #172034; z-index: 1; }
 .black { width: 4.57%; height: 116px; background: #151b28; color: #eaf2ff; z-index: 2; }
 .piano-key span { position: absolute; bottom: 8px; left: 0; width: 100%; font-size: 0.7rem; pointer-events: none; }
-.piano-key:active { background: #4cc2ff; }
+.piano-key:active, .piano-key.held { background: #4cc2ff; }
 .piano-key:focus-visible { outline: 3px solid #4cc2ff; outline-offset: -4px; }
 .playing-readout { padding-top: 0.75rem; }
 .envelope { width: min(100%, 500px); height: 115px; margin-top: 0.5rem; }

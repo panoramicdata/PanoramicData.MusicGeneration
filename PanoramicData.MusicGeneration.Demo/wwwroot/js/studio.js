@@ -1,33 +1,3 @@
-let keyboardAudio;
-
-export function keyboardPosition(keyId, clientY) {
-	const bounds = document.getElementById(keyId).getBoundingClientRect();
-	return Math.min(1, Math.max(0, (clientY - bounds.top) / bounds.height));
-}
-
-export async function enableKeyboardAudio() {
-	keyboardAudio ??= new AudioContext();
-	await keyboardAudio.resume();
-}
-
-export async function playKeyboardSample(wav, attack, strength) {
-	await enableKeyboardAudio();
-	const buffer = await keyboardAudio.decodeAudioData(wav.slice().buffer);
-	const source = keyboardAudio.createBufferSource();
-	const gain = keyboardAudio.createGain();
-	source.buffer = buffer;
-	const now = keyboardAudio.currentTime;
-	gain.gain.setValueAtTime(0, now);
-	// Samples are peak-normalised by the renderer. Restore a clear dynamic range
-	// after rendering: the soft end is 5% of the hard-end amplitude (-26 dB).
-	const position = Math.min(1, Math.max(0, strength));
-	const level = 0.55 * (0.05 + 0.95 * position * position);
-	gain.gain.linearRampToValueAtTime(level, now + Math.max(0.002, attack));
-	source.connect(gain).connect(keyboardAudio.destination);
-	source.start(now);
-	source.onended = () => { source.disconnect(); gain.disconnect(); };
-}
-
 function database() {
 	return new Promise((resolve, reject) => {
 		const request = indexedDB.open('panoramicdata-music-studio', 1);
