@@ -1,5 +1,7 @@
 # Arrangement studio
 
+Preset chord accompaniment is mixed 6.02 dB lower than the original defaults (half the linear gain), including stacked orchestral chord parts. Melody, bass, percussion and arpeggio defaults are unchanged. This implements R06's foreground balance guidance. Composer 4 and the note-generation algorithm remain unchanged; existing saved scores/settings keep their explicit layer gains. For an existing song, halve each Chords layer's Gain and render again. The final mix is peak-normalised, so this changes the accompaniment-to-lead balance rather than simply turning down overall playback. Listening feedback still determines whether the balance suits a chosen instrument/ensemble.
+
 The demo's `/soundfonts` lesson sits between pitch and frequency and `/song`, the arrangement studio. Enable sound, choose a sampled instrument and play two octaves with mouse, touch or keyboard. Clicking near the top of a key produces a softer strike and a slower added gain ramp; the bottom produces a stronger strike and faster ramp. MIDI velocity selects playing strength; the extra ramp demonstrates attack separately from the bank's recorded envelope. Space or Enter uses medium strength. The first load downloads the bundled GeneralUser GS bank; subsequent navigation reuses it.
 
 ## Writing a song

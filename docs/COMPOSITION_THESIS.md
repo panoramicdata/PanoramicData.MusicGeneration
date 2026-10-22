@@ -2,7 +2,7 @@
 
 ## A living thesis for PanoramicData.MusicGeneration
 
-Thesis revision **0.2**, 21 October 2026. Companion rule set **0.3.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
+Thesis revision **0.2**, 21 October 2026. Companion rule set **0.3.1** (mix correction, 22 October 2026). This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
 
 **Central proposition:** a convincing composition establishes an audible identity, develops expectations around it, and makes its departures and returns meaningful. Its instruments, harmony, rhythm, form and performance should cooperate in that purpose. Randomness supplies possibilities; selection and relationships give those possibilities direction.
 

@@ -28,7 +28,7 @@ public static class ArrangementPresets
 		Name = name,
 		Pattern = pattern,
 		Program = program,
-		Gain = gain,
+		Gain = pattern == LayerPattern.Chords ? gain * 0.5 : gain,
 		Presence = DefaultPresence(pattern),
 		Bank = pattern is LayerPattern.Kick or LayerPattern.Snare or LayerPattern.HiHat ? 128 : 0
 	};
