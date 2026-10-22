@@ -28,8 +28,8 @@
 		<div class="keyboard-scroll"><div class="keyboard" role="group" aria-label="Two-octave keyboard, C3 to B4">
 			@foreach (var key in Keys)
 			{
-				<button class="@(key.Black ? "piano-key black" : "piano-key white")" style="left:@(key.Left.ToString(System.Globalization.CultureInfo.InvariantCulture))%"
-					aria-label="Play @Pitch.NameOf(key.Midi)" @onpointerdown="e => PlayAsync(key.Midi, key.Black, e.OffsetY)" @onkeydown="e => KeyAsync(key.Midi, e)">
+				<button id="@($"soundfont-key-{key.Midi}")" class="@(key.Black ? "piano-key black" : "piano-key white")" style="left:@(key.Left.ToString(System.Globalization.CultureInfo.InvariantCulture))%"
+					aria-label="Play @Pitch.NameOf(key.Midi)" @onpointerdown="e => PointerAsync(key.Midi, e.ClientY)" @onkeydown="e => KeyAsync(key.Midi, e)">
 					<span>@Pitch.NameOf(key.Midi)</span>
 				</button>
 			}
@@ -80,10 +80,17 @@
 		finally { busy = false; }
 	}
 
-	private async Task PlayAsync(int midi, bool black, double offset)
+	private async Task PointerAsync(int midi, double clientY)
+	{
+		if (module is null) { return; }
+		var position = await module.InvokeAsync<double>("keyboardPosition", $"soundfont-key-{midi}", clientY);
+		await PlayAsync(midi, position);
+	}
+
+	private async Task PlayAsync(int midi, double position)
 	{
 		if (renderer is null || module is null) { return; }
-		var position = Math.Clamp(offset / (black ? 116 : 180), 0, 1);
+		position = Math.Clamp(position, 0, 1);
 		velocity = (int)Math.Round(35 + position * 92);
 		attackMilliseconds = 150 * (1 - position) + 2;
 		var attack = attackMilliseconds / 1000;
@@ -104,13 +111,13 @@
 				if (cache.Count >= 128) { cache.Clear(); }
 				cache[key] = wav;
 			}
-			await module.InvokeVoidAsync("playKeyboardSample", wav, attack, bucket / 127.0);
+			await module.InvokeVoidAsync("playKeyboardSample", wav, attack, position);
 		}
 		catch (OperationCanceledException) { }
 		catch (Exception ex) when (ex is ArgumentException or JSException) { error = ex.Message; }
 	}
 
-	private Task KeyAsync(int midi, KeyboardEventArgs args) => args.Key is "Enter" or " " ? PlayAsync(midi, false, 95) : Task.CompletedTask;
+	private Task KeyAsync(int midi, KeyboardEventArgs args) => args.Key is "Enter" or " " ? PlayAsync(midi, 0.5) : Task.CompletedTask;
 
 	private static IReadOnlyList<PianoKey> BuildKeys()
 	{
