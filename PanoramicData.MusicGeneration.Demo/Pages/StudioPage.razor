@@ -2,6 +2,7 @@
 @implements IAsyncDisposable
 @inject SoundFontBankService Banks
 @inject IJSRuntime JS
+@inject NavigationManager Navigation
 @using PanoramicData.MusicGeneration.SoundFonts
 
 <h1>Build a song</h1>
@@ -22,8 +23,15 @@
 	<button @onclick="GenerateAsync" disabled="@busy">@(busy ? "Working…" : "Generate / render changes")</button>
 	<button class="secondary" @onclick="RandomiseAsync" disabled="@busy">New seed</button>
 	<button class="secondary" @onclick="NewMelodyAsync" disabled="@busy">New melody</button>
+	<button class="secondary" @onclick="CopySongLinkAsync" disabled="@(busy || shareUrl is null)">Copy song link</button>
 	@if (dirty && !busy) { <span class="note">Settings changed. Generate to hear them.</span> }
 	@if (busy) { <div class="render-status" role="status" aria-live="polite"><strong>@status</strong><progress aria-label="@status"></progress></div> }
+</div>
+<div class="card">
+	<label for="song-link">Share this song</label>
+	<input id="song-link" type="text" readonly value="@shareUrl" style="width:100%;box-sizing:border-box" @onclick="SelectSongLinkAsync" />
+	<p class="note">The address follows your settings, including both seeds and every instrument. Opening the link generates the song; press play to listen. @if (dirty) { <span>Generate to hear these settings first.</span> }</p>
+	@if (shareError is not null) { <p role="alert">@shareError</p> }
 </div>
 
 <section class="card composition-panel" aria-label="Composition settings" hidden="@(activeTab == "Instruments")">
@@ -31,7 +39,7 @@
 		<div class="control-heading" aria-hidden="true"><span>Setting</span><span>Control</span><span>What it changes</span></div>
 		<div id="panel-Song" role="tabpanel" aria-labelledby="tab-Song" hidden="@(activeTab != "Song")">
 			<h2>Song</h2>
-			<StudioControl Id="song-title" Title="Song title" Detail="The name used for local saves and downloaded files."><input id="song-title" aria-describedby="song-title-help" @bind="title" maxlength="100" /></StudioControl>
+			<StudioControl Id="song-title" Title="Song title" Detail="The name used for local saves and downloaded files."><input id="song-title" aria-describedby="song-title-help" @bind="title" @bind:after="TitleChanged" maxlength="100" /></StudioControl>
 			<StudioControl Id="song-genre" Title="Genre" Detail="Loads a suggested ensemble, beat, tempo and progression. Each remains editable."><select id="song-genre" aria-describedby="song-genre-help" @bind="genre" @bind:after="ApplyGenre">@foreach (var value in Enum.GetValues<MusicGenre>()) { <option value="@value">@GenreName(value)</option> }</select></StudioControl>
 			<StudioControl Id="song-tempo" Title="Tempo" Detail="The underlying quarter-note pulse. Phrase expression shapes the lead around this pulse."><input id="song-tempo" aria-describedby="song-tempo-help" type="number" min="40" max="220" @bind="tempo" @bind:after="MarkDirty" /><span>bpm</span></StudioControl>
 			<StudioControl Id="song-key" Title="Key" Detail="The tonal home for named progressions and melodic material. Custom chord symbols keep their written pitches."><select id="song-key" aria-describedby="song-key-help" @bind="key" @bind:after="MarkDirty">@for (var i = 0; i < 12; i++) { <option value="@i">@(Pitch.NameOf(60 + i)[..^1])</option> }</select></StudioControl>

@@ -1,3 +1,11 @@
+export async function copySongLink(url) {
+	await navigator.clipboard.writeText(url);
+}
+
+export function selectSongLink() {
+	document.getElementById('song-link')?.select();
+}
+
 function database() {
 	return new Promise((resolve, reject) => {
 		const request = indexedDB.open('panoramicdata-music-studio', 1);

@@ -111,7 +111,7 @@ public sealed partial class StudioPage
 		return bank?.Presets.Where(p => drum ? p.Bank >= 128 : p.Bank < 128) ?? [];
 	}
 
-	private void MarkDirty() { dirty = true; notice = null; }
+	private void MarkDirty() { dirty = true; notice = null; linkPending = true; }
 
 	private void ApplyGenre()
 	{
@@ -187,6 +187,10 @@ public sealed partial class StudioPage
 			await ProgressAsync($"Rendering {p.Layer}… {p.Fraction:P0}");
 			report.Restart();
 		}, token);
+		if (result.Metadata.BankSha256 != StudioSongLink.BankSha256)
+		{
+			throw new InvalidDataException("The installed SoundFont bank differs from the shared-song playback version.");
+		}
 		await ProgressAsync("Preparing the player…");
 		musicModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
 		var next = await musicModule.InvokeAsync<string>("createAudioUrl", result.Song.ToWav());
@@ -194,6 +198,7 @@ public sealed partial class StudioPage
 		rendered = result; score = written; audioUrl = next;
 		renderSeconds = watch.Elapsed.TotalSeconds;
 		dirty = false;
+		linkPending = true;
 		if (previous is not null) { await musicModule.InvokeVoidAsync("revokeAudioUrl", previous); }
 	}
 
@@ -207,10 +212,14 @@ public sealed partial class StudioPage
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!firstRender) { return; }
-		module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
-		await RefreshSavedAsync();
-		await GenerateAsync();
+		if (firstRender)
+		{
+			module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
+			await RefreshSavedAsync();
+			await InitialiseSharingAsync();
+		}
+		else if (sharingReady && !busy && SongToken != lastSongToken) { await RestoreLinkAsync(); }
+		if (sharingReady && !busy && linkPending) { UpdateSongLink(); StateHasChanged(); }
 	}
 
 	private static bool IsStudioError(Exception ex) => ex is ArgumentException or IOException or InvalidDataException or JSException or HttpRequestException or System.Text.Json.JsonException;
