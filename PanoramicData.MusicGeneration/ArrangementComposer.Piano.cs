@@ -110,7 +110,7 @@ public static partial class ArrangementComposer
 		for (var index = 0; index < starts.Length; index++)
 		{
 			var at = starts[index];
-			var time = start + (at + (at % 1 == 0.5 ? settings.Swing : 0)) * beat;
+			var time = start + (at + (NearBeat(at % 1, 0.5) ? settings.Swing : 0)) * beat;
 			var chord = harmony.Last(c => c.StartSeconds <= time + 1e-9);
 			var duration = Math.Min(beat * 0.7, chord.EndSeconds - time);
 			if (duration <= 1e-8) { continue; }
