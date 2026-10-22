@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
-	"version": "0.3.0",
-	"revised": "2026-10-21",
+	"version": "0.3.1",
+	"revised": "2026-10-22",
 	"thesisRevision": "0.2",
 	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
 	"rules": [
@@ -72,7 +72,7 @@
 			"rationale": "Arbitrary layers can mask the hook; silence and answering gestures make relationships audible.",
 			"exception": "Counterpoint and deliberate dense textures can overlap; universal non-overlap is not a rule.",
 			"status": "Partial",
-			"implementation": "Section participation probabilities and fixed answer slots; parts do not generally react to actual lead occupancy.",
+			"implementation": "Section participation probabilities, fixed answer slots and quieter preset chord accompaniment (half gain); parts do not generally react to actual lead occupancy.",
 			"currentLevers": "Instrument layers; per-section presence; occurrence overrides",
 			"plannedLevers": "Foreground priority; density budget; actual-rest responses",
 			"issue": 19
@@ -163,6 +163,11 @@
 		}
 	],
 	"history": [
+		{
+			"version": "0.3.1",
+			"date": "2026-10-22",
+			"changes": "R06 mix correction: halve preset Chords-layer gains to leave the lead more space. Notes/composer version and explicitly saved mix settings are unchanged."
+		},
 		{
 			"version": "0.3.0",
 			"date": "2026-10-21",
