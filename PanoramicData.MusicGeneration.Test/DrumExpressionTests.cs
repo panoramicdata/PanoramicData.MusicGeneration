@@ -88,6 +88,33 @@ public class DrumExpressionTests
 	}
 
 	[Theory]
+	[InlineData(0.2, 3.5, 4)]
+	[InlineData(0.5, 3, 5)]
+	[InlineData(1, 2, 9)]
+	public void FillIntensity_BoundsTheWindowAndStrokeCount(double intensity, double firstBeat, int maximum)
+	{
+		var scores = Enumerable.Range(0, 16).Select(seed => ArrangementComposer.Compose(Settings with { Seed = seed, DrumFills = intensity }));
+		var pickups = new List<double>();
+		foreach (var score in scores)
+		{
+			var snare = score.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Snare).Notes;
+			foreach (var section in score.Sections)
+			{
+				var bars = snare.Where(n => n.SectionIndex == section.Index)
+					.GroupBy(n => (int)Math.Floor((n.StartSeconds - section.StartSeconds) * Settings.Tempo / 240 + 1e-8));
+				foreach (var bar in bars)
+				{
+					bar.Count().Should().BeLessThanOrEqualTo(maximum);
+					var positions = bar.Select(n => (n.StartSeconds - section.StartSeconds) * Settings.Tempo / 60 - bar.Key * 4);
+					pickups.AddRange(positions.Where(p => Math.Abs(p - Math.Round(p)) > 1e-7));
+				}
+			}
+		}
+		pickups.Should().NotBeEmpty();
+		pickups.Should().OnlyContain(p => p >= firstBeat - 1e-7 && p < 4);
+	}
+
+	[Theory]
 	[InlineData(40)]
 	[InlineData(160)]
 	[InlineData(220)]
@@ -123,6 +150,7 @@ public class DrumExpressionTests
 
 	[Theory]
 	[InlineData(double.NaN)]
+	[InlineData(double.PositiveInfinity)]
 	[InlineData(-0.1)]
 	[InlineData(1.1)]
 	public void InvalidDrumControls_AreRejected(double value)
