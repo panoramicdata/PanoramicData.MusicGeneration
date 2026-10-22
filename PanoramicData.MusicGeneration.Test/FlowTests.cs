@@ -34,7 +34,7 @@ public class FlowTests
 	[Fact]
 	public void PhraseExpression_CrossesHarmonyAndLeavesActualSpaceForAnswers()
 	{
-		var settings = Settings with { Layers = [new() { Id = "lead", Pattern = LayerPattern.Melody }, new() { Id = "answer", Pattern = LayerPattern.Countermelody }] };
+		var settings = Settings with { Layers = [new() { Id = "lead", Pattern = LayerPattern.Melody, PianoTwoHands = false }, new() { Id = "answer", Pattern = LayerPattern.Countermelody }] };
 		var score = ArrangementComposer.Compose(settings);
 		var lead = score.Tracks[0].Notes;
 		var answers = score.Tracks[1].Notes;

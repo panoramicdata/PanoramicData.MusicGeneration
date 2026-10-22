@@ -87,6 +87,10 @@
 				<label>Level <input type="range" min="0" max="1.5" step="0.025" @bind="layer.Gain" @bind:after="MarkDirty" /> @layer.Gain.ToString("0.###")</label>
 				<label>Strength <input type="number" min="1" max="127" @bind="layer.Velocity" @bind:after="MarkDirty" /></label>
 				<label>Octave <input type="number" min="-2" max="2" @bind="layer.Octave" @bind:after="MarkDirty" /></label>
+				@if (layer.Bank == 0 && layer.Program <= 7 && layer.Pattern is LayerPattern.Melody or LayerPattern.Arpeggio)
+				{
+					<label>Two-hand piano <input type="checkbox" @bind="layer.PianoTwoHands" @bind:after="MarkDirty" /><span class="note">Quiet left hand and treble intervals; existing piano accompaniment supplies the left hand when present.</span></label>
+				}
 				<div class="layer-actions"><button class="secondary" @onclick="() => Duplicate(layer)">Duplicate</button><button class="secondary" @onclick="() => Remove(layer)" disabled="@(layers.Count == 1)">Remove</button></div>
 				<details class="presence-settings"><summary>Section presence probabilities</summary>
 					<p class="note">One seeded decision for each whole section. 100% always participates; 0% omits the part. Normal rests and the final release still apply. Occurrence overrides take precedence.</p>

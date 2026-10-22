@@ -86,6 +86,8 @@ public sealed record InstrumentLayer
 	public int Octave { get; init; }
 	/// <summary>Whether this layer is audible.</summary>
 	public bool Enabled { get; init; } = true;
+	/// <summary>Add coordinated hands and treble voicings to piano melody/arpeggio parts; ignored for other instruments and roles.</summary>
+	public bool PianoTwoHands { get; init; } = true;
 	/// <summary>Whole-section participation probabilities and occurrence overrides.</summary>
 	public LayerPresence Presence { get; init; } = new();
 	/// <summary>Logical voice for existing note visualisers.</summary>

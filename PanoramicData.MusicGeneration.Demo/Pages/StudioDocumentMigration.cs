@@ -53,6 +53,7 @@ internal static class StudioDocumentMigration
 	private static void InstrumentDefaults(JsonNode? node)
 	{
 		if (node is not JsonObject instrument) { return; }
+		Add(instrument, "PianoTwoHands", JsonValue.Create(false)!);
 		Add(instrument, "Presence", new JsonObject
 		{
 			["Intro"] = 1,

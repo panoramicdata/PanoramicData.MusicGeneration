@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"revised": "2026-10-22",
-	"thesisRevision": "0.3",
+	"thesisRevision": "0.4",
 	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
 	"rules": [
 		{
@@ -84,8 +84,8 @@
 			"rationale": "A sampled instrument does not automatically supply idiomatic performance.",
 			"exception": "Unusual ranges and techniques can be deliberate choices with an explicit override.",
 			"status": "Partial",
-			"implementation": "Selectable sampled instruments plus a separate experimental sample-free flute/violin/trumpet lab with measured register-dependent attack/sustain spectra. Instrument-specific writing and connected articulations remain limited.",
-			"currentLevers": "Instrument; octave; velocity; gain; separate synthetic-note attack/brightness/noise/vibrato experiment",
+			"implementation": "Composer 6 adds coordinated hands and treble dyads/triads to piano melody/arpeggio layers, retaining existing piano accompaniment and quieter inner voices. Sampled instruments and the separate generated-instrument lab remain. Complete fingering, pedals, breathing and instrument transitions remain limited.",
+			"currentLevers": "Instrument; octave; velocity; gain; separate synthetic-note attack/brightness/noise/vibrato experiment; two-hand piano",
 			"plannedLevers": "Playable range; strumming; bowing; breath and transition models",
 			"issue": 16
 		},
@@ -104,7 +104,7 @@
 		{
 			"id": "R09",
 			"title": "Perform phrases with intent",
-			"principle": "Relate stress, dynamics, attack, duration, breathing and timing to the phrase\u0027s role.",
+			"principle": "Relate stress, dynamics, attack, duration, breathing and timing to the phrase's role.",
 			"rationale": "Expression comes from coherent gestures and contrasts rather than arbitrary errors.",
 			"exception": "Mechanical articulation can be a deliberate aesthetic; expressive exaggeration is optional.",
 			"status": "Partial",
@@ -117,7 +117,7 @@
 			"id": "R10",
 			"title": "Finish within the promise",
 			"principle": "Reserve a complete audible outro and its release within the requested length ceiling; finish early when necessary.",
-			"rationale": "An arbitrary cutoff breaks the intended phrase and the user\u0027s duration contract.",
+			"rationale": "An arbitrary cutoff breaks the intended phrase and the user's duration contract.",
 			"exception": "A deliberate abrupt stop is valid when planned and rendered as the ending.",
 			"status": "Implemented constraint",
 			"implementation": "The arranger reserves an outro and completes sections within the ceiling, with fade, cadence, tag or coordinated stop.",
@@ -163,6 +163,11 @@
 		}
 	],
 	"history": [
+		{
+			"version": "0.5.0",
+			"date": "2026-10-22",
+			"changes": "Composer 6 adds piano-specific two-hand textures, treble voicings and an editable per-layer switch (R07/R06). Existing written scores replay unchanged; older settings migrate the new switch to false. See PIANO_WRITING.md."
+		},
 		{
 			"version": "0.4.0",
 			"date": "2026-10-22",

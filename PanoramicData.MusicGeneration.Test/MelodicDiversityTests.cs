@@ -11,7 +11,7 @@ public class MelodicDiversityTests
 		AccompanimentVariation = 0,
 		ProgressionVariation = 0,
 		Variation = 0,
-		Layers = [new() { Id = "lead", Pattern = LayerPattern.Melody }],
+		Layers = [new() { Id = "lead", Pattern = LayerPattern.Melody, PianoTwoHands = false }],
 		Endings = new() { Fade = 0, Cadence = 1, Tag = 0, Stop = 0 }
 	};
 

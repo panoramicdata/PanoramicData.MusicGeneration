@@ -2,7 +2,7 @@
 
 ## A living thesis for PanoramicData.MusicGeneration
 
-Thesis revision **0.3**, 22 October 2026. Companion rule set **0.4.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
+Thesis revision **0.4**, 22 October 2026. Companion rule set **0.5.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
 
 **Central proposition:** a convincing composition establishes an audible identity, develops expectations around it, and makes its departures and returns meaningful. Its instruments, harmony, rhythm, form and performance should cooperate in that purpose. Randomness supplies possibilities; selection and relationships give those possibilities direction.
 
@@ -129,3 +129,7 @@ Composer 4 implements four-bar intro/break sections and a later departure in lon
 The practical response to the rigid bar grid is documented in [Musical flow](MUSICAL_FLOW.md). Harmonic events have independently planned durations; instrument writers retain their own subdivision clocks. A held harmony need not restart a melody or drums. Dissonance can carry a destination, and a sustained note can change harmonic meaning.
 
 Phrase expression uses a bounded two-bar contour, connected durations and prepared/resolving non-chord tones. Answering parts consult actual lead occupancy. These mechanisms support flow; they do not establish that an output is compelling. Listening, selection and revision remain essential. Full tempo maps, instrument-specific transitions and editable long-form phrase intentions remain future work.
+
+## Composer 6: write for a pianist — R07, R06
+
+A piano lead need not be a one-finger melody. [Piano writing](PIANO_WRITING.md) adds quiet left-hand gestures and selected right-hand intervals/chords while retaining the original top line. Existing stride accompaniment supplies the left hand where present. Passing tones and expressive dissonances can remain single notes: two hands do not require every note to become a block chord. The per-layer switch preserves a deliberate single-line texture. This is an initial idiomatic writer, not a complete fingering or pedal model.

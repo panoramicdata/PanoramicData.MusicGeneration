@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration;
 public static partial class ArrangementComposer
 {
 	/// <summary>Written-arrangement algorithm version. Legacy SongGenerator output is unaffected.</summary>
-	public static int Version => 5;
+	public static int Version => 6;
 
 	/// <summary>Validates settings and writes harmony, recurring motifs, rhythm and independent instrumental parts.</summary>
 	public static ArrangedScore Compose(ArrangementSettings settings)
@@ -17,6 +17,7 @@ public static partial class ArrangementComposer
 		var motifs = CreateMotifs(settings);
 		var tracks = settings.Layers.Select(layer => new LayerScore(layer, WritePart(settings, layer, chords, form, participation, motifs))).ToArray();
 		tracks = CoordinateAnswers(settings, tracks, form.Sections);
+		tracks = WritePianoHands(settings, tracks, chords, form.Sections);
 		return new()
 		{
 			Settings = settings,

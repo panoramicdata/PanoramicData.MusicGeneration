@@ -35,7 +35,7 @@ public class ExpressionTests
 		settings.Seconds.Should().Be(210);
 		settings.Variation.Should().Be(0.6);
 		settings.Layers.Should().Contain(l => l.Pattern == LayerPattern.Countermelody && l.Presence.Verse < l.Presence.Chorus);
-		ArrangementComposer.Version.Should().Be(5);
+		ArrangementComposer.Version.Should().Be(6);
 	}
 
 	[Theory]
@@ -113,7 +113,7 @@ public class ExpressionTests
 	public void StraightBeatAnswers_FitTheGapsInTheMainHook()
 	{
 		var settings = Settings;
-		var lead = settings.Layers.Single(l => l.Pattern == LayerPattern.Melody) with { Presence = new() };
+		var lead = settings.Layers.Single(l => l.Pattern == LayerPattern.Melody) with { Presence = new(), PianoTwoHands = false };
 		var answer = lead with { Id = "answer", Pattern = LayerPattern.Countermelody };
 		var score = ArrangementComposer.Compose(settings with { Layers = [lead, answer], PhraseExpression = 1 });
 		var melody = score.Tracks[0].Notes;
