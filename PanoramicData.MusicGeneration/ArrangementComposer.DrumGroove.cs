@@ -20,7 +20,7 @@ public static partial class ArrangementComposer
 		}
 		DrumDecorations(bar, notes, key, fill);
 		WriteDrumFill(bar, notes, fill);
-		if (bar.Settings.DrumFills == 0) { TransitionFill(bar, notes, key); }
+		if (bar.Settings.DrumFills <= 0) { TransitionFill(bar, notes, key); }
 	}
 
 	private static int DrumKey(BarContext bar) => bar.Layer.Pattern switch
@@ -36,7 +36,7 @@ public static partial class ArrangementComposer
 		{
 			return bar.Layer.Pattern != LayerPattern.Kick || at > bar.BeatsPerBar - fill.Length;
 		}
-		if (bar.Layer.Pattern != LayerPattern.HiHat || at != 3.5) { return false; }
+		if (bar.Layer.Pattern != LayerPattern.HiHat || !NearBeat(at, 3.5)) { return false; }
 		return (bar.LocalBar & 1) != 0 && DrumRandom(bar, 2100).NextDouble() < bar.Settings.DrumVariation * 0.2;
 	}
 
@@ -48,13 +48,13 @@ public static partial class ArrangementComposer
 		return OpenHat(bar, at) ? 46 : key;
 	}
 
-	private static bool LandingCrash(BarContext bar, double at) => at == 0 && bar.LocalBar == 0
+	private static bool LandingCrash(BarContext bar, double at) => NearBeat(at, 0) && bar.LocalBar == 0
 		&& bar.Section.Kind == SectionKind.Chorus && DrumRandom(bar, 2101).NextDouble() < bar.Settings.DrumFills;
 
 	private static bool RideCymbal(BarContext bar) => bar.Settings.Beat == MusicBeat.Swing
 		&& bar.Section.Kind == SectionKind.Chorus && DrumRandom(bar, 2102).NextDouble() < bar.Settings.DrumVariation;
 
-	private static bool OpenHat(BarContext bar, double at) => at == 3.5 && (bar.LocalBar & 1) != 0
+	private static bool OpenHat(BarContext bar, double at) => NearBeat(at, 3.5) && (bar.LocalBar & 1) != 0
 		&& DrumRandom(bar, 2103).NextDouble() < bar.Settings.DrumVariation;
 
 	private static void DrumDecorations(BarContext bar, List<NoteEvent> notes, int key, DrumFill fill)

@@ -2,21 +2,24 @@ namespace PanoramicData.MusicGeneration;
 
 public static partial class ArrangementComposer
 {
-	private static void DrumHit(BarContext bar, List<NoteEvent> notes, int midi, double at, double duration, int accent)
+	private static bool NearBeat(double at, double target) => Math.Abs(at - target) < 1e-8;
+
+	private static void DrumHit(BarContext bar, List<NoteEvent> notes, int midi, double at, double duration, int accent, bool straight = false)
 	{
 		var count = notes.Count;
 		Add(bar, notes, midi, at, duration, accent + DrumAccent(bar, at));
 		if (notes.Count == count) { return; }
 		var note = notes[^1];
-		var start = Math.Clamp(note.StartSeconds + DrumTiming(bar, at), bar.Section.StartSeconds, bar.Section.EndSeconds);
-		notes[^1] = note with { StartSeconds = start, DurationSeconds = Math.Min(note.DurationSeconds, bar.Section.EndSeconds - start) };
+		var onset = straight ? bar.StartSeconds + at * bar.BeatSeconds : note.StartSeconds;
+		var start = Math.Clamp(onset + DrumTiming(bar, at), bar.Section.StartSeconds, bar.Section.EndSeconds);
+		notes[^1] = note with { StartSeconds = start, DurationSeconds = Math.Min(duration * bar.BeatSeconds, bar.Section.EndSeconds - start) };
 	}
 
 	private static int DrumAccent(BarContext bar, double at)
 	{
 		var accent = bar.Layer.Pattern switch
 		{
-			LayerPattern.Kick => at == 0 ? 5 : -3,
+			LayerPattern.Kick => NearBeat(at, 0) ? 5 : -3,
 			LayerPattern.Snare => IsBeat(at) ? 8 : -4,
 			_ => IsBeat(at) ? 3 : -5
 		};
@@ -27,7 +30,7 @@ public static partial class ArrangementComposer
 
 	private static double DrumTiming(BarContext bar, double at)
 	{
-		if (at == 0 || bar.Settings.DrumHumanity == 0) { return 0; }
+		if (NearBeat(at, 0) || bar.Settings.DrumHumanity <= 0) { return 0; }
 		if (bar.Layer.Pattern == LayerPattern.Kick && IsBeat(at)) { return 0; }
 		var role = bar.Layer.Pattern == LayerPattern.Snare ? 0.012 : -0.006;
 		var shape = 0.003 * Math.Sin(Math.PI * ((bar.LocalBar % 2) * bar.BeatsPerBar + at) / (bar.BeatsPerBar * 2));

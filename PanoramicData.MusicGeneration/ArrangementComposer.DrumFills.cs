@@ -15,7 +15,7 @@ public static partial class ArrangementComposer
 
 	private static DrumFill DrumFillPlan(BarContext bar)
 	{
-		if (!bar.HasFillPlayer || bar.Section.Kind == SectionKind.Outro || bar.Settings.DrumFills == 0) { return new(0, 0); }
+		if (!bar.HasFillPlayer || bar.Section.Kind == SectionKind.Outro || bar.Settings.DrumFills <= 0) { return new(0, 0); }
 		var ending = bar.LocalBar == bar.Section.Bars - 1;
 		var boundary = (bar.LocalBar + 1) % 4 == 0;
 		if (!ending && !boundary) { return new(0, 0); }
@@ -34,14 +34,14 @@ public static partial class ArrangementComposer
 
 	private static void WriteDrumFill(BarContext bar, List<NoteEvent> notes, DrumFill fill)
 	{
-		if (fill.Length == 0 || bar.Layer.Pattern != LayerPattern.Snare) { return; }
+		if (fill.Length <= 0 || bar.Layer.Pattern != LayerPattern.Snare) { return; }
 		var positions = FillPositions[fill.Shape];
 		for (var i = 0; i < positions.Length; i++)
 		{
 			var at = bar.BeatsPerBar - fill.Length + positions[i] * fill.Length;
 			var key = DrumFillKey(bar, fill.Shape, i, positions.Length);
 			var lift = -20 + (int)Math.Round(22.0 * i / (positions.Length - 1));
-			DrumHit(bar, notes, key, at, 0.1, lift);
+			DrumHit(bar, notes, key, at, 0.1, lift, straight: true);
 		}
 	}
 

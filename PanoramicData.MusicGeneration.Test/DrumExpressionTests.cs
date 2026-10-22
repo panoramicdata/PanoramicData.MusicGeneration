@@ -148,6 +148,19 @@ public class DrumExpressionTests
 		old.Settings.DrumHumanity.Should().Be(0);
 	}
 
+	[Fact]
+	public void FillSubdivisions_AreNotSwungAgainAtExtremeSwing()
+	{
+		var straight = ArrangementComposer.Compose(Settings with { DrumFills = 1, Swing = 0 });
+		var swung = ArrangementComposer.Compose(Settings with { DrumFills = 1, Swing = 0.4 });
+		var verse = straight.Sections.First(s => s.Kind == SectionKind.Verse);
+		var start = verse.EndSeconds - 120.0 / Settings.Tempo;
+		var first = straight.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Snare).Notes.Where(n => n.StartSeconds >= start && n.StartSeconds < verse.EndSeconds);
+		var second = swung.Tracks.Single(t => t.Instrument.Pattern == LayerPattern.Snare).Notes.Where(n => n.StartSeconds >= start && n.StartSeconds < verse.EndSeconds);
+		first.Should().NotBeEmpty();
+		second.Should().Equal(first);
+	}
+
 	[Theory]
 	[InlineData(double.NaN)]
 	[InlineData(double.PositiveInfinity)]
