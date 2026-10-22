@@ -19,11 +19,15 @@ public static partial class ArrangementComposer
 
 	private static void Chords(BarContext bar, List<NoteEvent> notes)
 	{
-		var starts = ChordStarts(bar.Settings.Beat);
-		var sustain = starts.Length == 1 ? bar.BeatsPerBar * 0.95 : 0.35;
-		foreach (var at in starts.Where(at => at < bar.BeatsPerBar))
+		if (ChordStarts(bar.Settings.Beat).Length == 1) { HeldChords(bar, notes); return; }
+		var changes = bar.Harmony.Where(c => c.StartSeconds > bar.StartSeconds && c.StartSeconds < bar.StartSeconds + bar.BeatsPerBar * bar.BeatSeconds)
+			.Select(c => (c.StartSeconds - bar.StartSeconds) / bar.BeatSeconds);
+		foreach (var at in ChordStarts(bar.Settings.Beat).Concat(changes).Distinct().Order().Where(at => at < bar.BeatsPerBar))
 		{
-			foreach (var midi in bar.Voicing) { Add(bar, notes, midi, at, sustain, -12); }
+			if (AccompanimentRest(bar, at)) { continue; }
+			var current = AtHarmony(bar, at);
+			var remaining = (current.Chord.EndSeconds - bar.StartSeconds) / bar.BeatSeconds - at;
+			foreach (var midi in current.Voicing) { Add(current, notes, midi, at, Math.Min(0.35, remaining), -12); }
 		}
 	}
 
@@ -49,19 +53,25 @@ public static partial class ArrangementComposer
 		};
 		for (var index = 0; index < starts.Length; index++)
 		{
-			var pitch = 36 + bar.Chord.Root + (index % 2 != 0 ? bar.Chord.Intervals[2] : 0);
-			Add(bar, notes, pitch, starts[index], 0.8, index == 0 ? 4 : -5);
+			var current = AtHarmony(bar, starts[index]);
+			var pitch = 36 + current.Chord.Root + (index % 2 != 0 ? current.Chord.Intervals[2] : 0);
+			var remaining = (current.Chord.EndSeconds - bar.StartSeconds) / bar.BeatSeconds - starts[index];
+			Add(current, notes, pitch, starts[index], Math.Min(0.8, remaining), index == 0 ? 4 : -5);
 		}
+		BassApproach(bar, notes);
 	}
 
 	private static void Arpeggio(BarContext bar, List<NoteEvent> notes)
 	{
 		for (var step = 0; step < bar.BeatsPerBar * 2; step++)
 		{
-			var index = step % (bar.Voicing.Length * 2 - 2);
-			index = index < bar.Voicing.Length ? index : bar.Voicing.Length * 2 - 2 - index;
-			var pitch = bar.Voicing[index] + (bar.Voicing[index] < 60 ? 12 : 0);
-			Add(bar, notes, pitch, step * 0.5, 0.48, step % 2 == 0 ? -8 : -16);
+			if (AccompanimentRest(bar, step * 0.5)) { continue; }
+			var current = AtHarmony(bar, step * 0.5);
+			var index = step % (current.Voicing.Length * 2 - 2);
+			index = index < current.Voicing.Length ? index : current.Voicing.Length * 2 - 2 - index;
+			if (PhrasePosition(bar) == 2 && FlowChoice(bar, 1520, bar.Settings.AccompanimentVariation)) { index = current.Voicing.Length - 1 - index; }
+			var pitch = current.Voicing[index] + (current.Voicing[index] < 60 ? 12 : 0);
+			Add(current, notes, pitch, step * 0.5, 0.48, step % 2 == 0 ? -8 : -16);
 		}
 	}
 

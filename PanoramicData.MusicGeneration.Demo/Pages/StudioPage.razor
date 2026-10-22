@@ -5,63 +5,76 @@
 @using PanoramicData.MusicGeneration.SoundFonts
 
 <h1>Build a song</h1>
-<p class="lead">Choose a harmonic direction, a groove and an ensemble. Build layers that play different musical parts, then keep the written score or download the audio.</p>
+<p class="lead">Shape an idea, give the harmony direction and choose how the ensemble responds. Each control explains the musical decision it changes.</p>
 
-<section class="card" aria-label="Composition settings">
+<div class="studio-tabs" role="tablist" aria-label="Song controls">
+	@for (var i = 0; i < Tabs.Length; i++)
+	{
+		var index = i;
+		var tab = Tabs[index];
+		<button type="button" @ref="tabButtons[index]" id="@("tab-" + tab)" role="tab" aria-controls="@("panel-" + tab)"
+			aria-selected="@(activeTab == tab ? "true" : "false")" tabindex="@(activeTab == tab ? 0 : -1)"
+			class="@(activeTab == tab ? "selected" : "secondary")" @onclick="() => activeTab = tab" @onkeydown="e => TabKeyAsync(e, index)">@TabTitle(tab)</button>
+	}
+</div>
+
+<div class="studio-actions card">
+	<button @onclick="GenerateAsync" disabled="@busy">@(busy ? "Working…" : "Generate / render changes")</button>
+	<button class="secondary" @onclick="RandomiseAsync" disabled="@busy">New seed</button>
+	<button class="secondary" @onclick="NewMelodyAsync" disabled="@busy">New melody</button>
+	@if (dirty && !busy) { <span class="note">Settings changed. Generate to hear them.</span> }
+	@if (busy) { <div class="render-status" role="status" aria-live="polite"><strong>@status</strong><progress aria-label="@status"></progress></div> }
+</div>
+
+<section class="card composition-panel" aria-label="Composition settings" hidden="@(activeTab == "Instruments")">
 	<fieldset disabled="@busy">
-		<div class="control-row">
-			<label>Song title <input @bind="title" maxlength="100" /></label>
-			<label>Genre <select @bind="genre" @bind:after="ApplyGenre">
-				@foreach (var value in Enum.GetValues<MusicGenre>()) { <option value="@value">@GenreName(value)</option> }
-			</select></label>
-			<label>Beat / rhythm <select @bind="beat" @bind:after="MarkDirty">
-				@foreach (var value in Enum.GetValues<MusicBeat>()) { <option value="@value">@GenreName(value)</option> }
-			</select></label>
-			<label>Tempo <input type="number" min="40" max="220" @bind="tempo" @bind:after="MarkDirty" /> bpm</label>
+		<div class="control-heading" aria-hidden="true"><span>Setting</span><span>Control</span><span>What it changes</span></div>
+		<div id="panel-Song" role="tabpanel" aria-labelledby="tab-Song" hidden="@(activeTab != "Song")">
+			<h2>Song</h2>
+			<StudioControl Id="song-title" Title="Song title" Detail="The name used for local saves and downloaded files."><input id="song-title" aria-describedby="song-title-help" @bind="title" maxlength="100" /></StudioControl>
+			<StudioControl Id="song-genre" Title="Genre" Detail="Loads a suggested ensemble, beat, tempo and progression. Each remains editable."><select id="song-genre" aria-describedby="song-genre-help" @bind="genre" @bind:after="ApplyGenre">@foreach (var value in Enum.GetValues<MusicGenre>()) { <option value="@value">@GenreName(value)</option> }</select></StudioControl>
+			<StudioControl Id="song-tempo" Title="Tempo" Detail="The underlying quarter-note pulse. Phrase expression shapes the lead around this pulse."><input id="song-tempo" aria-describedby="song-tempo-help" type="number" min="40" max="220" @bind="tempo" @bind:after="MarkDirty" /><span>bpm</span></StudioControl>
+			<StudioControl Id="song-key" Title="Key" Detail="The tonal home for named progressions and melodic material. Custom chord symbols keep their written pitches."><select id="song-key" aria-describedby="song-key-help" @bind="key" @bind:after="MarkDirty">@for (var i = 0; i < 12; i++) { <option value="@i">@(Pitch.NameOf(60 + i)[..^1])</option> }</select></StudioControl>
+			<StudioControl Id="song-minor" Title="Minor key" Detail="Uses the minor version of supported progressions and a minor scale for melodic passing notes."><input id="song-minor" aria-describedby="song-minor-help" type="checkbox" @bind="minor" @bind:after="MarkDirty" /></StudioControl>
+			<StudioControl Id="song-length" Title="Length ceiling" Detail="Reserves an outro and finishes complete sections early when needed. Maximum five minutes."><input id="song-length" aria-describedby="song-length-help" type="range" min="6" max="300" step="2" @bind="seconds" @bind:after="MarkDirty" /><output>@(TimeSpan.FromSeconds(seconds).ToString(@"m\:ss"))</output></StudioControl>
+			<details class="advanced-settings"><summary>Reproducibility and seeds</summary>
+				<StudioControl Id="song-seed" Title="Seed" Detail="Reproduces composition decisions within this composer version. New seed makes a new arrangement."><input id="song-seed" aria-describedby="song-seed-help" type="number" @bind="seed" @bind:after="MarkDirty" /></StudioControl>
+				<StudioControl Id="melody-seed" Title="Melody seed" Detail="Blank follows the song seed. A fixed number retains the underlying melodic idea; New melody changes it while keeping harmony and rhythm parts."><input id="melody-seed" aria-describedby="melody-seed-help" type="number" @bind="melodySeed" @bind:after="MarkDirty" placeholder="Auto" /></StudioControl>
+			</details>
 		</div>
-		<p class="note">Choosing a genre loads a suggested ensemble, beat, tempo and progression. You can then override each choice. The templates are starting points, not complete imitations of a musical tradition.</p>
-		<div class="control-row">
-			<label>Key <select @bind="key" @bind:after="MarkDirty">@for (var i = 0; i < 12; i++) { <option value="@i">@(Pitch.NameOf(60 + i)[..^1])</option> }</select></label>
-			<label><input type="checkbox" @bind="minor" @bind:after="MarkDirty" /> Minor key</label>
-			<label>Chord progression <select @bind="progression" @bind:after="MarkDirty">@foreach (var name in ChordProgressions.Names) { <option value="@name">@ProgressionLabel(name)</option> }</select></label>
-			@if (progression == "Custom") { <label>Chord symbols <input @bind="customChords" @bind:after="MarkDirty" placeholder="Cmaj7, Am7, Dm7, G7" maxlength="256" /></label> }
+		<div id="panel-Harmony" role="tabpanel" aria-labelledby="tab-Harmony" hidden="@(activeTab != "Harmony")">
+			<h2>Harmony &amp; melody</h2>
+			<StudioControl Id="harmony-progression" Title="Chord progression" Detail="The underlying chord sequence. Every section derives from this material; the four-chord option is I–V–vi–IV."><select id="harmony-progression" aria-describedby="harmony-progression-help" @bind="progression" @bind:after="MarkDirty">@foreach (var name in ChordProgressions.Names) { <option value="@name">@ProgressionLabel(name)</option> }</select></StudioControl>
+			@if (progression == "Custom") { <StudioControl Id="harmony-symbols" Title="Chord symbols" Detail="Major, minor, sevenths, diminished, augmented and suspended chords. Colour can add approaches; set colour and progression variation to zero for the literal sequence."><input id="harmony-symbols" aria-describedby="harmony-symbols-help" @bind="customChords" @bind:after="MarkDirty" placeholder="Cmaj7, Am7, Dm7, G7" maxlength="256" /></StudioControl> }
+			<p class="chord-preview" aria-label="Selected chords">@ChordPreview</p>
+			<StudioControl Id="harmony-movement" Title="Harmonic movement" Detail="Varies how long chords last: linger on one harmony, then move through shorter changes towards an arrival. Zero uses one chord per bar."><input id="harmony-movement" aria-describedby="harmony-movement-help" type="range" min="0" max="1" step="0.05" @bind="harmonicMovement" @bind:after="MarkDirty" /><output>@harmonicMovement.ToString("P0")</output></StudioControl>
+			<StudioControl Id="harmony-colour" Title="Chromatic colour" Detail="Offers dominant approaches, borrowed minor-subdominant colour and short chromatic melodic approaches at suitable positions. These lead towards a target, rather than adding unrelated accidentals."><input id="harmony-colour" aria-describedby="harmony-colour-help" type="range" min="0" max="1" step="0.05" @bind="chromaticColour" @bind:after="MarkDirty" /><output>@chromaticColour.ToString("P0")</output></StudioControl>
+			<StudioControl Id="harmony-variation" Title="Progression variation" Detail="Offers related substitutions and seventh-chord colours at selected phrase positions. This changes chord choices, while harmonic movement changes their duration."><input id="harmony-variation" aria-describedby="harmony-variation-help" type="range" min="0" max="1" step="0.05" @bind="progressionVariation" @bind:after="MarkDirty" /><output>@progressionVariation.ToString("P0")</output></StudioControl>
+			<StudioControl Id="melody-development" Title="Phrase development" Detail="Later two-bar phrases can change their answer, fragment or invert the idea, and close. Zero repeats the underlying idea."><input id="melody-development" aria-describedby="melody-development-help" type="range" min="0" max="1" step="0.05" @bind="variation" @bind:after="MarkDirty" /><output>@variation.ToString("P0")</output></StudioControl>
 		</div>
-		<p class="chord-preview" aria-label="Selected chords">@ChordPreview</p>
-		<p class="note">The “four chords” choice is the common I–V–vi–IV pattern in a major key, associated with the Axis of Awesome medley. Here it drives original generated parts. Custom symbols support major, minor, seventh, major/minor seventh, diminished, augmented and suspended chords.</p>
-		<div class="control-row">
-			<label>Seed <input type="number" @bind="seed" @bind:after="MarkDirty" /></label>
-			<label>Melody seed <input type="number" @bind="melodySeed" @bind:after="MarkDirty" placeholder="Auto" /></label>
-			<label>Length ceiling <strong>@(TimeSpan.FromSeconds(seconds).ToString(@"m\:ss"))</strong><input type="range" min="6" max="300" step="2" @bind="seconds" @bind:after="MarkDirty" /></label>
-			<label>Swing <input type="range" min="0" max="0.4" step="0.01" @bind="swing" @bind:after="MarkDirty" /> @swing.ToString("P0")</label>
-			<label>Phrase development <input type="range" min="0" max="1" step="0.05" @bind="variation" @bind:after="MarkDirty" /> @variation.ToString("P0")</label>
-			<label><input type="checkbox" @bind="sections" @bind:after="MarkDirty" /> Verse / chorus sections</label>
+		<div id="panel-Expression" role="tabpanel" aria-labelledby="tab-Expression" hidden="@(activeTab != "Expression")">
+			<h2>Groove &amp; expression</h2>
+			<StudioControl Id="groove-beat" Title="Beat / rhythm" Detail="Chooses the accompaniment and percussion vocabulary independently of the genre's starting ensemble."><select id="groove-beat" aria-describedby="groove-beat-help" @bind="beat" @bind:after="MarkDirty">@foreach (var value in Enum.GetValues<MusicBeat>()) { <option value="@value">@GenreName(value)</option> }</select></StudioControl>
+			<StudioControl Id="groove-swing" Title="Swing" Detail="Delays selected offbeats by this fraction of a beat. Zero keeps their straight positions."><input id="groove-swing" aria-describedby="groove-swing-help" type="range" min="0" max="0.4" step="0.01" @bind="swing" @bind:after="MarkDirty" /><output>@swing.ToString("P0")</output></StudioControl>
+			<StudioControl Id="groove-expression" Title="Phrase expression" Detail="Connects melodic notes across bar/chord boundaries, offers prepared suspensions and accented neighbours, and shapes lead timing and dynamics across each phrase. Answer parts seek actual foreground rests."><input id="groove-expression" aria-describedby="groove-expression-help" type="range" min="0" max="1" step="0.05" @bind="phraseExpression" @bind:after="MarkDirty" /><output>@phraseExpression.ToString("P0")</output></StudioControl>
+			<StudioControl Id="groove-accompaniment" Title="Accompaniment variation" Detail="Leaves selected gaps in comping/arpeggios and offers bass approaches towards the next harmony. Supports the phrase without continuously filling every subdivision."><input id="groove-accompaniment" aria-describedby="groove-accompaniment-help" type="range" min="0" max="1" step="0.05" @bind="accompanimentVariation" @bind:after="MarkDirty" /><output>@accompanimentVariation.ToString("P0")</output></StudioControl>
 		</div>
-		<div class="control-row expression-controls">
-			<label>Progression variation <input type="range" min="0" max="1" step="0.05" @bind="progressionVariation" @bind:after="MarkDirty" /> @progressionVariation.ToString("P0")</label>
-			<label>Section contrast <input type="range" min="0" max="1" step="0.05" @bind="sectionContrast" @bind:after="MarkDirty" /> @sectionContrast.ToString("P0")</label>
-			<label>Intro variation <input type="range" min="0" max="1" step="0.05" @bind="introVariation" @bind:after="MarkDirty" /> @introVariation.ToString("P0")</label>
+		<div id="panel-Structure" role="tabpanel" aria-labelledby="tab-Structure" hidden="@(activeTab != "Structure")">
+			<h2>Structure</h2>
+			<StudioControl Id="structure-sections" Title="Verse / chorus sections" Detail="Four two-bar phrases per verse/chorus. Intro and bridge/break are four bars; longer songs place the break later. Very short songs omit sections that cannot fit."><input id="structure-sections" aria-describedby="structure-sections-help" type="checkbox" @bind="sections" @bind:after="MarkDirty" /></StudioControl>
+			<StudioControl Id="structure-contrast" Title="Section contrast" Detail="Derives related verse, bridge and intro variants from your selected cycle. Zero shares the same cycle. Named section cadences follow the selected key."><input id="structure-contrast" aria-describedby="structure-contrast-help" type="range" min="0" max="1" step="0.05" @bind="sectionContrast" @bind:after="MarkDirty" /><output>@sectionContrast.ToString("P0")</output></StudioControl>
+			<StudioControl Id="structure-intro" Title="Intro variation" Detail="Varies the opening teaser and accompaniment build within the four-bar intro."><input id="structure-intro" aria-describedby="structure-intro-help" type="range" min="0" max="1" step="0.05" @bind="introVariation" @bind:after="MarkDirty" /><output>@introVariation.ToString("P0")</output></StudioControl>
+			<p class="note">Ending weights are relative and normalised together. Set the others to zero to force one ending. Every ending reserves an outro and release.</p>
+			<StudioControl Id="ending-fade" Title="Repeat and fade" Detail="Repeats the closing harmony and fades to silence."><input id="ending-fade" aria-describedby="ending-fade-help" type="number" min="0" max="1" step="0.05" @bind="fadeWeight" @bind:after="MarkDirty" /></StudioControl>
+			<StudioControl Id="ending-cadence" Title="Cadence and hold" Detail="A dominant-to-tonic arrival followed by a held ending."><input id="ending-cadence" aria-describedby="ending-cadence-help" type="number" min="0" max="1" step="0.05" @bind="cadenceWeight" @bind:after="MarkDirty" /></StudioControl>
+			<StudioControl Id="ending-tag" Title="Closing tag" Detail="Repeats a short closing idea before landing on tonic."><input id="ending-tag" aria-describedby="ending-tag-help" type="number" min="0" max="1" step="0.05" @bind="tagWeight" @bind:after="MarkDirty" /></StudioControl>
+			<StudioControl Id="ending-stop" Title="Coordinated stop" Detail="Finishes with a planned final hit and a short release."><input id="ending-stop" aria-describedby="ending-stop-help" type="number" min="0" max="1" step="0.05" @bind="stopWeight" @bind:after="MarkDirty" /></StudioControl>
 		</div>
-		<p class="note">Your progression supplies every section's material. Section contrast creates related verse, bridge and intro variants; set contrast and progression variation to zero to repeat the selected cycle. Custom verses/bridges keep their symbols when progression variation is zero. Intro and bridge/break are four bars each; longer songs place the break later. Intro variation changes the teaser and build. Complete sections and an outro take priority over filling the length ceiling; very short songs can omit the intro or break.</p>
-		<p class="note">New melody changes the two-bar melodic idea while keeping the song seed, selected harmony and backing parts. Leave Melody seed blank to follow the song seed, or keep a number to retain an idea as you change other settings. Phrase development adds altered answers, a fragmented inversion and a closing phrase; zero repeats the idea. Pitches still adapt to the chords.</p>
-		<p class="note">A recognisable hook, space for answering parts and changes in texture help give a song direction. <a href="composition">Explore the composition thesis and working rules</a>, including what these controls do today and what we plan to add.</p>
-		<details class="ending-settings"><summary>Ending probabilities</summary>
-			<p class="note">Relative weights, normalised to a total of 100%. Set others to zero to force one ending. Every ending includes an outro and a short audio release.</p>
-			<div class="control-row">
-				<label>Repeat and fade <input type="number" min="0" max="1" step="0.05" @bind="fadeWeight" @bind:after="MarkDirty" /></label>
-				<label>Cadence and hold <input type="number" min="0" max="1" step="0.05" @bind="cadenceWeight" @bind:after="MarkDirty" /></label>
-				<label>Closing tag <input type="number" min="0" max="1" step="0.05" @bind="tagWeight" @bind:after="MarkDirty" /></label>
-				<label>Coordinated stop <input type="number" min="0" max="1" step="0.05" @bind="stopWeight" @bind:after="MarkDirty" /></label>
-			</div>
-		</details>
-		<button @onclick="GenerateAsync">@(busy ? "Working…" : "Generate / render changes")</button>
-		<button class="secondary" @onclick="RandomiseAsync">New seed</button>
-		<button class="secondary" @onclick="NewMelodyAsync">New melody</button>
-		@if (dirty) { <span class="note">Settings changed. Generate to hear them.</span> }
 	</fieldset>
 </section>
 
-<section class="card layer-panel" aria-label="Instrument layers"><details>
-	<summary><strong>Instrument layers</strong> <span class="note">@layers.Count / 24 · expand to edit, add or remove parts</span></summary>
+<section class="card layer-panel" aria-label="Instrument layers" id="panel-Instruments" role="tabpanel" aria-labelledby="tab-Instruments" hidden="@(activeTab != "Instruments")">
+	<h2>Instruments &amp; mix <span class="note">@layers.Count / 24</span></h2>
 	<p class="note">Add any available instrument, even several copies of the same one. Choose what each layer plays. Mute, gain and register edits take effect on the next render.</p>
 	<fieldset disabled="@busy">
 		@foreach (var layer in layers)
@@ -99,9 +112,9 @@
 		}
 		<button class="secondary" @onclick="AddLayer" disabled="@(layers.Count >= 24)">Add instrument layer</button>
 	</fieldset>
-</details></section>
+</section>
 
-@if (busy) { <div class="card" role="status" aria-live="polite"><strong>@status</strong><progress aria-label="@status"></progress></div> }
+
 @if (error is not null) { <p role="alert" class="error">@error</p> }
 @if (notice is not null) { <p role="status">@notice</p> }
 

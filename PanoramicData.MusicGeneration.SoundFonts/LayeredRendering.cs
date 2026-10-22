@@ -123,6 +123,15 @@ public sealed partial class SoundFontRenderer
 			throw new ArgumentException("Invalid chord identity or intervals.", nameof(chord));
 		}
 		if (chord.Intervals.Any(i => i is < 0 or > 11)) { throw new ArgumentException("Chord intervals must lie within an octave.", nameof(chord)); }
+		ValidateChordDescription(chord);
+	}
+
+	private static void ValidateChordDescription(ChordEvent chord)
+	{
+		if (chord.Function?.Length > 100 || chord.ResolvesTo?.Length > 50)
+		{
+			throw new ArgumentException("Chord function and resolution labels must be short.", nameof(chord));
+		}
 	}
 
 	internal static void ValidateMarker(double start, double end, double seconds)

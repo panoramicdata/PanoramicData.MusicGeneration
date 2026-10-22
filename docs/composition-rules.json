@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"revised": "2026-10-22",
-	"thesisRevision": "0.2",
+	"thesisRevision": "0.3",
 	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
 	"rules": [
 		{
@@ -48,9 +48,9 @@
 			"rationale": "A chord list alone does not specify pacing, expectation or melodic meaning.",
 			"exception": "Static harmony and unresolved colour can be intentional; tonic closure is not required at every phrase.",
 			"status": "Partial",
-			"implementation": "Verse/bridge/intro plans derive from the selected cycle, with explicit substitutions/cadences and voice-led voicings. Chords remain bar-sized.",
-			"currentLevers": "Chord progression; custom chords; progression variation; section contrast",
-			"plannedLevers": "Harmonic rhythm; held chords; local key; cadence targets",
+			"implementation": "Variable harmonic spans preserve selected chord order; dominant approaches and borrowed iv name their resolution. Prepared suspensions and resolving neighbours permit purposeful non-chord tones. A bounded tonal vocabulary, not a general modulation model.",
+			"currentLevers": "Chord progression; custom chords; progression variation; section contrast; harmonic movement; chromatic colour",
+			"plannedLevers": "Local key; editable cadence targets; general harmonic grammar",
 			"issue": 9
 		},
 		{
@@ -60,8 +60,8 @@
 			"rationale": "Groove depends on patterned interactions, not a tempo number or independent jitter.",
 			"exception": "Straight and quantised performances are legitimate; swing is a style choice.",
 			"status": "Partial",
-			"implementation": "Beat templates and offbeat delay; no compound-metre model or role-specific timing curves.",
-			"currentLevers": "Beat / rhythm; tempo; swing",
+			"implementation": "Beat templates and swing retain an independent drum grid while lead phrases can lean forward and return to phrase boundaries. A fixed two-bar timing contour, not a tempo map.",
+			"currentLevers": "Beat / rhythm; tempo; swing; phrase expression",
 			"plannedLevers": "Beat grouping; syncopation; role-specific lead/drag",
 			"issue": 17
 		},
@@ -72,9 +72,9 @@
 			"rationale": "Arbitrary layers can mask the hook; silence and answering gestures make relationships audible.",
 			"exception": "Counterpoint and deliberate dense textures can overlap; universal non-overlap is not a rule.",
 			"status": "Partial",
-			"implementation": "Section participation probabilities, fixed answer slots and quieter preset chord accompaniment (half gain); parts do not generally react to actual lead occupancy.",
-			"currentLevers": "Instrument layers; per-section presence; occurrence overrides",
-			"plannedLevers": "Foreground priority; density budget; actual-rest responses",
+			"implementation": "Section participation and quieter chord gains remain. With phrase expression enabled, countermelodies fit actual audible lead gaps. Accompaniment variation adds rests, arpeggio direction changes and bass approaches.",
+			"currentLevers": "Instrument layers; per-section presence; occurrence overrides; accompaniment variation; phrase expression",
+			"plannedLevers": "Foreground priority; density budget; intentional overlapping counterpoint",
 			"issue": 19
 		},
 		{
@@ -104,12 +104,12 @@
 		{
 			"id": "R09",
 			"title": "Perform phrases with intent",
-			"principle": "Relate stress, dynamics, attack, duration, breathing and timing to the phrase's role.",
+			"principle": "Relate stress, dynamics, attack, duration, breathing and timing to the phrase\u0027s role.",
 			"rationale": "Expression comes from coherent gestures and contrasts rather than arbitrary errors.",
 			"exception": "Mechanical articulation can be a deliberate aesthetic; expressive exaggeration is optional.",
 			"status": "Partial",
-			"implementation": "Note velocities and limited phrase/section shaping; no general performance-phrase model.",
-			"currentLevers": "Velocity; gain; swing",
+			"implementation": "Phrase expression coordinates lead timing, velocity, cross-boundary connections, prepared suspensions and resolving neighbours. Common accompaniment tones can tie across harmony. Instrument-specific breathing remains planned.",
+			"currentLevers": "Velocity; gain; swing; phrase expression",
 			"plannedLevers": "Phrase stress; articulation; tempo curves; controlled breathing",
 			"issue": 16
 		},
@@ -117,7 +117,7 @@
 			"id": "R10",
 			"title": "Finish within the promise",
 			"principle": "Reserve a complete audible outro and its release within the requested length ceiling; finish early when necessary.",
-			"rationale": "An arbitrary cutoff breaks the intended phrase and the user's duration contract.",
+			"rationale": "An arbitrary cutoff breaks the intended phrase and the user\u0027s duration contract.",
 			"exception": "A deliberate abrupt stop is valid when planned and rendered as the ending.",
 			"status": "Implemented constraint",
 			"implementation": "The arranger reserves an outro and completes sections within the ceiling, with fade, cadence, tag or coordinated stop.",
@@ -132,8 +132,8 @@
 			"rationale": "Useful authorship requires controllable decisions, understandable interactions and comparisons.",
 			"exception": "A beginner can choose a coherent recipe without adjusting every parameter.",
 			"status": "Partial",
-			"implementation": "Independent harmony, groove, instrument and presence settings; New melody keeps backing parts fixed. Melody seeds, scores and settings are saved; exact-note/section pinning remains planned.",
-			"currentLevers": "Genre; settings controls; local saves; import/export",
+			"implementation": "Five control tabs use setting/control/explanation rows, with generation and playback outside the panels. New flow controls are persisted. New melody keeps backing parts fixed; exact-note pinning remains planned.",
+			"currentLevers": "Genre; settings controls; local saves; import/export; tabbed explanatory controls",
 			"plannedLevers": "Pin material; regenerate selected sections; compare the same score",
 			"issue": 6
 		},
@@ -163,6 +163,11 @@
 		}
 	],
 	"history": [
+		{
+			"version": "0.4.0",
+			"date": "2026-10-22",
+			"changes": "Composer 5: variable harmonic timing, directed colour, connected phrases, actual-rest answers and accompaniment variation (R04/R05/R06/R09); tabbed explanatory controls (R11). Old written scores replay their notes; regeneration uses composer 5. See MUSICAL_FLOW.md."
+		},
 		{
 			"version": "0.3.1",
 			"date": "2026-10-22",

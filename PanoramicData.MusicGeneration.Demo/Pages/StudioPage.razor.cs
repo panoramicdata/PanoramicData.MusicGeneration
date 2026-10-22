@@ -23,6 +23,10 @@ public sealed partial class StudioPage
 	private double progressionVariation = 0.35;
 	private double sectionContrast = 1;
 	private double introVariation = 0.65;
+	private double harmonicMovement = 0.65;
+	private double chromaticColour = 0.3;
+	private double phraseExpression = 0.65;
+	private double accompanimentVariation = 0.5;
 	private double fadeWeight = 0.35;
 	private double cadenceWeight = 0.35;
 	private double tagWeight = 0.2;
@@ -63,6 +67,10 @@ public sealed partial class StudioPage
 		ProgressionVariation = progressionVariation,
 		SectionContrast = sectionContrast,
 		IntroVariation = introVariation,
+		HarmonicMovement = harmonicMovement,
+		ChromaticColour = chromaticColour,
+		PhraseExpression = phraseExpression,
+		AccompanimentVariation = accompanimentVariation,
 		Endings = new() { Fade = fadeWeight, Cadence = cadenceWeight, Tag = tagWeight, Stop = stopWeight },
 		Sections = sections,
 		Layers = [.. layers.Select(l => l.ToLayer())]
@@ -103,6 +111,8 @@ public sealed partial class StudioPage
 	{
 		var preset = ArrangementPresets.ForGenre(genre);
 		beat = preset.Beat; tempo = preset.Tempo; progression = preset.Progression; swing = preset.Swing; variation = preset.Variation;
+		harmonicMovement = preset.HarmonicMovement; chromaticColour = preset.ChromaticColour;
+		phraseExpression = preset.PhraseExpression; accompanimentVariation = preset.AccompanimentVariation;
 		layers = [.. preset.Layers.Select(l => new LayerEditor(l))];
 		MarkDirty();
 	}

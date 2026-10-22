@@ -16,7 +16,7 @@ public static partial class ArrangementComposer
 				result.Add(new(chord.Symbol, chord.Root, chord.Intervals, start, Math.Min(start + bar, section.EndSeconds)));
 			}
 		}
-		return result;
+		return ColourHarmony(settings, ShapeHarmony(settings, result, form), form);
 	}
 
 	private static IReadOnlyList<ChordDefinition> SectionChords(ArrangementSettings settings, SectionKind kind)

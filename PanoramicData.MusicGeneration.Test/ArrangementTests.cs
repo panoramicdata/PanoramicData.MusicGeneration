@@ -124,6 +124,8 @@ public class ArrangementTests
 		var settings = ArrangementPresets.ForGenre(MusicGenre.Pop) with
 		{
 			Seconds = 40,
+			HarmonicMovement = 0,
+			ChromaticColour = 0,
 			IntroVariation = 0,
 			ProgressionVariation = 0,
 			Endings = new() { Fade = 0, Cadence = 1, Tag = 0, Stop = 0 }

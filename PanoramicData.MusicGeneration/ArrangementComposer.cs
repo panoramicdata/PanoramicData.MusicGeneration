@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration;
 public static partial class ArrangementComposer
 {
 	/// <summary>Written-arrangement algorithm version. Legacy SongGenerator output is unaffected.</summary>
-	public static int Version => 4;
+	public static int Version => 5;
 
 	/// <summary>Validates settings and writes harmony, recurring motifs, rhythm and independent instrumental parts.</summary>
 	public static ArrangedScore Compose(ArrangementSettings settings)
@@ -16,6 +16,7 @@ public static partial class ArrangementComposer
 		var participation = PlanParticipation(settings, form.Sections);
 		var motifs = CreateMotifs(settings);
 		var tracks = settings.Layers.Select(layer => new LayerScore(layer, WritePart(settings, layer, chords, form, participation, motifs))).ToArray();
+		tracks = CoordinateAnswers(settings, tracks, form.Sections);
 		return new()
 		{
 			Settings = settings,
@@ -104,24 +105,34 @@ public static partial class ArrangementComposer
 	{
 		var notes = new List<NoteEvent>();
 		var previous = new[] { 48 + settings.Key, 52 + settings.Key, 55 + settings.Key };
-		for (var index = 0; index < chords.Count; index++)
+		var index = 0;
+		foreach (var section in form.Sections)
 		{
-			var chord = chords[index];
-			var section = form.Sections.First(s => chord.StartSeconds >= s.StartSeconds - 1e-9 && chord.StartSeconds < s.EndSeconds - 1e-9);
 			if (!participation.Single(p => p.LayerId == layer.Id && p.SectionIndex == section.Index).Present) { continue; }
-			var voicing = VoiceLead(chord, previous);
-			previous = voicing;
-			WriteBar(new(settings, layer, chord, section, index, voicing, form.Ending, motifs), notes);
+			for (var local = 0; local < section.Bars; local++)
+			{
+				var start = section.StartSeconds + local * Beats(settings) * 60.0 / settings.Tempo;
+				var chord = chords.Last(c => c.StartSeconds <= start + 1e-9);
+				var voicing = VoiceLead(chord, previous);
+				previous = voicing;
+				WriteBar(new(settings, layer, chord, section, index++, voicing, form.Ending, motifs)
+				{
+					StartSeconds = start,
+					Harmony = chords
+				}, notes);
+			}
 		}
-		return notes;
+		return SeparateRepeatedNotes(notes);
 	}
 
 	private sealed record BarContext(ArrangementSettings Settings, InstrumentLayer Layer, ChordEvent Chord,
 		SectionEvent Section, int Index, int[] Voicing, EndingPlan Ending, IReadOnlyList<MelodyMotif> Motifs)
 	{
+		public double StartSeconds { get; init; }
+		public IReadOnlyList<ChordEvent> Harmony { get; init; } = [];
 		public int BeatsPerBar => ArrangementComposer.Beats(Settings);
 		public double BeatSeconds => 60.0 / Settings.Tempo;
-		public int LocalBar => (int)Math.Round((Chord.StartSeconds - Section.StartSeconds) / (BeatsPerBar * BeatSeconds));
+		public int LocalBar => (int)Math.Round((StartSeconds - Section.StartSeconds) / (BeatsPerBar * BeatSeconds));
 	}
 
 	private static int[] VoiceLead(ChordEvent chord, int[] previous)
@@ -141,12 +152,12 @@ public static partial class ArrangementComposer
 	private static void Add(BarContext bar, List<NoteEvent> notes, int midi, double at, double duration, int accent)
 	{
 		var delayed = Math.Abs(at % 1 - 0.5) < 0.01 ? bar.Settings.Swing : 0;
-		var start = bar.Chord.StartSeconds + (at + delayed) * bar.BeatSeconds;
-		var end = Math.Min(bar.Chord.EndSeconds, start + duration * bar.BeatSeconds);
+		var start = PerformedTime(bar, at + delayed);
+		var end = Math.Min(bar.Section.EndSeconds, PerformedTime(bar, at + delayed + duration));
 		if (start >= end) { return; }
 		var drum = bar.Layer.Voice is VoiceKind.Kick or VoiceKind.Snare or VoiceKind.HiHat;
 		midi = Math.Clamp(midi + (drum ? 0 : bar.Layer.Octave * 12), 0, 127);
-		var lift = DynamicLift(bar);
+		var lift = DynamicLift(bar) + PhraseAccent(bar, at);
 		notes.Add(new(bar.Layer.Voice, start, end - start, midi, drum ? 0 : Pitch.FrequencyOf(midi))
 		{
 			SectionIndex = bar.Section.Index,

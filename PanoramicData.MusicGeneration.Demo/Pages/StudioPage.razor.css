@@ -18,3 +18,13 @@ progress { display: block; width: 100%; margin-top: 0.5rem; }
 .presence-settings { grid-column: 1 / -1; min-width: 0; width: 100%; }
 .ending-settings { margin-bottom: 1rem; }
 .expression-controls { margin-top: 1rem; }
+.studio-tabs { display: flex; gap: 0.4rem; overflow-x: auto; padding: 0.5rem 0; margin-bottom: 0.6rem; }
+.studio-tabs button { white-space: nowrap; flex: 0 0 auto; }
+.studio-tabs .selected { outline: 2px solid var(--accent); outline-offset: -2px; }
+.studio-actions { position: sticky; top: 0.5rem; z-index: 5; display: flex; flex-direction: row; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; box-shadow: 0 4px 16px #0004; }
+.render-status { width: 100%; }
+.composition-panel, .layer-panel { --setting-columns: minmax(9rem, 0.8fr) minmax(12rem, 1.1fr) minmax(15rem, 1.6fr); }
+.control-heading { display: grid; grid-template-columns: var(--setting-columns); gap: 1rem; color: var(--muted); font-size: 0.85rem; }
+[hidden] { display: none !important; }
+.advanced-settings { margin-top: 1rem; }
+@media (max-width: 750px) { .control-heading { display: none; } .studio-actions { top: 0; padding: 0.7rem; } }

@@ -1,0 +1,12 @@
+<div class="setting-row">
+	<label for="@Id">@Title</label>
+	<div class="setting-input">@ChildContent</div>
+	<p id="@(Id + "-help")">@Detail</p>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public string Id { get; set; } = "";
+	[Parameter, EditorRequired] public string Title { get; set; } = "";
+	[Parameter, EditorRequired] public string Detail { get; set; } = "";
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+}

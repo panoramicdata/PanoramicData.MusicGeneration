@@ -5,6 +5,10 @@ public class MelodicDiversityTests
 	private static ArrangementSettings Settings => ArrangementPresets.ForGenre(MusicGenre.Pop) with
 	{
 		IntroVariation = 0,
+		HarmonicMovement = 0,
+		ChromaticColour = 0,
+		PhraseExpression = 0,
+		AccompanimentVariation = 0,
 		ProgressionVariation = 0,
 		Variation = 0,
 		Layers = [new() { Id = "lead", Pattern = LayerPattern.Melody }],
