@@ -36,6 +36,9 @@ internal static class StudioDocumentMigration
 		Add(settings, "ChromaticColour", JsonValue.Create(0.0)!);
 		Add(settings, "PhraseExpression", JsonValue.Create(0.0)!);
 		Add(settings, "AccompanimentVariation", JsonValue.Create(0.0)!);
+		Add(settings, "DrumVariation", JsonValue.Create(0.0)!);
+		Add(settings, "DrumFills", JsonValue.Create(0.0)!);
+		Add(settings, "DrumHumanity", JsonValue.Create(0.0)!);
 		Add(settings, "Endings", new JsonObject { ["Fade"] = 0.35, ["Cadence"] = 0.35, ["Tag"] = 0.2, ["Stop"] = 0.1 });
 		if (settings["Endings"] is JsonObject ending)
 		{

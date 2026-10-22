@@ -27,6 +27,9 @@ public sealed partial class StudioPage
 	private double chromaticColour = 0.3;
 	private double phraseExpression = 0.65;
 	private double accompanimentVariation = 0.5;
+	private double drumVariation = 0.55;
+	private double drumFills = 0.6;
+	private double drumHumanity = 0.6;
 	private double fadeWeight = 0.35;
 	private double cadenceWeight = 0.35;
 	private double tagWeight = 0.2;
@@ -71,6 +74,9 @@ public sealed partial class StudioPage
 		ChromaticColour = chromaticColour,
 		PhraseExpression = phraseExpression,
 		AccompanimentVariation = accompanimentVariation,
+		DrumVariation = drumVariation,
+		DrumFills = drumFills,
+		DrumHumanity = drumHumanity,
 		Endings = new() { Fade = fadeWeight, Cadence = cadenceWeight, Tag = tagWeight, Stop = stopWeight },
 		Sections = sections,
 		Layers = [.. layers.Select(l => l.ToLayer())]
@@ -113,6 +119,7 @@ public sealed partial class StudioPage
 		beat = preset.Beat; tempo = preset.Tempo; progression = preset.Progression; swing = preset.Swing; variation = preset.Variation;
 		harmonicMovement = preset.HarmonicMovement; chromaticColour = preset.ChromaticColour;
 		phraseExpression = preset.PhraseExpression; accompanimentVariation = preset.AccompanimentVariation;
+		drumVariation = preset.DrumVariation; drumFills = preset.DrumFills; drumHumanity = preset.DrumHumanity;
 		layers = [.. preset.Layers.Select(l => new LayerEditor(l))];
 		MarkDirty();
 	}

@@ -80,9 +80,18 @@ public static partial class ArrangementComposer
 	private static void Drums(BarContext bar, List<NoteEvent> notes)
 	{
 		if (bar.Settings.Beat is MusicBeat.Waltz or MusicBeat.Arpeggio) { return; }
+		if (bar.Settings.DrumVariation + bar.Settings.DrumFills + bar.Settings.DrumHumanity > 0)
+		{
+			ExpressiveDrums(bar, notes);
+			return;
+		}
+		LiteralDrums(bar, notes);
+	}
+
+	private static void LiteralDrums(BarContext bar, List<NoteEvent> notes)
+	{
 		var starts = DrumStarts(bar.Settings.Beat, bar.Layer.Pattern);
-		var key = bar.Layer.Pattern switch { LayerPattern.Kick => 36, LayerPattern.Snare => 38, _ => 42 };
-		if (bar.Settings.Beat == MusicBeat.BossaNova && key == 38) { key = 37; }
+		var key = DrumKey(bar);
 		foreach (var at in starts) { Add(bar, notes, key, at, 0.18, IsBeat(at) ? 0 : -16); }
 		TransitionFill(bar, notes, key);
 	}

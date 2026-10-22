@@ -35,7 +35,7 @@ public class ExpressionTests
 		settings.Seconds.Should().Be(210);
 		settings.Variation.Should().Be(0.6);
 		settings.Layers.Should().Contain(l => l.Pattern == LayerPattern.Countermelody && l.Presence.Verse < l.Presence.Chorus);
-		ArrangementComposer.Version.Should().Be(6);
+		ArrangementComposer.Version.Should().Be(7);
 	}
 
 	[Theory]

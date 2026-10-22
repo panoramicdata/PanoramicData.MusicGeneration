@@ -2,7 +2,7 @@
 
 ## A living thesis for PanoramicData.MusicGeneration
 
-Thesis revision **0.4**, 22 October 2026. Companion rule set **0.5.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
+Thesis revision **0.5**, 22 October 2026. Companion rule set **0.6.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
 
 **Central proposition:** a convincing composition establishes an audible identity, develops expectations around it, and makes its departures and returns meaningful. Its instruments, harmony, rhythm, form and performance should cooperate in that purpose. Randomness supplies possibilities; selection and relationships give those possibilities direction.
 
@@ -133,3 +133,7 @@ Phrase expression uses a bounded two-bar contour, connected durations and prepar
 ## Composer 6: write for a pianist — R07, R06
 
 A piano lead need not be a one-finger melody. [Piano writing](PIANO_WRITING.md) adds quiet left-hand gestures and selected right-hand intervals/chords while retaining the original top line. Existing stride accompaniment supplies the left hand where present. Passing tones and expressive dissonances can remain single notes: two hands do not require every note to become a block chord. The per-layer switch preserves a deliberate single-line texture. This is an initial idiomatic writer, not a complete fingering or pedal model.
+
+## Composer 7: a drummer follows the phrase — R05, R06, R09
+
+[Drum expression](DRUM_EXPRESSION.md) separates small groove variations, landmark fills and performance touch. The kit shares a fill plan, leaves space for the player performing it and grows towards an arrival. Kick anchors preserve pulse while bounded snare/hat placement shapes the relationship between parts. These are contextual original templates, not measured drummer profiles; turning the controls down remains a valid aesthetic choice. Saved written scores retain their earlier performance.

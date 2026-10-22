@@ -104,6 +104,7 @@ public partial class StudioPage
 		progressionVariation = settings.ProgressionVariation; sectionContrast = settings.SectionContrast; introVariation = settings.IntroVariation;
 		harmonicMovement = settings.HarmonicMovement; chromaticColour = settings.ChromaticColour;
 		phraseExpression = settings.PhraseExpression; accompanimentVariation = settings.AccompanimentVariation;
+		drumVariation = settings.DrumVariation; drumFills = settings.DrumFills; drumHumanity = settings.DrumHumanity;
 		fadeWeight = settings.Endings.Fade; cadenceWeight = settings.Endings.Cadence; tagWeight = settings.Endings.Tag; stopWeight = settings.Endings.Stop;
 		layers = [.. settings.Layers.Select(l => new LayerEditor(l))];
 		MarkDirty();

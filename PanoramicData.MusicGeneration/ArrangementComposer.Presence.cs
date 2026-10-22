@@ -31,6 +31,9 @@ public static partial class ArrangementComposer
 		Range(settings.ChromaticColour, 0, 1, "Chromatic colour");
 		Range(settings.PhraseExpression, 0, 1, "Phrase expression");
 		Range(settings.AccompanimentVariation, 0, 1, "Accompaniment variation");
+		Range(settings.DrumVariation, 0, 1, "Drum variation");
+		Range(settings.DrumFills, 0, 1, "Drum fills");
+		Range(settings.DrumHumanity, 0, 1, "Drum humanity");
 	}
 
 	private static void ValidatePresence(LayerPresence presence)

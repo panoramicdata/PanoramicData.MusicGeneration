@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"revised": "2026-10-22",
-	"thesisRevision": "0.4",
+	"thesisRevision": "0.5",
 	"scope": "Working composition principles. Implementation status describes the current arranger, not universal musical truth.",
 	"rules": [
 		{
@@ -60,8 +60,8 @@
 			"rationale": "Groove depends on patterned interactions, not a tempo number or independent jitter.",
 			"exception": "Straight and quantised performances are legitimate; swing is a style choice.",
 			"status": "Partial",
-			"implementation": "Beat templates and swing retain an independent drum grid while lead phrases can lean forward and return to phrase boundaries. A fixed two-bar timing contour, not a tempo map.",
-			"currentLevers": "Beat / rhythm; tempo; swing; phrase expression",
+			"implementation": "Composer 7 adds song-seeded two-bar drum gestures, ghosts, cymbal articulation and shared phrase/section fill plans. Bounded role timing places snare behind and hats ahead while retaining kick anchors. Existing beat/swing and lead contours remain; this is not a tempo map.",
+			"currentLevers": "Beat / rhythm; tempo; swing; phrase expression; drum variation; drum fills; drum humanity",
 			"plannedLevers": "Beat grouping; syncopation; role-specific lead/drag",
 			"issue": 17
 		},
@@ -72,7 +72,7 @@
 			"rationale": "Arbitrary layers can mask the hook; silence and answering gestures make relationships audible.",
 			"exception": "Counterpoint and deliberate dense textures can overlap; universal non-overlap is not a rule.",
 			"status": "Partial",
-			"implementation": "Section participation and quieter chord gains remain. With phrase expression enabled, countermelodies fit actual audible lead gaps. Accompaniment variation adds rests, arpeggio direction changes and bass approaches.",
+			"implementation": "Section participation and quieter chord gains remain. With phrase expression enabled, countermelodies fit actual audible lead gaps. Accompaniment variation adds rests, arpeggio direction changes and bass approaches. Drum fills replace rather than stack regular strokes; hats leave space only when an audible snare player participates.",
 			"currentLevers": "Instrument layers; per-section presence; occurrence overrides; accompaniment variation; phrase expression",
 			"plannedLevers": "Foreground priority; density budget; intentional overlapping counterpoint",
 			"issue": 19
@@ -108,8 +108,8 @@
 			"rationale": "Expression comes from coherent gestures and contrasts rather than arbitrary errors.",
 			"exception": "Mechanical articulation can be a deliberate aesthetic; expressive exaggeration is optional.",
 			"status": "Partial",
-			"implementation": "Phrase expression coordinates lead timing, velocity, cross-boundary connections, prepared suspensions and resolving neighbours. Common accompaniment tones can tie across harmony. Instrument-specific breathing remains planned.",
-			"currentLevers": "Velocity; gain; swing; phrase expression",
+			"implementation": "Phrase expression coordinates lead timing, velocity, cross-boundary connections, prepared suspensions and resolving neighbours. Common accompaniment tones can tie across harmony. Instrument-specific breathing remains planned. Drum humanity adds role accents, quiet ghosts, phrase touch and fill crescendos with bounded timing.",
+			"currentLevers": "Velocity; gain; swing; phrase expression; drum humanity; drum fills",
 			"plannedLevers": "Phrase stress; articulation; tempo curves; controlled breathing",
 			"issue": 16
 		},
@@ -163,6 +163,11 @@
 		}
 	],
 	"history": [
+		{
+			"version": "0.6.0",
+			"date": "2026-10-22",
+			"changes": "Composer 7 adds coordinated drum variation, snare/tom/triplet fills, cymbal articulation, phrase dynamics and bounded role timing with independent controls (R05/R06/R09). Saved notes retain replay; older settings migrate the new controls to zero. See DRUM_EXPRESSION.md."
+		},
 		{
 			"version": "0.5.0",
 			"date": "2026-10-22",

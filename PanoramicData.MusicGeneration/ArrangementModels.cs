@@ -141,6 +141,12 @@ public sealed record ArrangementSettings
 	public double PhraseExpression { get; init; } = 0.65;
 	/// <summary>Probability of accompaniment rests, altered gestures and bass approaches at eligible positions, 0–1.</summary>
 	public double AccompanimentVariation { get; init; } = 0.5;
+	/// <summary>Probability of small two-bar drum variations, ghost notes and cymbal articulations, 0–1.</summary>
+	public double DrumVariation { get; init; } = 0.55;
+	/// <summary>Chance and scope of phrase/section drum fills, 0–1; zero retains the earlier two-hit verse pickup.</summary>
+	public double DrumFills { get; init; } = 0.6;
+	/// <summary>Strength of drum accents, phrase dynamics and bounded role-specific timing, 0–1.</summary>
+	public double DrumHumanity { get; init; } = 0.6;
 	/// <summary>Relative weights for the four implemented ending types.</summary>
 	public EndingWeights Endings { get; init; } = new();
 	/// <summary>Chance of developing later two-bar phrases through changed answers, fragmentation/inversion and closure, 0–1.</summary>

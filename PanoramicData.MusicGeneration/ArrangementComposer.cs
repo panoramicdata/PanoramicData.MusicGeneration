@@ -4,7 +4,7 @@ namespace PanoramicData.MusicGeneration;
 public static partial class ArrangementComposer
 {
 	/// <summary>Written-arrangement algorithm version. Legacy SongGenerator output is unaffected.</summary>
-	public static int Version => 6;
+	public static int Version => 7;
 
 	/// <summary>Validates settings and writes harmony, recurring motifs, rhythm and independent instrumental parts.</summary>
 	public static ArrangedScore Compose(ArrangementSettings settings)
@@ -109,6 +109,7 @@ public static partial class ArrangementComposer
 		foreach (var section in form.Sections)
 		{
 			if (!participation.Single(p => p.LayerId == layer.Id && p.SectionIndex == section.Index).Present) { continue; }
+			var fillPlayer = FillPlayerAvailable(settings, participation, section.Index);
 			for (var local = 0; local < section.Bars; local++)
 			{
 				var start = section.StartSeconds + local * Beats(settings) * 60.0 / settings.Tempo;
@@ -117,7 +118,8 @@ public static partial class ArrangementComposer
 				previous = voicing;
 				WriteBar(new(settings, layer, chord, section, local, voicing, form.Ending, motifs)
 				{
-					Harmony = chords
+					Harmony = chords,
+					HasFillPlayer = fillPlayer
 				}, notes);
 			}
 		}
@@ -129,6 +131,7 @@ public static partial class ArrangementComposer
 	{
 		public double StartSeconds => Section.StartSeconds + LocalBar * BeatsPerBar * 60.0 / Settings.Tempo;
 		public IReadOnlyList<ChordEvent> Harmony { get; init; } = [];
+		public bool HasFillPlayer { get; init; } = true;
 		public int BeatsPerBar => ArrangementComposer.Beats(Settings);
 		public double BeatSeconds => 60.0 / Settings.Tempo;
 	}
