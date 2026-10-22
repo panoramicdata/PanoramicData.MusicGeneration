@@ -75,10 +75,15 @@ public static partial class ArrangementComposer
 		if (!IsBeat(at) || at < 0.5 || !FlowChoice(bar, 1610 + (int)at, bar.Settings.ChromaticColour)) { return; }
 		var start = PerformedTime(bar, at - 0.25);
 		if (notes.Any(n => n.StartSeconds + n.DurationSeconds > start)) { return; }
-		var scale = bar.Settings.Minor ? MinorMelodicScale : MajorMelodicScale;
-		var neighbours = new[] { pitch - 1, pitch + 1 }.Where(p => p >= 48 && p <= 72 && !scale.Contains((p - bar.Settings.Key + 120) % 12));
-		var approach = neighbours.Select(p => (int?)p).FirstOrDefault();
+		var approach = ChromaticApproachPitch(bar.Settings, pitch);
 		if (approach.HasValue) { Add(bar, notes, approach.Value, at - 0.25, 0.2, -14); }
+	}
+
+	private static int? ChromaticApproachPitch(ArrangementSettings settings, int pitch)
+	{
+		var scale = settings.Minor ? MinorMelodicScale : MajorMelodicScale;
+		return new[] { pitch - 1, pitch + 1 }.Where(p => p >= 48 && p <= 72 && !scale.Contains((p - settings.Key + 120) % 12))
+			.Select(p => (int?)p).FirstOrDefault();
 	}
 
 	private static bool IsChordPitch(ChordEvent chord, int pitch) => chord.Intervals.Contains((pitch - chord.Root + 120) % 12);

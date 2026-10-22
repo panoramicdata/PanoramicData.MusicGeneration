@@ -105,7 +105,6 @@ public static partial class ArrangementComposer
 	{
 		var notes = new List<NoteEvent>();
 		var previous = new[] { 48 + settings.Key, 52 + settings.Key, 55 + settings.Key };
-		var index = 0;
 		foreach (var section in form.Sections)
 		{
 			if (!participation.Single(p => p.LayerId == layer.Id && p.SectionIndex == section.Index).Present) { continue; }
@@ -115,9 +114,8 @@ public static partial class ArrangementComposer
 				var chord = chords.Last(c => c.StartSeconds <= start + 1e-9);
 				var voicing = VoiceLead(chord, previous);
 				previous = voicing;
-				WriteBar(new(settings, layer, chord, section, index++, voicing, form.Ending, motifs)
+				WriteBar(new(settings, layer, chord, section, local, voicing, form.Ending, motifs)
 				{
-					StartSeconds = start,
 					Harmony = chords
 				}, notes);
 			}
@@ -126,13 +124,12 @@ public static partial class ArrangementComposer
 	}
 
 	private sealed record BarContext(ArrangementSettings Settings, InstrumentLayer Layer, ChordEvent Chord,
-		SectionEvent Section, int Index, int[] Voicing, EndingPlan Ending, IReadOnlyList<MelodyMotif> Motifs)
+		SectionEvent Section, int LocalBar, int[] Voicing, EndingPlan Ending, IReadOnlyList<MelodyMotif> Motifs)
 	{
-		public double StartSeconds { get; init; }
+		public double StartSeconds => Section.StartSeconds + LocalBar * BeatsPerBar * 60.0 / Settings.Tempo;
 		public IReadOnlyList<ChordEvent> Harmony { get; init; } = [];
 		public int BeatsPerBar => ArrangementComposer.Beats(Settings);
 		public double BeatSeconds => 60.0 / Settings.Tempo;
-		public int LocalBar => (int)Math.Round((StartSeconds - Section.StartSeconds) / (BeatsPerBar * BeatSeconds));
 	}
 
 	private static int[] VoiceLead(ChordEvent chord, int[] previous)
