@@ -23,13 +23,13 @@
 	{
 		<div class="control-row"><label>Instrument <select @bind="program" disabled="@busy">
 			@foreach (var preset in renderer.Presets.Where(p => p.Bank == 0)) { <option value="@preset.Program">@preset.Name</option> }
-		</select></label><label>Note length <input type="range" min="0.3" max="2" step="0.1" @bind="length" /> @length.ToString("0.0") s</label></div>
+		</select></label></div>
 		<p><strong>Top of key: soft / slow attack.</strong> <span class="note">Bottom: hard / fast attack. Touch and mouse use the same position mapping.</span></p>
-		<div class="keyboard-scroll"><div class="keyboard" role="group" aria-label="Two-octave keyboard, C3 to B4">
+		<div class="keyboard-scroll"><div @ref="keyboardElement" class="keyboard" role="group" aria-label="Two-octave keyboard, C3 to B4">
 			@foreach (var key in Keys)
 			{
-				<button class="@(key.Black ? "piano-key black" : "piano-key white")" style="left:@(key.Left.ToString(System.Globalization.CultureInfo.InvariantCulture))%"
-					aria-label="Play @Pitch.NameOf(key.Midi)" @onpointerdown="e => PlayAsync(key.Midi, key.Black, e.OffsetY)" @onkeydown="e => KeyAsync(key.Midi, e)">
+				<button id="@($"soundfont-key-{key.Midi}")" class="@(key.Black ? "piano-key black" : "piano-key white")" style="left:@(key.Left.ToString(System.Globalization.CultureInfo.InvariantCulture))%"
+					data-midi="@key.Midi" aria-label="Play @Pitch.NameOf(key.Midi)">
 					<span>@Pitch.NameOf(key.Midi)</span>
 				</button>
 			}
@@ -40,7 +40,7 @@
 			<polyline points="20,75 @(20 + attackMilliseconds),15 220,35 330,35 385,75" fill="none" stroke="#4cc2ff" stroke-width="3" />
 			<text x="25" y="92" fill="currentColor">note on</text><text x="300" y="92" fill="currentColor">release</text>
 		</svg>
-		<p class="note">Space or Enter plays a focused key at medium strength. Several notes can overlap. This is a sample-based lesson, not a measurement of your keyboard's physical strike speed.</p>
+		<p class="note">Hold a key with mouse or touch; releasing it starts the instrument’s release. Hold Space or Enter on a focused key for medium strength. Several notes can overlap. Piano strings decay while held; lifting the key applies the damper. This is a sample-based lesson, not a measurement of your keyboard's physical strike speed.</p>
 	}
 	@if (error is not null) { <p role="alert">@error</p> }
 </section>
@@ -56,13 +56,16 @@
 	private IJSObjectReference? module;
 	private bool busy;
 	private int program;
-	private double length = 1;
+	private ElementReference keyboardElement;
 	private string lastNote = "Choose a note";
 	private int velocity = 80;
 	private double attackMilliseconds = 45;
 	private string? error;
-	private readonly Dictionary<string, byte[]> cache = [];
-	private readonly CancellationTokenSource cancellation = new();
+	private readonly Dictionary<string, SoundFontKeyboardVoice> voices = [];
+	private IJSObjectReference? keyboard;
+	private DotNetObjectReference<SoundFontsPage>? callbacks;
+	private bool disposed;
+	private bool connecting;
 	private static readonly IReadOnlyList<PianoKey> Keys = BuildKeys();
 	private sealed record PianoKey(int Midi, bool Black, double Left);
 
@@ -72,7 +75,7 @@
 		error = null;
 		try
 		{
-			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
+			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/keyboard.js");
 			await module.InvokeVoidAsync("enableKeyboardAudio");
 			renderer = await Banks.GetAsync();
 		}
@@ -80,37 +83,47 @@
 		finally { busy = false; }
 	}
 
-	private async Task PlayAsync(int midi, bool black, double offset)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (renderer is null || module is null) { return; }
-		var position = Math.Clamp(offset / (black ? 116 : 180), 0, 1);
-		velocity = (int)Math.Round(35 + position * 92);
-		attackMilliseconds = 150 * (1 - position) + 2;
-		var attack = attackMilliseconds / 1000;
-		lastNote = Pitch.NameOf(midi);
-		var bucket = Math.Clamp((int)Math.Round(velocity / 16.0) * 16, 1, 127);
-		velocity = bucket;
-		var key = $"{program}:{midi}:{bucket}:{length}";
-		try
-		{
-			if (!cache.TryGetValue(key, out var wav))
-			{
-				var score = new GeneratedSong(new(0, 120, "Major", 36, 0, 0), new float[(int)((length + 0.4) * 22050)], 22050,
-					[new(VoiceKind.Melody, 0, length, midi, Pitch.FrequencyOf(midi)) { Velocity = bucket }]);
-				var options = new SoundFontRenderOptions();
-				options = options with { Parts = [.. options.Parts.Select(p => p.Voice == VoiceKind.Melody ? p with { Program = program, Velocity = 100 } : p)] };
-				var result = await renderer.RenderAsync(score, options, null, cancellation.Token);
-				wav = result.Song.ToWav();
-				if (cache.Count >= 128) { cache.Clear(); }
-				cache[key] = wav;
-			}
-			await module.InvokeVoidAsync("playKeyboardSample", wav, attack, bucket / 127.0);
-		}
-		catch (OperationCanceledException) { }
-		catch (Exception ex) when (ex is ArgumentException or JSException) { error = ex.Message; }
+		if (renderer is null || module is null || keyboard is not null || connecting || disposed) { return; }
+		connecting = true;
+		callbacks = DotNetObjectReference.Create(this);
+		keyboard = await module.InvokeAsync<IJSObjectReference>("createKeyboard", keyboardElement, callbacks);
 	}
 
-	private Task KeyAsync(int midi, KeyboardEventArgs args) => args.Key is "Enter" or " " ? PlayAsync(midi, false, 95) : Task.CompletedTask;
+	[JSInvokable]
+	public async Task<bool> StartKeyboardVoice(string id, int midi, double position)
+	{
+		if (renderer is null || disposed || voices.Count >= 24) { return false; }
+		position = Math.Clamp(position, 0, 1);
+		velocity = Math.Clamp((int)Math.Round((35 + position * 92) / 16.0) * 16, 1, 127);
+		attackMilliseconds = 150 * (1 - position) + 2;
+		lastNote = Pitch.NameOf(midi);
+		voices[id] = renderer.CreateKeyboardVoice(program, midi, velocity);
+		await InvokeAsync(StateHasChanged);
+		return true;
+	}
+
+	[JSInvokable]
+	public byte[] RenderKeyboardVoice(string id, bool released)
+	{
+		if (disposed || !voices.TryGetValue(id, out var voice)) { return []; }
+		if (released) { voice.Release(); }
+		var samples = voice.Render(882);
+		var bytes = new byte[samples.Length * sizeof(float)];
+		Buffer.BlockCopy(samples, 0, bytes, 0, bytes.Length);
+		return bytes;
+	}
+
+	[JSInvokable]
+	public void StopKeyboardVoice(string id) => voices.Remove(id);
+
+	[JSInvokable]
+	public Task KeyboardError(string message)
+	{
+		error = message;
+		return InvokeAsync(StateHasChanged);
+	}
 
 	private static IReadOnlyList<PianoKey> BuildKeys()
 	{
@@ -127,8 +140,10 @@
 
 	public async ValueTask DisposeAsync()
 	{
-		await cancellation.CancelAsync();
-		cancellation.Dispose();
+		disposed = true;
+		if (keyboard is not null) { await keyboard.InvokeVoidAsync("dispose"); await keyboard.DisposeAsync(); }
+		voices.Clear();
+		callbacks?.Dispose();
 		if (module is not null) { await module.DisposeAsync(); }
 	}
 }

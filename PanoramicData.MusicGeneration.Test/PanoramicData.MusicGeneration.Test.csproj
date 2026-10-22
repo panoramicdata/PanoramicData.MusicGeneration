@@ -35,6 +35,7 @@
 		<!-- Exercise the demo's actual source-generated JSON contract without a WebAssembly project dependency. -->
 		<Compile Include="..\PanoramicData.MusicGeneration.Demo\Pages\StudioModels.cs" Link="DemoContract\StudioModels.cs" />
 		<Compile Include="..\PanoramicData.MusicGeneration.Demo\Pages\StudioDocumentMigration.cs" Link="DemoContract\StudioDocumentMigration.cs" />
+		<Compile Include="..\PanoramicData.MusicGeneration.Demo\Pages\StudioSongLink.cs" Link="DemoContract\StudioSongLink.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

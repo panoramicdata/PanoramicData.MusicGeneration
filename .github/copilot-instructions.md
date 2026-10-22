@@ -14,6 +14,7 @@
 ## Static analysis
 
 - New or modified library methods must satisfy Codacy's limits: at most 8 parameters, cyclomatic complexity 8, and 50 lines of code. Split responsibilities into helpers while preserving random-number draw order and both golden hashes.
+- Before merging, inspect Codacy's complete pull-request delta against its target branch. A clean head-commit delta only compares that commit and can miss findings introduced by earlier commits in the same PR.
 
 ## Composition design
 

@@ -12,6 +12,7 @@ Deterministic, seeded music generation for .NET. A **seed** becomes a whole song
 - **Ground truth included.** Every note and drum hit comes back with its start, length, MIDI note and rendered frequency.
 - **Dependency-free procedural core.** The original renderer synthesises sine waves and noise. Optional SoundFont rendering uses caller-supplied samples with their own asset licences.
 - **Arrangement studio.** Choose known chord progressions, independent genre/rhythm templates and up to 24 instrument layers; save written scores locally and download WAV or MP3 in the demo.
+- **Shareable songs.** The studio address carries every setting and both seeds. Copy a song link to regenerate the same arrangement with compatible composer/playback versions; see [song links](docs/SONG_LINKS.md).
 - **Educational.** The demo site explains the maths: equal temperament, harmonics, envelopes, noise and the random number generator.
 
 > **Try it in your browser:** the demo runs the whole library locally (once published, at the address shown in the repository's About box). See [docs/DEMO.md](docs/DEMO.md).

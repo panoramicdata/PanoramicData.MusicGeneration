@@ -10,6 +10,10 @@ public class ExpressionTests
 		Tempo = 160,
 		Swing = 0.1,
 		IntroVariation = 0,
+		HarmonicMovement = 0,
+		ChromaticColour = 0,
+		PhraseExpression = 0,
+		AccompanimentVariation = 0,
 		ProgressionVariation = 0,
 		SectionContrast = 1,
 		Endings = new() { Fade = 0, Cadence = 1, Tag = 0, Stop = 0 }
@@ -31,7 +35,7 @@ public class ExpressionTests
 		settings.Seconds.Should().Be(210);
 		settings.Variation.Should().Be(0.6);
 		settings.Layers.Should().Contain(l => l.Pattern == LayerPattern.Countermelody && l.Presence.Verse < l.Presence.Chorus);
-		ArrangementComposer.Version.Should().Be(4);
+		ArrangementComposer.Version.Should().Be(7);
 	}
 
 	[Theory]
@@ -109,9 +113,9 @@ public class ExpressionTests
 	public void StraightBeatAnswers_FitTheGapsInTheMainHook()
 	{
 		var settings = Settings;
-		var lead = settings.Layers.Single(l => l.Pattern == LayerPattern.Melody) with { Presence = new() };
+		var lead = settings.Layers.Single(l => l.Pattern == LayerPattern.Melody) with { Presence = new(), PianoTwoHands = false };
 		var answer = lead with { Id = "answer", Pattern = LayerPattern.Countermelody };
-		var score = ArrangementComposer.Compose(settings with { Layers = [lead, answer] });
+		var score = ArrangementComposer.Compose(settings with { Layers = [lead, answer], PhraseExpression = 1 });
 		var melody = score.Tracks[0].Notes;
 		var responses = score.Tracks[1].Notes.Where(n => score.Sections[n.SectionIndex!.Value].Kind is SectionKind.Verse or SectionKind.Chorus).ToArray();
 		responses.Should().NotBeEmpty();

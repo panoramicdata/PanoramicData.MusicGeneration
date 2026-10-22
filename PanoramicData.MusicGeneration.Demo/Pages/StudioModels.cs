@@ -21,6 +21,7 @@ internal sealed class LayerEditor
 		Id = layer.Id; Name = layer.Name; Pattern = layer.Pattern; Bank = layer.Bank;
 		Program = layer.Program; Velocity = layer.Velocity; Gain = layer.Gain; Octave = layer.Octave; Enabled = layer.Enabled;
 		Presence = new(layer.Presence);
+		PianoTwoHands = layer.PianoTwoHands;
 	}
 	public string Id { get; set; }
 	public string Name { get; set; }
@@ -31,6 +32,7 @@ internal sealed class LayerEditor
 	public double Gain { get; set; }
 	public int Octave { get; set; }
 	public bool Enabled { get; set; }
+	public bool PianoTwoHands { get; set; }
 	public PresenceEditor Presence { get; }
 	public int Preset { get => Bank * 128 + Program; set { Bank = value / 128; Program = value % 128; } }
 	public InstrumentLayer ToLayer() => new()
@@ -44,6 +46,7 @@ internal sealed class LayerEditor
 		Gain = Gain,
 		Octave = Octave,
 		Enabled = Enabled,
+		PianoTwoHands = PianoTwoHands,
 		Presence = Presence.ToPresence()
 	};
 }

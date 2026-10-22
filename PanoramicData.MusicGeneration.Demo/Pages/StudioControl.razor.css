@@ -1,0 +1,11 @@
+.setting-row { display: grid; grid-template-columns: var(--setting-columns, minmax(9rem, 0.8fr) minmax(12rem, 1.1fr) minmax(15rem, 1.6fr)); gap: 1rem; align-items: center; padding: 0.8rem 0; border-top: 1px solid var(--line); }
+label { font-weight: 600; }
+.setting-input { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; min-width: 0; }
+.setting-input ::deep input, .setting-input ::deep select { max-width: 100%; box-sizing: border-box; }
+.setting-input ::deep input[type=range] { flex: 1; min-width: 5rem; }
+.setting-input ::deep input:not([type]), .setting-input ::deep select { width: 100%; }
+p { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+@media (max-width: 750px) {
+	.setting-row { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+	.setting-input ::deep input[type=range] { max-width: 20rem; }
+}

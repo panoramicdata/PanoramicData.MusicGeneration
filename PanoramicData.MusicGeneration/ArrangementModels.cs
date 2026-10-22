@@ -86,6 +86,8 @@ public sealed record InstrumentLayer
 	public int Octave { get; init; }
 	/// <summary>Whether this layer is audible.</summary>
 	public bool Enabled { get; init; } = true;
+	/// <summary>Add coordinated hands and treble voicings to piano melody/arpeggio parts; ignored for other instruments and roles.</summary>
+	public bool PianoTwoHands { get; init; } = true;
 	/// <summary>Whole-section participation probabilities and occurrence overrides.</summary>
 	public LayerPresence Presence { get; init; } = new();
 	/// <summary>Logical voice for existing note visualisers.</summary>
@@ -131,6 +133,20 @@ public sealed record ArrangementSettings
 	public double SectionContrast { get; init; } = 1;
 	/// <summary>Hook teaser and accompaniment build variation within the four-bar intro, 0–1.</summary>
 	public double IntroVariation { get; init; } = 0.65;
+	/// <summary>Chance of shaping a four-bar harmonic phrase with held and faster-moving chords, 0–1.</summary>
+	public double HarmonicMovement { get; init; } = 0.65;
+	/// <summary>Probability of a prepared dominant/borrowed chord or melodic embellishment at eligible positions, 0–1.</summary>
+	public double ChromaticColour { get; init; } = 0.3;
+	/// <summary>Strength of melodic tension, connected articulation, phrase dynamics and shaped timing, 0–1.</summary>
+	public double PhraseExpression { get; init; } = 0.65;
+	/// <summary>Probability of accompaniment rests, altered gestures and bass approaches at eligible positions, 0–1.</summary>
+	public double AccompanimentVariation { get; init; } = 0.5;
+	/// <summary>Probability of small two-bar drum variations, ghost notes and cymbal articulations, 0–1.</summary>
+	public double DrumVariation { get; init; } = 0.55;
+	/// <summary>Chance and scope of phrase/section drum fills, 0–1; zero retains the earlier two-hit verse pickup.</summary>
+	public double DrumFills { get; init; } = 0.6;
+	/// <summary>Strength of drum accents, phrase dynamics and bounded role-specific timing, 0–1.</summary>
+	public double DrumHumanity { get; init; } = 0.6;
 	/// <summary>Relative weights for the four implemented ending types.</summary>
 	public EndingWeights Endings { get; init; } = new();
 	/// <summary>Chance of developing later two-bar phrases through changed answers, fragmentation/inversion and closure, 0–1.</summary>
@@ -142,7 +158,13 @@ public sealed record ArrangementSettings
 }
 
 /// <summary>A chord occurrence with explicit pitches and performed boundaries.</summary>
-public sealed record ChordEvent(string Symbol, int Root, IReadOnlyList<int> Intervals, double StartSeconds, double EndSeconds);
+public sealed record ChordEvent(string Symbol, int Root, IReadOnlyList<int> Intervals, double StartSeconds, double EndSeconds)
+{
+	/// <summary>Optional explanatory harmonic function; does not control rendering saved notes.</summary>
+	public string? Function { get; init; }
+	/// <summary>Optional chord symbol toward which an approach chord resolves.</summary>
+	public string? ResolvesTo { get; init; }
+}
 
 /// <summary>Written notes belonging to one instrument layer.</summary>
 public sealed record LayerScore(InstrumentLayer Instrument, IReadOnlyList<NoteEvent> Notes);

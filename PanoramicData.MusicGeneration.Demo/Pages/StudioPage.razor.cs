@@ -23,6 +23,13 @@ public sealed partial class StudioPage
 	private double progressionVariation = 0.35;
 	private double sectionContrast = 1;
 	private double introVariation = 0.65;
+	private double harmonicMovement = 0.65;
+	private double chromaticColour = 0.3;
+	private double phraseExpression = 0.65;
+	private double accompanimentVariation = 0.5;
+	private double drumVariation = 0.55;
+	private double drumFills = 0.6;
+	private double drumHumanity = 0.6;
 	private double fadeWeight = 0.35;
 	private double cadenceWeight = 0.35;
 	private double tagWeight = 0.2;
@@ -63,6 +70,13 @@ public sealed partial class StudioPage
 		ProgressionVariation = progressionVariation,
 		SectionContrast = sectionContrast,
 		IntroVariation = introVariation,
+		HarmonicMovement = harmonicMovement,
+		ChromaticColour = chromaticColour,
+		PhraseExpression = phraseExpression,
+		AccompanimentVariation = accompanimentVariation,
+		DrumVariation = drumVariation,
+		DrumFills = drumFills,
+		DrumHumanity = drumHumanity,
 		Endings = new() { Fade = fadeWeight, Cadence = cadenceWeight, Tag = tagWeight, Stop = stopWeight },
 		Sections = sections,
 		Layers = [.. layers.Select(l => l.ToLayer())]
@@ -97,12 +111,15 @@ public sealed partial class StudioPage
 		return bank?.Presets.Where(p => drum ? p.Bank >= 128 : p.Bank < 128) ?? [];
 	}
 
-	private void MarkDirty() { dirty = true; notice = null; }
+	private void MarkDirty() { dirty = true; notice = null; linkPending = true; }
 
 	private void ApplyGenre()
 	{
 		var preset = ArrangementPresets.ForGenre(genre);
 		beat = preset.Beat; tempo = preset.Tempo; progression = preset.Progression; swing = preset.Swing; variation = preset.Variation;
+		harmonicMovement = preset.HarmonicMovement; chromaticColour = preset.ChromaticColour;
+		phraseExpression = preset.PhraseExpression; accompanimentVariation = preset.AccompanimentVariation;
+		drumVariation = preset.DrumVariation; drumFills = preset.DrumFills; drumHumanity = preset.DrumHumanity;
 		layers = [.. preset.Layers.Select(l => new LayerEditor(l))];
 		MarkDirty();
 	}
@@ -170,6 +187,10 @@ public sealed partial class StudioPage
 			await ProgressAsync($"Rendering {p.Layer}… {p.Fraction:P0}");
 			report.Restart();
 		}, token);
+		if (result.Metadata.BankSha256 != StudioSongLink.BankSha256)
+		{
+			throw new InvalidDataException("The installed SoundFont bank differs from the shared-song playback version.");
+		}
 		await ProgressAsync("Preparing the player…");
 		musicModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
 		var next = await musicModule.InvokeAsync<string>("createAudioUrl", result.Song.ToWav());
@@ -177,6 +198,7 @@ public sealed partial class StudioPage
 		rendered = result; score = written; audioUrl = next;
 		renderSeconds = watch.Elapsed.TotalSeconds;
 		dirty = false;
+		linkPending = true;
 		if (previous is not null) { await musicModule.InvokeVoidAsync("revokeAudioUrl", previous); }
 	}
 
@@ -190,10 +212,14 @@ public sealed partial class StudioPage
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!firstRender) { return; }
-		module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
-		await RefreshSavedAsync();
-		await GenerateAsync();
+		if (firstRender)
+		{
+			module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
+			await RefreshSavedAsync();
+			await InitialiseSharingAsync();
+		}
+		else if (sharingReady && !busy && SongToken != lastSongToken) { await RestoreLinkAsync(); }
+		if (sharingReady && !busy && linkPending) { UpdateSongLink(); StateHasChanged(); }
 	}
 
 	private static bool IsStudioError(Exception ex) => ex is ArgumentException or IOException or InvalidDataException or JSException or HttpRequestException or System.Text.Json.JsonException;

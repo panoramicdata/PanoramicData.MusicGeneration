@@ -17,8 +17,9 @@ public static partial class ArrangementComposer
 			var tone = tones[i];
 			var at = tone.Beat - offset;
 			var degree = DevelopedDegree(bar, tone.Degree, i == tones.Length - 1);
-			var pitch = MelodyPitch(bar, RegisteredTarget(bar, degree), IsBeat(at));
-			Add(bar, notes, pitch, at, LeadDuration(bar, tone, at), tone.Accent);
+			var current = AtHarmony(bar, at);
+			var pitch = MelodyPitch(current, RegisteredTarget(bar, degree), IsBeat(at));
+			WriteLeadTone(current, notes, tone, pitch, i == tones.Length - 1);
 		}
 	}
 
@@ -58,13 +59,6 @@ public static partial class ArrangementComposer
 
 	private static bool SecondMotifBar(BarContext bar) => (bar.LocalBar & 1) != 0;
 
-	private static double LeadDuration(BarContext bar, MotifTone tone, double at)
-	{
-		var limit = bar.BeatsPerBar - (SecondMotifBar(bar) ? AnswerSpace(bar.Settings) : 0);
-		var delay = Math.Abs(at % 1 - 0.5) < 0.01 ? bar.Settings.Swing : 0;
-		return Math.Max(0, Math.Min(tone.DurationBeats, limit - at - delay));
-	}
-
 	private static void WriteAnswer(BarContext bar, List<NoteEvent> notes, MelodyMotif motif)
 	{
 		if (!SecondMotifBar(bar)) { return; }
@@ -74,7 +68,8 @@ public static partial class ArrangementComposer
 		{
 			var at = start + i * AnswerSpace(bar.Settings) / 2;
 			var target = RegisteredTarget(bar, motif.Notes[^(i + 1)].Degree - 2);
-			Add(bar, notes, MelodyPitch(bar, target, IsBeat(at)), at, AnswerSpace(bar.Settings) * 0.35, -12);
+			var current = AtHarmony(bar, at);
+			Add(current, notes, MelodyPitch(current, target, IsBeat(at)), at, AnswerSpace(bar.Settings) * 0.35, -12);
 		}
 	}
 

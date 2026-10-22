@@ -2,7 +2,7 @@
 
 ## A living thesis for PanoramicData.MusicGeneration
 
-Thesis revision **0.2**, 21 October 2026. Companion rule set **0.3.1** (mix correction, 22 October 2026). This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
+Thesis revision **0.5**, 22 October 2026. Companion rule set **0.6.0**. This is a working design thesis, not an academic qualification, a universal account of music or a claim that the generator already implements its proposals.
 
 **Central proposition:** a convincing composition establishes an audible identity, develops expectations around it, and makes its departures and returns meaningful. Its instruments, harmony, rhythm, form and performance should cooperate in that purpose. Randomness supplies possibilities; selection and relationships give those possibilities direction.
 
@@ -123,3 +123,17 @@ The app presents the rule catalogue with current and planned capabilities distin
 The [score and timbre study](SCORE_AND_TIMBRE_STUDY.md) adds thirteen parsed MIDI references and reproducible orchestral spectrogram comparisons. Our dense orchestral preset still changes activity little; this supports prioritising independent phrase roles and entrances over track count. Score-derived MIDI and unverified popular arrangements must not be mistaken for recorded human performances. Fixed-duration density windows are diagnostics, not musical-quality measures.
 
 Composer 4 implements four-bar intro/break sections and a later departure in longer songs (R03/R08), retaining the complete-ending constraint. A separate sample-free instrument experiment supplies attack/sustain and register-dependent spectra plus noise, envelope and pitch parameters (R07). Unfitted-note results are mixed, especially flute; fitted spectral resemblance cannot establish perceptual equivalence. R13 requires independent recordings, articulations and blind listening before claiming realism. Existing saved scores replay their written events; the experiment does not replace the sampled studio renderer.
+
+## Composer 5: relationships across boundaries — R04, R05, R06, R09, R11
+
+The practical response to the rigid bar grid is documented in [Musical flow](MUSICAL_FLOW.md). Harmonic events have independently planned durations; instrument writers retain their own subdivision clocks. A held harmony need not restart a melody or drums. Dissonance can carry a destination, and a sustained note can change harmonic meaning.
+
+Phrase expression uses a bounded two-bar contour, connected durations and prepared/resolving non-chord tones. Answering parts consult actual lead occupancy. These mechanisms support flow; they do not establish that an output is compelling. Listening, selection and revision remain essential. Full tempo maps, instrument-specific transitions and editable long-form phrase intentions remain future work.
+
+## Composer 6: write for a pianist — R07, R06
+
+A piano lead need not be a one-finger melody. [Piano writing](PIANO_WRITING.md) adds quiet left-hand gestures and selected right-hand intervals/chords while retaining the original top line. Existing stride accompaniment supplies the left hand where present. Passing tones and expressive dissonances can remain single notes: two hands do not require every note to become a block chord. The per-layer switch preserves a deliberate single-line texture. This is an initial idiomatic writer, not a complete fingering or pedal model.
+
+## Composer 7: a drummer follows the phrase — R05, R06, R09
+
+[Drum expression](DRUM_EXPRESSION.md) separates small groove variations, landmark fills and performance touch. The kit shares a fill plan, leaves space for the player performing it and grows towards an arrival. Kick anchors preserve pulse while bounded snare/hat placement shapes the relationship between parts. These are contextual original templates, not measured drummer profiles; turning the controls down remains a valid aesthetic choice. Saved written scores retain their earlier performance.

@@ -36,3 +36,7 @@ is not promised. The procedural core and its golden output remain unchanged.
 
 See [API/design, asset terms and resource budgets](https://github.com/panoramicdata/PanoramicData.MusicGeneration/blob/main/docs/SOUNDFONTS.md)
 and the [same-score demonstration](https://music.panoramicdata.com/song?form=sections&sound=soundfont).
+
+## Live keyboard notes
+
+`renderer.CreateKeyboardVoice(program, midi, velocity, sampleRate)` starts a bank-0 note. Call `Render(sampleCount)` sequentially for small mono PCM blocks, then `Release()` when the key is lifted and keep rendering its release tail. Release is idempotent and uses the SF2 instrument's own note-off envelope; no per-block peak normalisation is applied. Each voice is independent, including repeated overlapping pitches. The caller owns scheduling, mixing and voice cleanup. The demo keyboard uses this path for held notes and piano damping; score rendering remains unchanged.

@@ -1,22 +1,9 @@
-let keyboardAudio;
-
-export async function enableKeyboardAudio() {
-	keyboardAudio ??= new AudioContext();
-	await keyboardAudio.resume();
+export async function copySongLink(url) {
+	await navigator.clipboard.writeText(url);
 }
 
-export async function playKeyboardSample(wav, attack, strength) {
-	await enableKeyboardAudio();
-	const buffer = await keyboardAudio.decodeAudioData(wav.slice().buffer);
-	const source = keyboardAudio.createBufferSource();
-	const gain = keyboardAudio.createGain();
-	source.buffer = buffer;
-	const now = keyboardAudio.currentTime;
-	gain.gain.setValueAtTime(0, now);
-	gain.gain.linearRampToValueAtTime(Math.max(0.02, strength) * 0.55, now + Math.max(0.002, attack));
-	source.connect(gain).connect(keyboardAudio.destination);
-	source.start(now);
-	source.onended = () => { source.disconnect(); gain.disconnect(); };
+export function selectSongLink() {
+	document.getElementById('song-link')?.select();
 }
 
 function database() {

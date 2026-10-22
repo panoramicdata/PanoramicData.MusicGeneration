@@ -32,6 +32,13 @@ internal static class StudioDocumentMigration
 		Add(settings, "ProgressionVariation", JsonValue.Create(0.35)!);
 		Add(settings, "SectionContrast", JsonValue.Create(1.0)!);
 		Add(settings, "IntroVariation", JsonValue.Create(0.65)!);
+		Add(settings, "HarmonicMovement", JsonValue.Create(0.0)!);
+		Add(settings, "ChromaticColour", JsonValue.Create(0.0)!);
+		Add(settings, "PhraseExpression", JsonValue.Create(0.0)!);
+		Add(settings, "AccompanimentVariation", JsonValue.Create(0.0)!);
+		Add(settings, "DrumVariation", JsonValue.Create(0.0)!);
+		Add(settings, "DrumFills", JsonValue.Create(0.0)!);
+		Add(settings, "DrumHumanity", JsonValue.Create(0.0)!);
 		Add(settings, "Endings", new JsonObject { ["Fade"] = 0.35, ["Cadence"] = 0.35, ["Tag"] = 0.2, ["Stop"] = 0.1 });
 		if (settings["Endings"] is JsonObject ending)
 		{
@@ -49,6 +56,7 @@ internal static class StudioDocumentMigration
 	private static void InstrumentDefaults(JsonNode? node)
 	{
 		if (node is not JsonObject instrument) { return; }
+		Add(instrument, "PianoTwoHands", JsonValue.Create(false)!);
 		Add(instrument, "Presence", new JsonObject
 		{
 			["Intro"] = 1,

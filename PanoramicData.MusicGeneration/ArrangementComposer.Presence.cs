@@ -17,11 +17,23 @@ public static partial class ArrangementComposer
 		Range(settings.ProgressionVariation, 0, 1, "Progression variation");
 		Range(settings.SectionContrast, 0, 1, "Section contrast");
 		Range(settings.IntroVariation, 0, 1, "Intro variation");
+		ValidateFlow(settings);
 		ArgumentNullException.ThrowIfNull(settings.Endings);
 		var weights = settings.Endings;
 		var values = new[] { weights.Fade, weights.Cadence, weights.Tag, weights.Stop };
 		foreach (var value in values) { Range(value, 0, 1, "Ending weight"); }
 		if (values.Sum() <= 0) { throw new ArgumentException("At least one ending weight must be positive."); }
+	}
+
+	private static void ValidateFlow(ArrangementSettings settings)
+	{
+		Range(settings.HarmonicMovement, 0, 1, "Harmonic movement");
+		Range(settings.ChromaticColour, 0, 1, "Chromatic colour");
+		Range(settings.PhraseExpression, 0, 1, "Phrase expression");
+		Range(settings.AccompanimentVariation, 0, 1, "Accompaniment variation");
+		Range(settings.DrumVariation, 0, 1, "Drum variation");
+		Range(settings.DrumFills, 0, 1, "Drum fills");
+		Range(settings.DrumHumanity, 0, 1, "Drum humanity");
 	}
 
 	private static void ValidatePresence(LayerPresence presence)
