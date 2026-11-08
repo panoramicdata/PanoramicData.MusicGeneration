@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../PanoramicData.MusicGeneration.SoundFonts/PanoramicData.MusicGeneration.SoundFonts.csproj" />
