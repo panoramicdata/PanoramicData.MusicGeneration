@@ -1,3 +1,5 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/grade/PanoramicData.MusicGeneration)](https://app.codacy.com/gh/panoramicdata/PanoramicData.MusicGeneration/dashboard)
+
 # PanoramicData.MusicGeneration
 
 [![NuGet](https://img.shields.io/nuget/v/PanoramicData.MusicGeneration.svg)](https://www.nuget.org/packages/PanoramicData.MusicGeneration)
