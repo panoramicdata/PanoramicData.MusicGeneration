@@ -88,7 +88,14 @@
 		if (renderer is null || module is null || keyboard is not null || connecting || disposed) { return; }
 		connecting = true;
 		callbacks = DotNetObjectReference.Create(this);
-		keyboard = await module.InvokeAsync<IJSObjectReference>("createKeyboard", keyboardElement, callbacks);
+		try
+		{
+			keyboard = await module.InvokeAsync<IJSObjectReference>("createKeyboard", keyboardElement, callbacks);
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is no keyboard to create.
+		}
 	}
 
 	[JSInvokable]
@@ -141,7 +148,19 @@
 	public async ValueTask DisposeAsync()
 	{
 		disposed = true;
-		if (keyboard is not null) { await keyboard.InvokeVoidAsync("dispose"); await keyboard.DisposeAsync(); }
+		if (keyboard is not null)
+		{
+			try
+			{
+				await keyboard.InvokeVoidAsync("dispose");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+
+			await keyboard.DisposeAsync();
+		}
 		voices.Clear();
 		callbacks?.Dispose();
 		if (module is not null) { await module.DisposeAsync(); }

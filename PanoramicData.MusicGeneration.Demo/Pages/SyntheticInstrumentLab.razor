@@ -83,7 +83,18 @@
 	public async ValueTask DisposeAsync()
 	{
 		if (audio is null) { return; }
-		if (url is not null) { await audio.InvokeVoidAsync("revokeAudioUrl", url); }
+		if (url is not null)
+		{
+			try
+			{
+				await audio.InvokeVoidAsync("revokeAudioUrl", url);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+		}
+
 		await audio.DisposeAsync();
 	}
 }

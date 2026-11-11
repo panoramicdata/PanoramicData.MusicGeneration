@@ -15,7 +15,17 @@ public partial class StudioPage
 	private bool sharingReady;
 
 	private void TitleChanged() { linkPending = true; notice = null; }
-	private async Task SelectSongLinkAsync() => await module!.InvokeVoidAsync("selectSongLink");
+	private async Task SelectSongLinkAsync()
+	{
+		try
+		{
+			await module!.InvokeVoidAsync("selectSongLink");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
+	}
 
 	private async Task InitialiseSharingAsync()
 	{
@@ -29,7 +39,18 @@ public partial class StudioPage
 		linkPending = false;
 		shareUrl = null;
 		shareError = null;
-		if (audioUrl is not null && musicModule is not null) { await musicModule.InvokeVoidAsync("revokeAudioUrl", audioUrl); }
+		if (audioUrl is not null && musicModule is not null)
+		{
+			try
+			{
+				await musicModule.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+		}
+
 		audioUrl = null;
 		score = null;
 		rendered = null;

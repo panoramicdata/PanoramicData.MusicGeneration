@@ -182,7 +182,18 @@
 	private bool ShowSpectrogram => visualizer == "spectrogram";
 	private string? busyMessage;
 
-	private async Task<IJSObjectReference> ModuleAsync() => module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+	private async Task<IJSObjectReference?> ModuleAsync()
+	{
+		try
+		{
+			return module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is no module to use.
+			return null;
+		}
+	}
 
 	private async Task RandomSeedAsync()
 	{
@@ -226,7 +237,6 @@
 		{
 			busy = false;
 			busyMessage = null;
-			StateHasChanged();
 		}
 	}
 
@@ -265,7 +275,19 @@
 		busyMessage = message;
 		StateHasChanged();
 		var js = await ModuleAsync();
-		await js.InvokeVoidAsync("nextPaint");
+		if (js is null)
+		{
+			return;
+		}
+
+		try
+		{
+			await js.InvokeVoidAsync("nextPaint");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	private async Task RemixAsync()
@@ -287,11 +309,23 @@
 		}
 		song = sourceSong with { Samples = samples, Notes = sourceSong.Notes.Where(n => active.Contains(n.Voice)).ToArray() };
 		var js = await ModuleAsync();
-		var previousUrl = audioUrl;
-		audioUrl = await js.InvokeAsync<string>("createAudioUrl", song.ToWav());
-		if (previousUrl is not null)
+		if (js is null)
 		{
-			await js.InvokeVoidAsync("revokeAudioUrl", previousUrl);
+			return;
+		}
+
+		var previousUrl = audioUrl;
+		try
+		{
+			audioUrl = await js.InvokeAsync<string>("createAudioUrl", song.ToWav());
+			if (previousUrl is not null)
+			{
+				await js.InvokeVoidAsync("revokeAudioUrl", previousUrl);
+			}
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
 		}
 	}
 
@@ -334,7 +368,14 @@
 		{
 			if (audioUrl is not null)
 			{
-				await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+				try
+				{
+					await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 			await module.DisposeAsync();
 		}

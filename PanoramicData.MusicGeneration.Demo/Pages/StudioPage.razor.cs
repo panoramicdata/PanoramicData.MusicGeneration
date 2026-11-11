@@ -170,7 +170,7 @@ public sealed partial class StudioPage
 		}
 		catch (OperationCanceledException) { }
 		catch (Exception ex) when (IsStudioError(ex)) { error = ex.Message; }
-		finally { busy = false; StateHasChanged(); }
+		finally { busy = false; }
 	}
 
 	private async Task RenderAsync(ArrangedScore written)
@@ -192,29 +192,52 @@ public sealed partial class StudioPage
 			throw new InvalidDataException("The installed SoundFont bank differs from the shared-song playback version.");
 		}
 		await ProgressAsync("Preparing the player…");
-		musicModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
-		var next = await musicModule.InvokeAsync<string>("createAudioUrl", result.Song.ToWav());
-		var previous = audioUrl;
-		rendered = result; score = written; audioUrl = next;
-		renderSeconds = watch.Elapsed.TotalSeconds;
-		dirty = false;
-		linkPending = true;
-		if (previous is not null) { await musicModule.InvokeVoidAsync("revokeAudioUrl", previous); }
+		try
+		{
+			musicModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+			var next = await musicModule.InvokeAsync<string>("createAudioUrl", result.Song.ToWav());
+			var previous = audioUrl;
+			rendered = result; score = written; audioUrl = next;
+			renderSeconds = watch.Elapsed.TotalSeconds;
+			dirty = false;
+			linkPending = true;
+			if (previous is not null) { await musicModule.InvokeVoidAsync("revokeAudioUrl", previous); }
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to show.
+		}
 	}
 
 	private async Task ProgressAsync(string message)
 	{
 		status = message;
 		StateHasChanged();
-		musicModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
-		await musicModule.InvokeVoidAsync("nextPaint");
+		try
+		{
+			musicModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+			await musicModule.InvokeVoidAsync("nextPaint");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
+			try
+			{
+				module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/studio.js");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+				return;
+			}
+
 			await RefreshSavedAsync();
 			await InitialiseSharingAsync();
 		}
@@ -231,7 +254,18 @@ public sealed partial class StudioPage
 		callback?.Dispose();
 		if (musicModule is not null)
 		{
-			if (audioUrl is not null) { await musicModule.InvokeVoidAsync("revokeAudioUrl", audioUrl); }
+			if (audioUrl is not null)
+			{
+				try
+				{
+					await musicModule.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
+			}
+
 			await musicModule.DisposeAsync();
 		}
 		if (module is not null) { await module.DisposeAsync(); }

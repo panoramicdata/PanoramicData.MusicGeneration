@@ -112,7 +112,17 @@ public partial class StudioPage
 
 	private async Task DeleteAsync(string id)
 	{
-		if (!await JS.InvokeAsync<bool>("confirm", "Delete this song from this browser? Export a song JSON backup first if you want to keep it.")) { return; }
+		var confirmed = false;
+		try
+		{
+			confirmed = await JS.InvokeAsync<bool>("confirm", "Delete this song from this browser? Export a song JSON backup first if you want to keep it.");
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so nothing is deleted.
+		}
+
+		if (!confirmed) { return; }
 		try { await module!.InvokeVoidAsync("deleteSong", id); await RefreshSavedAsync(); }
 		catch (JSException ex) { error = ex.Message; }
 	}
@@ -120,7 +130,17 @@ public partial class StudioPage
 	private string FileName(string extension) => (string.IsNullOrWhiteSpace(title) ? "song" : title) + extension;
 	private async Task DownloadWavAsync()
 	{
-		if (rendered is not null) { await module!.InvokeVoidAsync("download", rendered.Song.ToWav(), FileName(".wav"), "audio/wav"); }
+		if (rendered is not null)
+		{
+			try
+			{
+				await module!.InvokeVoidAsync("download", rendered.Song.ToWav(), FileName(".wav"), "audio/wav");
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit is gone, so there is nothing left to do.
+			}
+		}
 	}
 
 	private async Task DownloadMp3Async()

@@ -129,12 +129,19 @@
 			samples[i] = (float)(0.4 * envelope * sum);
 		}
 
-		module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
-		if (audioUrl is not null)
+		try
 		{
-			await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+			module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/music.js");
+			if (audioUrl is not null)
+			{
+				await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+			}
+			audioUrl = await module.InvokeAsync<string>("createAudioUrl", WavEncoder.Encode(samples, rate));
 		}
-		audioUrl = await module.InvokeAsync<string>("createAudioUrl", WavEncoder.Encode(samples, rate));
+		catch (JSDisconnectedException)
+		{
+			// The circuit is gone, so there is nothing left to do.
+		}
 	}
 
 	public async ValueTask DisposeAsync()
@@ -143,7 +150,14 @@
 		{
 			if (audioUrl is not null)
 			{
-				await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+				try
+				{
+					await module.InvokeVoidAsync("revokeAudioUrl", audioUrl);
+				}
+				catch (JSDisconnectedException)
+				{
+					// The circuit is gone, so there is nothing left to do.
+				}
 			}
 			await module.DisposeAsync();
 		}
