@@ -4,10 +4,12 @@
 
 [![NuGet](https://img.shields.io/nuget/v/PanoramicData.MusicGeneration.svg)](https://www.nuget.org/packages/PanoramicData.MusicGeneration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
+[![.NET 11.0](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![CI](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml/badge.svg)](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml)
 
 Deterministic, seeded music generation for .NET. A **seed** becomes a whole song: a key and scale, a tempo, a new chord every bar, a bass line, a tune with optional recurring sections, and a drum pattern, rendered to PCM. It also hands back **the list of notes it played**, so you can score a pitch tracker, an onset detector or a fingerprinting library against the truth.
+
+Supports .NET 11.0.
 
 - **Reproducible for ever.** The same seed, length, sample rate and style give the same song on any machine and any .NET version: the library carries its own random number generator (PCG32) and its own bit-exact sine.
 - **Varied.** Tempo, key, scale, harmony, melody, drum pattern, timbre, tuning and lead-in all come from the seed. The default free-running mode avoids exact loops; opt into a form for returning verses and choruses.
@@ -25,7 +27,7 @@ Deterministic, seeded music generation for .NET. A **seed** becomes a whole song
 dotnet add package PanoramicData.MusicGeneration
 ```
 
-Targets .NET 10. Sampled rendering is available in the separate `PanoramicData.MusicGeneration.SoundFonts` NuGet package. See the [SoundFont guide](docs/SOUNDFONTS.md) and [arrangement studio](docs/STUDIO.md).
+Targets .NET 11.0. Sampled rendering is available in the separate `PanoramicData.MusicGeneration.SoundFonts` NuGet package. See the [SoundFont guide](docs/SOUNDFONTS.md) and [arrangement studio](docs/STUDIO.md).
 
 ## Quick start
 

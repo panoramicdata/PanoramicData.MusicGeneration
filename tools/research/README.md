@@ -1,6 +1,6 @@
 # Reproducible MIDI and timbre comparisons
 
-Run from the repository root with .NET 10 and Python 3.12. Python dependencies are for these research tools only, not the NuGets or browser app. Use a virtual environment and install `tools/research/requirements.txt`.
+Run from the repository root with .NET 11.0 and Python 3.12. Python dependencies are for these research tools only, not the NuGets or browser app. Use a virtual environment and install `tools/research/requirements.txt`.
 
 ```powershell
 python -m venv temp/research-env
