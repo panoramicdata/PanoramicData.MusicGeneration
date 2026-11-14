@@ -4,7 +4,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/PanoramicData.MusicGeneration.svg)](https://www.nuget.org/packages/PanoramicData.MusicGeneration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET 11.0](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
+[![.NET 11.0](https://img.shields.io/badge/.NET-11.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![CI](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml/badge.svg)](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml)
 
 > **Need help with APIs or .NET?** Panoramic Data are experts in APIs and .NET, and we can help with your development. [Contact us](https://www.panoramicdata.com/contact-us) or see our [software services](https://www.panoramicdata.com/services/software).
