@@ -7,6 +7,8 @@
 [![.NET 11.0](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![CI](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml/badge.svg)](https://github.com/panoramicdata/PanoramicData.MusicGeneration/actions/workflows/ci.yml)
 
+> **Need help with APIs or .NET?** Panoramic Data are experts in APIs and .NET, and we can help with your development. [Contact us](https://www.panoramicdata.com/contact-us) or see our [software services](https://www.panoramicdata.com/services/software).
+
 Deterministic, seeded music generation for .NET. A **seed** becomes a whole song: a key and scale, a tempo, a new chord every bar, a bass line, a tune with optional recurring sections, and a drum pattern, rendered to PCM. It also hands back **the list of notes it played**, so you can score a pitch tracker, an onset detector or a fingerprinting library against the truth.
 
 Supports .NET 11.0.
