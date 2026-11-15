@@ -1,8 +1,8 @@
 namespace PanoramicData.MusicGeneration.SoundFonts;
 
-public sealed partial class SoundFontRenderer
+internal static class LayeredScoreValidator
 {
-	private static void ValidateScore(ArrangedScore score, int rate)
+	internal static void Validate(ArrangedScore score, int rate)
 	{
 		ArgumentNullException.ThrowIfNull(score);
 		ArrangementComposer.Validate(score.Settings);
@@ -83,7 +83,7 @@ public sealed partial class SoundFontRenderer
 		}
 		foreach (var note in track.Notes)
 		{
-			ValidateNote(note);
+			SoundFontRenderer.ValidateNote(note);
 			ValidateLayerNote(score, track.Instrument, note);
 		}
 	}

@@ -47,7 +47,7 @@ internal static class ArrangementEndingRenderer
 	private static void ValidateEndingPlan(EndingPlan ending, double duration)
 	{
 		if (!Enum.IsDefined(ending.Kind)) { throw new ArgumentException("Unknown ending type.", nameof(ending)); }
-		SoundFontRenderer.ValidateMarker(ending.StartSeconds, ending.EndSeconds, duration);
+		LayeredScoreValidator.ValidateMarker(ending.StartSeconds, ending.EndSeconds, duration);
 		if (!double.IsFinite(ending.ReleaseSeconds) || ending.ReleaseSeconds is < 0 or > 2)
 		{
 			throw new ArgumentException("Invalid ending release duration.", nameof(ending));

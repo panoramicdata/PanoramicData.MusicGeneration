@@ -20,7 +20,7 @@ public sealed partial class SoundFontRenderer
 	public async Task<LayeredRenderResult> RenderScoreAsync(ArrangedScore score, int sampleRate,
 		Func<LayerRenderProgress, Task>? progress, CancellationToken cancellationToken)
 	{
-		ValidateScore(score, sampleRate);
+		LayeredScoreValidator.Validate(score, sampleRate);
 		var info = new SongInfo(score.Settings.Seed, score.Settings.Tempo, score.Settings.Minor ? "Minor" : "Major", 36 + score.Settings.Key, 0, 0);
 		var frames = checked((int)Math.Round(ArrangementEndingRenderer.Duration(score) * sampleRate));
 		var mix = new double[frames];
