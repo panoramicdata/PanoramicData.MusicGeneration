@@ -1,11 +1,11 @@
 """Measure local reference MIDIs and exported arrangements; never publishes reference notes."""
 
-import argparse
 import json
 from pathlib import Path
 
-from midi_features import features, read_midi
-from research_io import load_reference
+from midi_features import features
+from midi_reader import read_midi
+from research_io import load_reference, research_arguments
 
 
 def generated(path):
@@ -44,17 +44,7 @@ def generated(path):
 
 
 def main():
-	parser = argparse.ArgumentParser(description=__doc__)
-	parser.add_argument("--input", type=Path, default=Path("temp/score-research"))
-	parser.add_argument("--output", type=Path, default=Path("docs/research"))
-	parser.add_argument(
-		"--download",
-		action="store_true",
-		help="Fetch the exact public URLs in the manifest; raw files stay local",
-	)
-	args = parser.parse_args()
-	args.input.mkdir(parents=True, exist_ok=True)
-	args.output.mkdir(parents=True, exist_ok=True)
+	args = research_arguments(__doc__)
 	manifest = json.loads(
 		Path(__file__).with_name("midi-sources.json").read_text(encoding="utf-8")
 	)

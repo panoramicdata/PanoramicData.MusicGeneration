@@ -1,6 +1,8 @@
 """Fetch only the declared HTTPS research hosts and verify exact input hashes."""
 
+import argparse
 import hashlib
+from pathlib import Path
 from urllib.parse import urlsplit
 
 import requests
@@ -45,3 +47,18 @@ def load_reference(path, source, download=False):
 	if hashlib.sha256(path.read_bytes()).hexdigest() != source["sha256"]:
 		raise ValueError(f"Reference changed: {path}")
 	return path
+
+
+def research_arguments(description):
+	parser = argparse.ArgumentParser(description=description)
+	parser.add_argument("--input", type=Path, default=Path("temp/score-research"))
+	parser.add_argument("--output", type=Path, default=Path("docs/research"))
+	parser.add_argument(
+		"--download",
+		action="store_true",
+		help="Fetch the exact public URLs in the manifest; raw files stay local",
+	)
+	args = parser.parse_args()
+	args.input.mkdir(parents=True, exist_ok=True)
+	args.output.mkdir(parents=True, exist_ok=True)
+	return args
