@@ -1,13 +1,12 @@
 """Compare measured orchestral notes with generated and sampled notes, on one scale."""
 
-import argparse
 import json
 from pathlib import Path
 
 import matplotlib
 import numpy as np
 import soundfile as sf
-from research_io import load_reference
+from research_io import load_reference, research_arguments
 from scipy import signal
 from scipy.ndimage import binary_closing
 
@@ -145,13 +144,7 @@ def compare_pitch(args, sources, midi, segment):
 
 
 def main():
-	parser = argparse.ArgumentParser(description=__doc__)
-	parser.add_argument("--input", type=Path, default=Path("temp/score-research"))
-	parser.add_argument("--output", type=Path, default=Path("docs/research"))
-	parser.add_argument("--download", action="store_true")
-	args = parser.parse_args()
-	args.input.mkdir(exist_ok=True, parents=True)
-	args.output.mkdir(exist_ok=True, parents=True)
+	args = research_arguments(__doc__)
 	sources = json.loads(
 		Path(__file__).with_name("instrument-sources.json").read_text(encoding="utf-8")
 	)

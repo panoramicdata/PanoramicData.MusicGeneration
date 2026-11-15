@@ -121,7 +121,7 @@ public sealed partial class SoundFontRenderer
 		}
 	}
 
-	private static void ValidateNote(NoteEvent note)
+	internal static void ValidateNote(NoteEvent note)
 	{
 		if (!Enum.IsDefined(note.Voice) || note.MidiNote is < 0 or > 127 || !double.IsFinite(note.StartSeconds)
 			|| !double.IsFinite(note.DurationSeconds) || note.StartSeconds < 0 || note.DurationSeconds <= 0)

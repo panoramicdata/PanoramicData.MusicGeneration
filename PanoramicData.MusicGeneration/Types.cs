@@ -188,19 +188,34 @@ public sealed record SongStyle
 	/// <exception cref="ArgumentException">A value is out of range.</exception>
 	public void Validate()
 	{
+		ValidateRanges();
+		ValidatePad();
+		ValidateVibrato();
+		Require(MaxDetuneCents is >= 0 and <= 50, nameof(MaxDetuneCents), "detune must be 0 to 50 cents");
+		Form?.Validate();
+	}
+
+	private void ValidateRanges()
+	{
 		Require(MinTempoBpm is >= 30 and <= 300 && MaxTempoBpm >= MinTempoBpm && MaxTempoBpm <= 300, nameof(MaxTempoBpm), "tempo range must lie between 30 and 300 bpm and not be inverted");
 		Require(Scales is { Count: > 0 }, nameof(Scales), "needs at least one scale");
 		Require(RootMidiLow is >= 12 and <= 72 && RootMidiHigh >= RootMidiLow && RootMidiHigh <= 72, nameof(RootMidiHigh), "root range must lie between MIDI 12 and 72 and not be inverted");
 		Require(MelodyLowMidi is >= 24 and <= 108 && MelodyHighMidi >= MelodyLowMidi + 12 && MelodyHighMidi <= 108, nameof(MelodyHighMidi), "melody range must lie between MIDI 24 and 108 and span at least an octave");
+	}
+
+	private void ValidatePad()
+	{
 		Require(PadOctaveOffset is >= -2 and <= 3, nameof(PadOctaveOffset), "pad octave offset must be -2 to 3");
 		Require(double.IsFinite(PadLevel) && PadLevel is >= 0 and <= 0.2, nameof(PadLevel), "pad level must be 0 to 0.2");
 		Require(double.IsFinite(PadAttackSeconds) && PadAttackSeconds is > 0 and <= 5, nameof(PadAttackSeconds), "pad attack must be positive and at most 5 seconds");
+	}
+
+	private void ValidateVibrato()
+	{
 		Require(double.IsFinite(VibratoDepth) && VibratoDepth is >= 0 and <= 0.01, nameof(VibratoDepth), "vibrato depth must be 0 to 0.01");
 		Require(double.IsFinite(VibratoMinHz) && double.IsFinite(VibratoMaxHz) && VibratoMinHz >= 0 && VibratoMaxHz >= VibratoMinHz && VibratoMaxHz <= 20, nameof(VibratoMaxHz), "vibrato rates must be 0 to 20 Hz and not inverted");
 		Require(double.IsFinite(VibratoDelaySeconds) && VibratoDelaySeconds is >= 0 and <= 5, nameof(VibratoDelaySeconds), "vibrato delay must be 0 to 5 seconds");
 		Require(double.IsFinite(VibratoRampSeconds) && VibratoRampSeconds is > 0 and <= 5, nameof(VibratoRampSeconds), "vibrato ramp must be positive and at most 5 seconds");
-		Require(MaxDetuneCents is >= 0 and <= 50, nameof(MaxDetuneCents), "detune must be 0 to 50 cents");
-		Form?.Validate();
 	}
 
 	private static void Require(bool condition, string name, string message)
