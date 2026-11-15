@@ -42,55 +42,56 @@ Path(__file__).with_name("fitted-profiles.json").write_text(
 	json.dumps(rows, indent="\t") + "\n", encoding="utf-8"
 )
 
-text = """namespace PanoramicData.MusicGeneration;
+text = """using System.Collections.ObjectModel;
+using System.Globalization;
+
+namespace PanoramicData.MusicGeneration;
 
 /// <summary>Experimental Iowa MIS spectral fits. No recorded PCM is included; see docs/SCORE_AND_TIMBRE_STUDY.md.</summary>
 public static class OrchestralTimbres
 {
 """
+SETTINGS = {
+	"flute": ("0.18", "0.025", "5"),
+	"violin": ("0.37", "0.04", "12"),
+	"trumpet": ("0.28", "0.015", "5"),
+}
 for row in rows:
 	name = row["name"]
-	first = row["anchors"][0]
+	attack, noise, vibrato = SETTINGS[name]
 	text += f"\t/// <summary>{name.title()} spectral anchors C5/E5/G5/B5; pitches outside this range clamp to the nearest spectrum.</summary>\n"
-	text += f'\tpublic static OrchestralTimbre {name.title()} {{ get; }} = new()\n\t{{\n\t\tName = "Experimental {name} v1",\n'
-	for field, key in [("AttackSpectrum", "attack"), ("SustainSpectrum", "sustain")]:
-		text += (
-			"\t\t"
-			+ field
-			+ " = Array.AsReadOnly<double>(["
-			+ ", ".join(str(x) for x in first[key])
-			+ "]),\n"
-		)
-	text += "\t\tRegisterSpectra = Array.AsReadOnly<OrchestralRegister>(\n\t\t[\n"
+	text += f'\tpublic static OrchestralTimbre {name.title()} {{ get; }} = Create("Experimental {name} v1", {attack}, {noise}, {vibrato},\n'
+	rows_text = []
 	for anchor in row["anchors"]:
-		text += f"\t\t\tnew({anchor['midi']},\n"
-		text += (
-			"\t\t\t\tArray.AsReadOnly<double>(["
-			+ ", ".join(str(x) for x in anchor["attack"])
-			+ "]),\n"
-		)
-		text += (
-			"\t\t\t\tArray.AsReadOnly<double>(["
-			+ ", ".join(str(x) for x in anchor["sustain"])
-			+ "])),\n"
-		)
-	text += "\t\t]),\n"
-	text += (
-		"\t\tAttackSeconds = "
-		+ str({"flute": 0.18, "violin": 0.37, "trumpet": 0.28}[name])
-		+ ",\n"
-	)
-	text += (
-		"\t\tNoiseLevel = "
-		+ str({"flute": 0.025, "violin": 0.04, "trumpet": 0.015}[name])
-		+ ",\n"
-	)
-	text += (
-		"\t\tVibratoCents = "
-		+ str({"flute": 5, "violin": 12, "trumpet": 5}[name])
-		+ "\n\t};\n\n"
-	)
-text += "}\n"
+		attack_text = ",".join(str(x) for x in anchor["attack"])
+		sustain_text = ",".join(str(x) for x in anchor["sustain"])
+		rows_text.append(f'\t\t"{anchor["midi"]};{attack_text};{sustain_text}"')
+	text += ",\n".join(rows_text) + ");\n\n"
+text += """	private static OrchestralTimbre Create(string name, double attackSeconds, double noiseLevel, double vibratoCents, params string[] registerRows)
+	{
+		var registers = registerRows.Select(ParseRegister).ToArray();
+		return new OrchestralTimbre
+		{
+			Name = name,
+			AttackSpectrum = registers[0].AttackSpectrum,
+			SustainSpectrum = registers[0].SustainSpectrum,
+			RegisterSpectra = Array.AsReadOnly(registers),
+			AttackSeconds = attackSeconds,
+			NoiseLevel = noiseLevel,
+			VibratoCents = vibratoCents
+		};
+	}
+
+	private static OrchestralRegister ParseRegister(string row)
+	{
+		var parts = row.Split(';');
+		return new OrchestralRegister(int.Parse(parts[0], CultureInfo.InvariantCulture), ParseSpectrum(parts[1]), ParseSpectrum(parts[2]));
+	}
+
+	private static ReadOnlyCollection<double> ParseSpectrum(string values)
+		=> Array.AsReadOnly(values.Split(',').Select(v => double.Parse(v, CultureInfo.InvariantCulture)).ToArray());
+}
+"""
 with Path("PanoramicData.MusicGeneration/OrchestralTimbres.cs").open(
 	"w", encoding="utf-8", newline="\r\n"
 ) as output:
