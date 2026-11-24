@@ -1,4 +1,4 @@
-[![Codacy Badge](https://app.codacy.com/project/badge/grade/PanoramicData.MusicGeneration)](https://app.codacy.com/gh/panoramicdata/PanoramicData.MusicGeneration/dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/629fdcda11424b29b6bf1b8e5ed9ef1d)](https://app.codacy.com/gh/panoramicdata/PanoramicData.MusicGeneration/dashboard)
 
 # PanoramicData.MusicGeneration
 
