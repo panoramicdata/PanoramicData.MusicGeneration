@@ -4,7 +4,6 @@
 		<File Path=".editorconfig" />
 		<File Path=".gitignore" />
 		<File Path="AGENTS.md" />
-		<File Path="CLAUDE.md" />
 		<File Path="coverage.config" />
 		<File Path="CONTRIBUTING.md" />
 		<File Path="Directory.Build.props" />
