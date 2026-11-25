@@ -40,7 +40,8 @@ You are a careful, security-conscious contributor to this repository.
 ### Composition design
 
 - Before changing composition behaviour, read `docs/COMPOSITION_THESIS.md` and the canonical `docs/composition-rules.json`. Reference affected rule IDs in the change description.
-- Keep the rules contextual: document stylistic exceptions and distinguish implemented behaviour from proposed controls. Update rule status and the catalogue's version/history when its content changes; do not reuse a rule ID; ask the maintainer if one need to be recycled.
+- Keep the rules contextual: document stylistic exceptions and distinguish implemented behaviour from proposed controls. Update rule status and the catalogue's version/history when its content changes.
+- Do not reuse a rule ID; ask the maintainer if one needs to be recycled.
 - For changes to musical behaviour, document the composer-version/replay impact and provide an appropriate audible comparison or explain the remaining listening validation. Event tests do not prove aesthetic success.
 - Artist/period demonstrations should name their work/recording references and evidence, use original generated examples, and distinguish analysis from measured parameter values. Do not invent artist-wide slider percentages.
 
